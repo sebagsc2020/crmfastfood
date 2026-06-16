@@ -121,10 +121,7 @@
     <div id="view-admin" class="container mx-auto px-4 py-8 hidden fade-in">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
             <h2 class="text-3xl font-bold text-gray-800"><i class="fas fa-chart-line text-orange-600"></i> Panel de Pedidos</h2>
-            <div class="flex gap-2">
-                <button onclick="debugData()" class="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition shadow text-sm"><i class="fas fa-bug"></i> Debug</button>
-                <button onclick="loadPedidos()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition shadow"><i class="fas fa-sync"></i> Actualizar</button>
-            </div>
+            <button onclick="loadPedidos()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition shadow"><i class="fas fa-sync"></i> Actualizar</button>
         </div>
         <div class="flex space-x-6 mb-6 border-b border-gray-300">
             <button onclick="showAdminTab('pedidos')" id="tab-pedidos" class="pb-2 border-b-2 border-orange-600 font-bold text-orange-600 transition">Pedidos Activos</button>
@@ -269,9 +266,7 @@
             input.value = val;
         }
 
-        function filterMenu(cat) { 
-            renderMenu(cat); 
-        }
+        function filterMenu(cat) { renderMenu(cat); }
 
         function addToCart(id) {
             const prod = productos.find(p => p.id === id);
@@ -295,17 +290,11 @@
             if (existingIndex > -1) {
                 cart[existingIndex].cantidad += qty;
             } else {
-                cart.push({ 
-                    ...prod, 
-                    opcionSeleccionada: opcion, 
-                    aderezo: aderezo, 
-                    cantidad: qty 
-                });
+                cart.push({ ...prod, opcionSeleccionada: opcion, aderezo: aderezo, cantidad: qty });
             }
             
             updateCartUI();
             
-            // Feedback visual
             const btn = event.target;
             if (btn && btn.tagName === 'BUTTON') {
                 const originalText = btn.innerHTML;
@@ -353,19 +342,13 @@
             
             container.innerHTML = html;
             document.getElementById('cart-total').innerText = new Intl.NumberFormat('es-AR', { 
-                style: 'currency', 
-                currency: 'ARS' 
+                style: 'currency', currency: 'ARS' 
             }).format(total);
         }
 
-        function removeFromCart(index) { 
-            cart.splice(index, 1); 
-            updateCartUI(); 
-        }
+        function removeFromCart(index) { cart.splice(index, 1); updateCartUI(); }
         
-        function toggleCart() { 
-            document.getElementById('cart-modal').classList.toggle('hidden'); 
-        }
+        function toggleCart() { document.getElementById('cart-modal').classList.toggle('hidden'); }
         
         function toggleDireccion(mostrar) {
             const campo = document.getElementById('campo-direccion');
@@ -382,20 +365,14 @@
 
         function processOrder(e) {
             e.preventDefault();
-            if (cart.length === 0) {
-                alert('El carrito está vacío');
-                return;
-            }
+            if (cart.length === 0) return alert('El carrito está vacío');
             
             const nombre = document.getElementById('cliente-nombre').value.trim();
             const telefono = document.getElementById('cliente-telefono').value.trim();
             const tipo = document.querySelector('input[name="tipoEntrega"]:checked').value;
             const direccion = tipo === 'Envio' ? document.getElementById('cliente-direccion').value.trim() : 'Retiro en Local';
             
-            if (!nombre || !telefono) {
-                alert('Completa tu nombre y teléfono');
-                return;
-            }
+            if (!nombre || !telefono) return alert('Completa tu nombre y teléfono');
             
             let detalleComida = cart.map(i => { 
                 let desc = `• ${i.cantidad}x ${i.nombre} (${i.opcionSeleccionada})`; 
@@ -403,7 +380,6 @@
                 return desc; 
             }).join('\n');
             
-            const detalleFinal = detalleComida;
             const total = cart.reduce((sum, i) => sum + (i.precio * i.cantidad), 0);
 
             const btn = e.target.querySelector('button[type="submit"]');
@@ -419,7 +395,7 @@
                     telefono: telefono, 
                     direccion: direccion, 
                     tipo: tipo, 
-                    detalle: detalleFinal, 
+                    detalle: detalleComida, 
                     total: total 
                 }) 
             })
@@ -427,23 +403,14 @@
             .then(data => {
                 if(data.status === 'success') {
                     alert('¡Pedido enviado con éxito! ID: ' + data.id);
-                    cart = []; 
-                    updateCartUI(); 
-                    toggleCart(); 
-                    e.target.reset(); 
-                    toggleDireccion(false);
+                    cart = []; updateCartUI(); toggleCart(); 
+                    e.target.reset(); toggleDireccion(false);
                 } else {
-                    alert('Error: ' + (data.message || 'No se pudo procesar el pedido'));
+                    alert('Error: ' + (data.message || 'No se pudo procesar'));
                 }
             })
-            .catch(err => { 
-                console.error(err); 
-                alert('Error de conexión. Revisa la consola.'); 
-            })
-            .finally(() => { 
-                btn.innerHTML = originalText; 
-                btn.disabled = false; 
-            });
+            .catch(err => { console.error(err); alert('Error de conexión'); })
+            .finally(() => { btn.innerHTML = originalText; btn.disabled = false; });
         }
 
         function formatDetalleToHTML(detalleString) {
@@ -451,7 +418,7 @@
                 return '<p class="text-gray-500 text-sm italic">Sin detalle disponible</p>';
             }
             const lines = detalleString.toString().split('\n').filter(line => line.trim() !== '');
-            if (lines.length === 0) return '<p class="text-gray-500 text-sm italic">Sin detalle disponible</p>';
+            if (lines.length === 0) return '<p class="text-gray-500 text-sm italic">Sin detalle</p>';
             return `<ul class="list-disc list-inside space-y-1 text-gray-700">${lines.map(line => `<li class="text-sm">${line.replace(/^•\s*/, '')}</li>`).join('')}</ul>`;
         }
 
@@ -468,49 +435,12 @@
             }
         }
 
-        // Función de debug para ver qué datos llegan
-        function debugData() {
-            const container = document.getElementById('admin-pedidos');
-            container.innerHTML = '<div class="text-center py-10"><i class="fas fa-spinner fa-spin text-3xl text-yellow-600"></i><p>Analizando datos...</p></div>';
-            
-            fetch(`${API_URL}?action=getPedidos`)
-                .then(res => res.json())
-                .then(pedidos => {
-                    if (pedidos.length === 0) {
-                        container.innerHTML = '<div class="bg-yellow-50 p-6 rounded-xl"><h3 class="font-bold text-yellow-800">Sin pedidos</h3><p>No hay datos para analizar</p></div>';
-                        return;
-                    }
-                    
-                    const primerPedido = pedidos[0];
-                    let html = '<div class="bg-white p-6 rounded-xl shadow"><h3 class="font-bold text-lg mb-4">🔍 Estructura de datos del primer pedido:</h3>';
-                    html += '<table class="w-full border"><thead><tr class="bg-gray-100"><th class="p-2 border text-left">Campo</th><th class="p-2 border text-left">Valor</th><th class="p-2 border text-left">Tipo</th></tr></thead><tbody>';
-                    
-                    for (const [key, value] of Object.entries(primerPedido)) {
-                        html += `<tr>
-                            <td class="p-2 border font-mono text-sm">${key}</td>
-                            <td class="p-2 border">${value !== null && value !== undefined ? value.toString().substring(0, 100) : 'null'}</td>
-                            <td class="p-2 border text-sm">${typeof value}</td>
-                        </tr>`;
-                    }
-                    
-                    html += '</tbody></table>';
-                    html += '<p class="mt-4 text-sm text-gray-600">📌 Busca los campos que contienen el detalle (columna G) y el total (columna H).</p>';
-                    html += '<p class="text-sm text-gray-600">Los nombres exactos de los campos son los que aparecen en la columna "Campo".</p>';
-                    html += '</div>';
-                    
-                    container.innerHTML = html;
-                })
-                .catch(err => {
-                    container.innerHTML = `<div class="bg-red-50 p-6 rounded-xl"><h3 class="font-bold text-red-800">Error</h3><p>${err.message}</p></div>`;
-                });
-        }
-
         function loadPedidos() {
             const container = document.getElementById('admin-pedidos');
             container.innerHTML = '<div class="text-center py-10"><i class="fas fa-spinner fa-spin text-3xl text-orange-600"></i><p class="mt-2 text-gray-500">Cargando pedidos...</p></div>';
 
             if (!API_URL || API_URL === 'PEGA_AQUI_TU_URL_DE_APPS_SCRIPT') {
-                container.innerHTML = '<div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg"><h3 class="text-red-800 font-bold text-lg mb-2"><i class="fas fa-exclamation-triangle"></i> Error de Configuración</h3><p class="text-red-700 mb-4">Debes configurar la URL de Google Apps Script.</p></div>';
+                container.innerHTML = '<div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg"><h3 class="text-red-800 font-bold text-lg">Error de Configuración</h3><p class="text-red-700">Configura la URL de Google Apps Script.</p></div>';
                 return;
             }
 
@@ -522,22 +452,27 @@
                 })
                 .then(res => res.json())
                 .then(pedidos => {
+                    // Mostrar en consola para verificar
+                    console.log('📦 Pedidos recibidos:', pedidos);
+                    if (pedidos.length > 0) {
+                        console.log('🔑 Campos del primer pedido:', Object.keys(pedidos[0]));
+                        console.log('📝 Primer pedido completo:', pedidos[0]);
+                    }
+                    
                     container.innerHTML = '';
                     if (pedidos.length === 0) {
                         container.innerHTML = '<div class="text-center text-gray-500 bg-white p-10 rounded-xl shadow">No hay pedidos activos.</div>';
                         return;
                     }
 
-                    // Mostrar primer pedido en consola para debug
-                    console.log('Primer pedido:', pedidos[0]);
-                    console.log('Campos disponibles:', Object.keys(pedidos[0]));
-
                     const estadoPrioridad = { 'Pendiente': 1, 'En Preparación': 2, 'En Camino': 3, 'Entregado': 4 };
                     pedidos.sort((a, b) => {
-                        const prioA = estadoPrioridad[a.Estado] || 5;
-                        const prioB = estadoPrioridad[b.Estado] || 5;
+                        const estadoA = a.Estado || a.estado || '';
+                        const estadoB = b.Estado || b.estado || '';
+                        const prioA = estadoPrioridad[estadoA] || 5;
+                        const prioB = estadoPrioridad[estadoB] || 5;
                         if (prioA !== prioB) return prioA - prioB;
-                        return new Date(b.Fecha) - new Date(a.Fecha);
+                        return new Date(b.Fecha || b.fecha) - new Date(a.Fecha || a.fecha);
                     });
 
                     let tableHTML = `
@@ -546,6 +481,7 @@
                                 <thead>
                                     <tr>
                                         <th>ID</th>
+                                        <th>Fecha</th>
                                         <th>Cliente</th>
                                         <th>Detalle</th>
                                         <th>Total</th>
@@ -556,37 +492,41 @@
                                 </thead>
                                 <tbody>`;
 
-                    pedidos.forEach(p => {
-                        // Obtener detalle - busca en TODAS las propiedades
-                        const detalle = p.Detalle || p.detalle || p.Productos || p.productos || 
-                                       p.Descripcion || p.descripcion || p.Pedido || p.pedido ||
-                                       p.Items || p.items || p.Contenido || p.contenido || 
-                                       p.DETALLE || p.PRODUCTOS || '';
+                    pedidos.forEach((p, index) => {
+                        // ACCEDER DIRECTO A LOS CAMPOS CON LOS NOMBRES EXACTOS
+                        const id = p.ID || p.id || `P-${index}`;
+                        const fecha = p.Fecha || p.fecha || '';
+                        const cliente = p.Cliente || p.cliente || 'Sin nombre';
+                        const telefono = p.Telefono || p.telefono || '';
+                        const detalle = p.Detalle || p.detalle || p.Productos || p.productos || '';
+                        const estado = p.Estado || p.estado || 'Pendiente';
+                        const repartidor = p.Repartidor || p.repartidor || 'Sin asignar';
+                        const tipoEntrega = p.TipoEntrega || p.tipoEntrega || '';
+                        const direccion = p.Direccion || p.direccion || '';
                         
-                        // Obtener total - busca en TODAS las propiedades
-                        let totalValor = p.Total || p.total || p.PrecioTotal || p.precioTotal || 
-                                        p.Monto || p.monto || p.Importe || p.importe ||
-                                        p.TOTAL || p.PRECIOTOTAL || p.MONTO || 0;
+                        // TOTAL: intentar múltiples formas
+                        let totalValor = 0;
+                        if (p.Total !== undefined && p.Total !== null && p.Total !== '') {
+                            totalValor = p.Total;
+                        } else if (p.total !== undefined && p.total !== null && p.total !== '') {
+                            totalValor = p.total;
+                        }
                         
-                        // Convertir a número
                         if (typeof totalValor === 'string') {
-                            totalValor = totalValor.replace(/[^\d,.-]/g, '').replace(',', '.');
-                            totalValor = parseFloat(totalValor);
+                            totalValor = parseFloat(totalValor.replace(/[^\d,.-]/g, '').replace(',', '.'));
                         }
                         if (isNaN(totalValor) || totalValor === null || totalValor === undefined) totalValor = 0;
                         
                         const totalARS = new Intl.NumberFormat('es-AR', { 
-                            style: 'currency', 
-                            currency: 'ARS',
-                            minimumFractionDigits: 2
+                            style: 'currency', currency: 'ARS' 
                         }).format(totalValor);
 
-                        const msg = `Hola ${p.Cliente || p.cliente}, te escribimos de FastFood Express.%0A%0A📦 *Tu Pedido ${p.ID || p.id}*%0A💰 Total: *${totalARS}*%0A📍 Estado: *${p.Estado || p.estado}*`;
-                        const waLink = `https://wa.me/${p.Telefono || p.telefono}?text=${msg}`;
+                        console.log(`🔍 Pedido ${id}: Detalle="${detalle}", Total=${totalValor}`);
+
+                        const msg = `Hola ${cliente}, te escribimos de FastFood Express.%0A%0A📦 *Pedido ${id}*%0A💰 Total: *${totalARS}*%0A📍 Estado: *${estado}*`;
+                        const waLink = `https://wa.me/${telefono}?text=${msg}`;
 
                         const detalleHTML = formatDetalleToHTML(detalle);
-                        const repartidorActual = p.Repartidor || p.repartidor || 'Sin asignar';
-                        const estado = p.Estado || p.estado || 'Pendiente';
 
                         let statusClass = 'status-pendiente';
                         if (estado === 'En Preparación') statusClass = 'status-preparacion';
@@ -595,25 +535,26 @@
 
                         tableHTML += `
                             <tr>
-                                <td class="font-bold text-gray-800">#${p.ID || p.id || '?'}</td>
+                                <td class="font-bold text-gray-800">#${id}</td>
+                                <td class="text-xs text-gray-500">${fecha}</td>
                                 <td>
-                                    <div class="font-semibold">${p.Cliente || p.cliente || 'Sin nombre'}</div>
-                                    <div class="text-xs text-gray-500">${p.Telefono || p.telefono || ''}</div>
+                                    <div class="font-semibold">${cliente}</div>
+                                    <div class="text-xs text-gray-500">${telefono}</div>
+                                    ${tipoEntrega ? `<div class="text-xs text-gray-400">${tipoEntrega}</div>` : ''}
                                 </td>
                                 <td>
-                                    <button onclick="toggleDetalle(this, 'detalle-${p.ID || p.id}')" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                    <button onclick="toggleDetalle(this, 'detalle-${id}')" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
                                         <i class="fas fa-eye mr-1"></i> Ver detalle
                                     </button>
-                                    <div id="detalle-${p.ID || p.id}" class="hidden mt-2 detalle-expand rounded-lg">
+                                    <div id="detalle-${id}" class="hidden mt-2 detalle-expand rounded-lg">
                                         ${detalleHTML}
-                                        <div class="mt-2 text-xs text-gray-400">Valor raw: ${detalle.toString().substring(0, 50)}</div>
                                     </div>
                                 </td>
                                 <td><span class="total-destacado">${totalARS}</span></td>
                                 <td><span class="status-badge ${statusClass}">${estado}</span></td>
                                 <td>
-                                    ${repartidorActual !== 'Sin asignar' 
-                                        ? `<i class="fas fa-motorcycle text-green-600 mr-1"></i>${repartidorActual}`
+                                    ${repartidor !== 'Sin asignar' 
+                                        ? `<i class="fas fa-motorcycle text-green-600 mr-1"></i>${repartidor}`
                                         : '<span class="text-gray-400 italic">Sin asignar</span>'}
                                 </td>
                                 <td>
@@ -621,7 +562,7 @@
                                         <a href="${waLink}" target="_blank" class="accion-btn btn-whatsapp text-center">
                                             <i class="fab fa-whatsapp"></i> WhatsApp
                                         </a>
-                                        <select onchange="updateStatus('${p.ID || p.id}', this.value)" class="border border-gray-300 rounded-lg px-2 py-1 text-xs">
+                                        <select onchange="updateStatus('${id}', this.value)" class="border border-gray-300 rounded-lg px-2 py-1 text-xs">
                                             <option value="">Estado...</option>
                                             <option value="Pendiente">Pendiente</option>
                                             <option value="En Preparación">En Preparación</option>
@@ -630,10 +571,10 @@
                                         </select>
                                         ${estado !== 'Entregado' ? `
                                         <div class="flex gap-1">
-                                            <select id="rep-${p.ID || p.id}" class="flex-1 border border-gray-300 rounded-lg px-2 py-1 text-xs">
+                                            <select id="rep-${id}" class="flex-1 border border-gray-300 rounded-lg px-2 py-1 text-xs">
                                                 <option value="">Repartidor...</option>
                                             </select>
-                                            <button onclick="assignDriver('${p.ID || p.id}')" class="accion-btn btn-asignar">✓</button>
+                                            <button onclick="assignDriver('${id}')" class="accion-btn btn-asignar">✓</button>
                                         </div>` : ''}
                                     </div>
                                 </td>
@@ -645,8 +586,8 @@
                     loadRepartidoresForSelect();
                 })
                 .catch(err => {
-                    console.error('Error:', err);
-                    container.innerHTML = `<div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg"><h3 class="text-red-800 font-bold text-lg"><i class="fas fa-exclamation-circle"></i> Error</h3><p>${err.message}</p></div>`;
+                    console.error('❌ Error:', err);
+                    container.innerHTML = `<div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg"><h3 class="text-red-800 font-bold text-lg">Error</h3><p>${err.message}</p></div>`;
                 });
         }
 
@@ -664,8 +605,7 @@
             const repartidor = select.value;
             if(!repartidor) return alert('Selecciona un repartidor');
             const btn = select.nextElementSibling;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; 
-            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; btn.disabled = true;
             fetch(API_URL, { 
                 method: 'POST', 
                 body: JSON.stringify({ 
@@ -675,15 +615,8 @@
                     repartidor: repartidor 
                 }) 
             })
-            .then(() => { 
-                alert('✅ Repartidor asignado'); 
-                loadPedidos(); 
-            })
-            .catch(() => { 
-                alert('Error al asignar'); 
-                btn.innerHTML = '✓'; 
-                btn.disabled = false; 
-            });
+            .then(() => { alert('✅ Repartidor asignado'); loadPedidos(); })
+            .catch(() => { alert('Error'); btn.innerHTML = '✓'; btn.disabled = false; });
         }
 
         function loadRepartidoresForSelect() {
@@ -692,8 +625,10 @@
                 select.innerHTML = '<option value="">Repartidor...</option>';
                 if (repartidoresDB && repartidoresDB.length > 0) {
                     repartidoresDB.forEach(r => {
-                        if(r.Estado === 'Disponible' || r.estado === 'Disponible') {
-                            select.innerHTML += `<option value="${r.Nombre || r.nombre}">${r.Nombre || r.nombre}</option>`;
+                        const nombre = r.Nombre || r.nombre || '';
+                        const estado = r.Estado || r.estado || '';
+                        if(nombre && estado === 'Disponible') {
+                            select.innerHTML += `<option value="${nombre}">${nombre}</option>`;
                         }
                     });
                 }
@@ -713,10 +648,10 @@
                         return; 
                     }
                     reps.forEach(r => {
-                        const id = r.ID || r.id;
-                        const nombre = r.Nombre || r.nombre;
-                        const telefono = r.Telefono || r.telefono;
-                        const estado = r.Estado || r.estado;
+                        const id = r.ID || r.id || '';
+                        const nombre = r.Nombre || r.nombre || '';
+                        const telefono = r.Telefono || r.telefono || '';
+                        const estado = r.Estado || r.estado || '';
                         
                         container.innerHTML += `
                         <div class="bg-white p-4 rounded-lg shadow border-l-4 ${estado === 'Disponible' ? 'border-green-500' : 'border-red-500'}">
@@ -730,9 +665,7 @@
                         </div>`;
                     });
                 })
-                .catch(err => {
-                    container.innerHTML = `<p class="text-red-500">Error: ${err.message}</p>`;
-                });
+                .catch(err => { container.innerHTML = `<p class="text-red-500">Error: ${err.message}</p>`; });
         }
 
         function editRepartidor(id, nombreActual, telefonoActual) {
@@ -751,10 +684,7 @@
                 }) 
             })
             .then(res => res.json())
-            .then(() => {
-                alert('Repartidor actualizado');
-                loadRepartidores();
-            });
+            .then(() => { alert('Repartidor actualizado'); loadRepartidores(); });
         }
 
         function deleteRepartidor(id) {
@@ -764,10 +694,7 @@
                 body: JSON.stringify({ action: 'borrarRepartidor', id: id }) 
             })
             .then(res => res.json())
-            .then(() => {
-                alert('Repartidor eliminado');
-                loadRepartidores();
-            });
+            .then(() => { alert('Repartidor eliminado'); loadRepartidores(); });
         }
 
         function addRepartidor(e) {
@@ -784,11 +711,7 @@
                 }) 
             })
             .then(res => res.json())
-            .then(() => { 
-                alert('Repartidor registrado'); 
-                e.target.reset(); 
-                loadRepartidores(); 
-            });
+            .then(() => { alert('Repartidor registrado'); e.target.reset(); loadRepartidores(); });
         }
 
         // Iniciar
