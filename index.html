@@ -67,10 +67,11 @@
             cursor: pointer;
             text-decoration: none;
             white-space: nowrap;
+            display: inline-block;
         }
-        .btn-whatsapp { background-color: #25D366; color: white; }
+        .btn-whatsapp { background-color: #25D366; color: white; border: none; }
         .btn-whatsapp:hover { background-color: #128C7E; }
-        .btn-asignar { background-color: #3B82F6; color: white; min-width: 32px; }
+        .btn-asignar { background-color: #3B82F6; color: white; border: none; min-width: 32px; }
         .btn-asignar:hover { background-color: #2563EB; }
         .detalle-expand {
             background-color: #f9fafb;
@@ -102,7 +103,6 @@
     </nav>
 
     <div id="view-cliente" class="container mx-auto px-4 py-8 fade-in">
-        <!-- Menú igual que antes -->
         <div class="text-center mb-10">
             <h2 class="text-4xl font-bold text-gray-800 mb-2">Nuestro Menú</h2>
             <p class="text-gray-600">Selecciona cantidad y personaliza tu pedido</p>
@@ -121,7 +121,10 @@
     <div id="view-admin" class="container mx-auto px-4 py-8 hidden fade-in">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
             <h2 class="text-3xl font-bold text-gray-800"><i class="fas fa-chart-line text-orange-600"></i> Panel de Pedidos</h2>
-            <button onclick="loadPedidos()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition shadow"><i class="fas fa-sync"></i> Actualizar</button>
+            <div class="flex gap-2">
+                <button onclick="debugData()" class="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition shadow text-sm"><i class="fas fa-bug"></i> Debug</button>
+                <button onclick="loadPedidos()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition shadow"><i class="fas fa-sync"></i> Actualizar</button>
+            </div>
         </div>
         <div class="flex space-x-6 mb-6 border-b border-gray-300">
             <button onclick="showAdminTab('pedidos')" id="tab-pedidos" class="pb-2 border-b-2 border-orange-600 font-bold text-orange-600 transition">Pedidos Activos</button>
@@ -142,7 +145,6 @@
     </div>
 
     <div id="cart-modal" class="fixed inset-0 bg-black bg-opacity-60 hidden z-50 flex justify-end backdrop-blur-sm">
-        <!-- Carrito igual que antes -->
         <div class="bg-white w-full max-w-md h-full overflow-y-auto p-6 shadow-2xl fade-in flex flex-col">
             <div class="flex justify-between items-center mb-6 border-b pb-4">
                 <h3 class="text-2xl font-bold text-gray-800">Tu Pedido</h3>
@@ -180,7 +182,7 @@
     </div>
 
     <script>
-        // ⚠️ Reemplaza con la URL real de tu Google Apps Script
+        // ⚠️ IMPORTANTE: Reemplaza esto con tu URL real de Google Apps Script
         const API_URL = 'https://script.google.com/macros/s/AKfycbxwe2zPsjiN_i4xZUbKaKOKhIW3lMvdgHfvrJ9LY6AuaR4AcUhGVc2Gc7g_M4MPvvmhQg/exec'; 
         
         if (API_URL === 'PEGA_AQUI_TU_URL_DE_APPS_SCRIPT' || API_URL === '') {
@@ -218,7 +220,6 @@
         }
 
         function renderMenu(filtro = 'all') {
-            // mismo código de menú
             const grid = document.getElementById('menu-grid');
             grid.innerHTML = '';
             const items = filtro === 'all' ? productos : productos.filter(p => p.categoria === filtro);
@@ -234,6 +235,7 @@
                             <option value="Con Salsa Golf">Con Salsa Golf</option>
                         </select>
                     </div>` : '';
+
                 grid.innerHTML += `
                     <div class="bg-white rounded-2xl shadow-md overflow-hidden card-hover border border-gray-100 flex flex-col">
                         <div class="relative"><img src="${p.img}" alt="${p.nombre}" class="w-full h-48 object-cover">
@@ -258,42 +260,257 @@
             });
         }
 
-        function adjustQty(id, change) { /* igual */ }
-        function filterMenu(cat) { renderMenu(cat); }
-        function addToCart(id) { /* igual */ }
-        function updateCartUI() { /* igual */ }
-        function removeFromCart(index) { /* igual */ }
-        function removeAderezos() { /* igual */ }
-        function toggleCart() { /* igual */ }
-        function toggleDireccion(mostrar) { /* igual */ }
-        function processOrder(e) { /* igual */ }
+        function adjustQty(id, change) {
+            const input = document.getElementById(`qty-${id}`);
+            if (!input) return;
+            let val = parseInt(input.value) + change;
+            if (val < 1) val = 1;
+            if (val > 99) val = 99;
+            input.value = val;
+        }
+
+        function filterMenu(cat) { 
+            renderMenu(cat); 
+        }
+
+        function addToCart(id) {
+            const prod = productos.find(p => p.id === id);
+            if (!prod) return;
+            const qtyInput = document.getElementById(`qty-${id}`);
+            const qty = qtyInput ? parseInt(qtyInput.value) || 1 : 1;
+            const optSelect = document.getElementById(`opt-${id}`);
+            const opcion = optSelect ? optSelect.value : prod.opciones[0];
+            let aderezo = null;
+            if (prod.tieneAderezos) {
+                const adzSelect = document.getElementById(`adz-${id}`);
+                aderezo = adzSelect ? adzSelect.value : 'Sin aderezo';
+            }
+            
+            const existingIndex = cart.findIndex(item => 
+                item.id === id && 
+                item.opcionSeleccionada === opcion && 
+                item.aderezo === aderezo
+            );
+            
+            if (existingIndex > -1) {
+                cart[existingIndex].cantidad += qty;
+            } else {
+                cart.push({ 
+                    ...prod, 
+                    opcionSeleccionada: opcion, 
+                    aderezo: aderezo, 
+                    cantidad: qty 
+                });
+            }
+            
+            updateCartUI();
+            
+            // Feedback visual
+            const btn = event.target;
+            if (btn && btn.tagName === 'BUTTON') {
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i> ✓';
+                btn.classList.replace('bg-orange-600', 'bg-green-600');
+                setTimeout(() => { 
+                    btn.innerHTML = originalText; 
+                    btn.classList.replace('bg-green-600', 'bg-orange-600'); 
+                }, 800);
+            }
+        }
+
+        function updateCartUI() {
+            const count = cart.reduce((sum, item) => sum + item.cantidad, 0);
+            document.getElementById('cart-count').innerText = count;
+            
+            const container = document.getElementById('cart-items');
+            if (cart.length === 0) { 
+                container.innerHTML = '<p class="text-gray-500 text-center py-10">El carrito está vacío</p>'; 
+                document.getElementById('cart-total').innerText = '$0'; 
+                return; 
+            }
+            
+            let total = 0, html = '';
+            
+            cart.forEach((item, index) => {
+                const subtotal = item.precio * item.cantidad; 
+                total += subtotal;
+                const aderezoText = item.aderezo && item.aderezo !== 'Sin aderezo' ? 
+                    `<br><span class="text-xs text-orange-600 font-semibold">${item.aderezo}</span>` : '';
+                
+                html += `<div class="flex justify-between items-start bg-gray-50 p-3 rounded-lg border border-gray-100">
+                    <div class="flex-grow">
+                        <p class="font-bold text-sm text-gray-800">${item.cantidad}x ${item.nombre}</p>
+                        <p class="text-xs text-gray-500">${item.opcionSeleccionada}</p>${aderezoText}
+                    </div>
+                    <div class="flex flex-col items-end gap-2">
+                        <span class="font-bold text-gray-800 ars">$${subtotal.toLocaleString('es-AR')}</span>
+                        <button onclick="removeFromCart(${index})" class="text-red-400 hover:text-red-600 text-xs flex items-center gap-1 transition">
+                            <i class="fas fa-trash"></i> Quitar
+                        </button>
+                    </div>
+                </div>`;
+            });
+            
+            container.innerHTML = html;
+            document.getElementById('cart-total').innerText = new Intl.NumberFormat('es-AR', { 
+                style: 'currency', 
+                currency: 'ARS' 
+            }).format(total);
+        }
+
+        function removeFromCart(index) { 
+            cart.splice(index, 1); 
+            updateCartUI(); 
+        }
+        
+        function toggleCart() { 
+            document.getElementById('cart-modal').classList.toggle('hidden'); 
+        }
+        
+        function toggleDireccion(mostrar) {
+            const campo = document.getElementById('campo-direccion');
+            const input = document.getElementById('cliente-direccion');
+            if (mostrar) { 
+                campo.classList.remove('hidden'); 
+                input.required = true; 
+            } else { 
+                campo.classList.add('hidden'); 
+                input.required = false; 
+                input.value = ''; 
+            }
+        }
+
+        function processOrder(e) {
+            e.preventDefault();
+            if (cart.length === 0) {
+                alert('El carrito está vacío');
+                return;
+            }
+            
+            const nombre = document.getElementById('cliente-nombre').value.trim();
+            const telefono = document.getElementById('cliente-telefono').value.trim();
+            const tipo = document.querySelector('input[name="tipoEntrega"]:checked').value;
+            const direccion = tipo === 'Envio' ? document.getElementById('cliente-direccion').value.trim() : 'Retiro en Local';
+            
+            if (!nombre || !telefono) {
+                alert('Completa tu nombre y teléfono');
+                return;
+            }
+            
+            let detalleComida = cart.map(i => { 
+                let desc = `• ${i.cantidad}x ${i.nombre} (${i.opcionSeleccionada})`; 
+                if (i.aderezo && i.aderezo !== 'Sin aderezo') desc += ` [${i.aderezo}]`; 
+                return desc; 
+            }).join('\n');
+            
+            const detalleFinal = detalleComida;
+            const total = cart.reduce((sum, i) => sum + (i.precio * i.cantidad), 0);
+
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...'; 
+            btn.disabled = true;
+
+            fetch(API_URL, { 
+                method: 'POST', 
+                body: JSON.stringify({ 
+                    action: 'nuevoPedido', 
+                    cliente: nombre, 
+                    telefono: telefono, 
+                    direccion: direccion, 
+                    tipo: tipo, 
+                    detalle: detalleFinal, 
+                    total: total 
+                }) 
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === 'success') {
+                    alert('¡Pedido enviado con éxito! ID: ' + data.id);
+                    cart = []; 
+                    updateCartUI(); 
+                    toggleCart(); 
+                    e.target.reset(); 
+                    toggleDireccion(false);
+                } else {
+                    alert('Error: ' + (data.message || 'No se pudo procesar el pedido'));
+                }
+            })
+            .catch(err => { 
+                console.error(err); 
+                alert('Error de conexión. Revisa la consola.'); 
+            })
+            .finally(() => { 
+                btn.innerHTML = originalText; 
+                btn.disabled = false; 
+            });
+        }
 
         function formatDetalleToHTML(detalleString) {
-            if (!detalleString || detalleString.trim() === '') return '<p class="text-gray-500 text-sm">Sin detalle</p>';
-            const lines = detalleString.split('\n').filter(line => line.trim() !== '');
-            if (lines.length === 0) return '<p class="text-gray-500 text-sm">Sin detalle</p>';
+            if (!detalleString || detalleString.toString().trim() === '') {
+                return '<p class="text-gray-500 text-sm italic">Sin detalle disponible</p>';
+            }
+            const lines = detalleString.toString().split('\n').filter(line => line.trim() !== '');
+            if (lines.length === 0) return '<p class="text-gray-500 text-sm italic">Sin detalle disponible</p>';
             return `<ul class="list-disc list-inside space-y-1 text-gray-700">${lines.map(line => `<li class="text-sm">${line.replace(/^•\s*/, '')}</li>`).join('')}</ul>`;
         }
 
         function toggleDetalle(btn, detalleId) {
             const detalle = document.getElementById(detalleId);
+            if (!detalle) return;
             const icon = btn.querySelector('i');
             if (detalle.classList.contains('hidden')) {
                 detalle.classList.remove('hidden');
-                icon.classList.replace('fa-eye', 'fa-eye-slash');
+                if (icon) icon.classList.replace('fa-eye', 'fa-eye-slash');
             } else {
                 detalle.classList.add('hidden');
-                icon.classList.replace('fa-eye-slash', 'fa-eye');
+                if (icon) icon.classList.replace('fa-eye-slash', 'fa-eye');
             }
         }
 
-        // ✅ FUNCIÓN loadPedidos CORREGIDA (soporta diferentes nombres de campos)
+        // Función de debug para ver qué datos llegan
+        function debugData() {
+            const container = document.getElementById('admin-pedidos');
+            container.innerHTML = '<div class="text-center py-10"><i class="fas fa-spinner fa-spin text-3xl text-yellow-600"></i><p>Analizando datos...</p></div>';
+            
+            fetch(`${API_URL}?action=getPedidos`)
+                .then(res => res.json())
+                .then(pedidos => {
+                    if (pedidos.length === 0) {
+                        container.innerHTML = '<div class="bg-yellow-50 p-6 rounded-xl"><h3 class="font-bold text-yellow-800">Sin pedidos</h3><p>No hay datos para analizar</p></div>';
+                        return;
+                    }
+                    
+                    const primerPedido = pedidos[0];
+                    let html = '<div class="bg-white p-6 rounded-xl shadow"><h3 class="font-bold text-lg mb-4">🔍 Estructura de datos del primer pedido:</h3>';
+                    html += '<table class="w-full border"><thead><tr class="bg-gray-100"><th class="p-2 border text-left">Campo</th><th class="p-2 border text-left">Valor</th><th class="p-2 border text-left">Tipo</th></tr></thead><tbody>';
+                    
+                    for (const [key, value] of Object.entries(primerPedido)) {
+                        html += `<tr>
+                            <td class="p-2 border font-mono text-sm">${key}</td>
+                            <td class="p-2 border">${value !== null && value !== undefined ? value.toString().substring(0, 100) : 'null'}</td>
+                            <td class="p-2 border text-sm">${typeof value}</td>
+                        </tr>`;
+                    }
+                    
+                    html += '</tbody></table>';
+                    html += '<p class="mt-4 text-sm text-gray-600">📌 Busca los campos que contienen el detalle (columna G) y el total (columna H).</p>';
+                    html += '<p class="text-sm text-gray-600">Los nombres exactos de los campos son los que aparecen en la columna "Campo".</p>';
+                    html += '</div>';
+                    
+                    container.innerHTML = html;
+                })
+                .catch(err => {
+                    container.innerHTML = `<div class="bg-red-50 p-6 rounded-xl"><h3 class="font-bold text-red-800">Error</h3><p>${err.message}</p></div>`;
+                });
+        }
+
         function loadPedidos() {
             const container = document.getElementById('admin-pedidos');
             container.innerHTML = '<div class="text-center py-10"><i class="fas fa-spinner fa-spin text-3xl text-orange-600"></i><p class="mt-2 text-gray-500">Cargando pedidos...</p></div>';
 
             if (!API_URL || API_URL === 'PEGA_AQUI_TU_URL_DE_APPS_SCRIPT') {
-                container.innerHTML = '<div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg"><h3 class="text-red-800 font-bold text-lg mb-2"><i class="fas fa-exclamation-triangle"></i> Error de Configuración</h3><p class="text-red-700 mb-4">Debes configurar la URL de Google Apps Script en el código HTML.</p></div>';
+                container.innerHTML = '<div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg"><h3 class="text-red-800 font-bold text-lg mb-2"><i class="fas fa-exclamation-triangle"></i> Error de Configuración</h3><p class="text-red-700 mb-4">Debes configurar la URL de Google Apps Script.</p></div>';
                 return;
             }
 
@@ -311,6 +528,10 @@
                         return;
                     }
 
+                    // Mostrar primer pedido en consola para debug
+                    console.log('Primer pedido:', pedidos[0]);
+                    console.log('Campos disponibles:', Object.keys(pedidos[0]));
+
                     const estadoPrioridad = { 'Pendiente': 1, 'En Preparación': 2, 'En Camino': 3, 'Entregado': 4 };
                     pedidos.sort((a, b) => {
                         const prioA = estadoPrioridad[a.Estado] || 5;
@@ -326,8 +547,8 @@
                                     <tr>
                                         <th>ID</th>
                                         <th>Cliente</th>
-                                        <th>Detalle (Col G)</th>
-                                        <th>Total (Col H)</th>
+                                        <th>Detalle</th>
+                                        <th>Total</th>
                                         <th>Estado</th>
                                         <th>Repartidor</th>
                                         <th>Acciones</th>
@@ -336,45 +557,60 @@
                                 <tbody>`;
 
                     pedidos.forEach(p => {
-                        // Intentar obtener el detalle usando varias claves posibles
-                        const detalle = p.Detalle || p.detalle || p.Productos || p.productos || p.Descripcion || p.descripcion || '';
-                        // Intentar obtener el total
-                        let totalValor = p.Total || p.total || p.PrecioTotal || p.precioTotal || p.Monto || p.monto || 0;
-                        // Asegurar que sea número
+                        // Obtener detalle - busca en TODAS las propiedades
+                        const detalle = p.Detalle || p.detalle || p.Productos || p.productos || 
+                                       p.Descripcion || p.descripcion || p.Pedido || p.pedido ||
+                                       p.Items || p.items || p.Contenido || p.contenido || 
+                                       p.DETALLE || p.PRODUCTOS || '';
+                        
+                        // Obtener total - busca en TODAS las propiedades
+                        let totalValor = p.Total || p.total || p.PrecioTotal || p.precioTotal || 
+                                        p.Monto || p.monto || p.Importe || p.importe ||
+                                        p.TOTAL || p.PRECIOTOTAL || p.MONTO || 0;
+                        
+                        // Convertir a número
                         if (typeof totalValor === 'string') {
-                            totalValor = parseFloat(totalValor.replace(/[^\d,.-]/g, '').replace(',', '.'));
+                            totalValor = totalValor.replace(/[^\d,.-]/g, '').replace(',', '.');
+                            totalValor = parseFloat(totalValor);
                         }
-                        if (isNaN(totalValor)) totalValor = 0;
-                        const totalARS = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(totalValor);
+                        if (isNaN(totalValor) || totalValor === null || totalValor === undefined) totalValor = 0;
+                        
+                        const totalARS = new Intl.NumberFormat('es-AR', { 
+                            style: 'currency', 
+                            currency: 'ARS',
+                            minimumFractionDigits: 2
+                        }).format(totalValor);
 
-                        const msg = `Hola ${p.Cliente}, te escribimos de FastFood Express.%0A%0A📦 *Tu Pedido ${p.ID}*%0A💰 Total: *${totalARS}*%0A📍 Estado: *${p.Estado}*%0A${p.Repartidor ? '🛵 Repartidor: ' + p.Repartidor : ''}`;
-                        const waLink = `https://wa.me/${p.Telefono}?text=${msg}`;
+                        const msg = `Hola ${p.Cliente || p.cliente}, te escribimos de FastFood Express.%0A%0A📦 *Tu Pedido ${p.ID || p.id}*%0A💰 Total: *${totalARS}*%0A📍 Estado: *${p.Estado || p.estado}*`;
+                        const waLink = `https://wa.me/${p.Telefono || p.telefono}?text=${msg}`;
 
                         const detalleHTML = formatDetalleToHTML(detalle);
-                        const repartidorActual = p.Repartidor || 'Sin asignar';
+                        const repartidorActual = p.Repartidor || p.repartidor || 'Sin asignar';
+                        const estado = p.Estado || p.estado || 'Pendiente';
 
                         let statusClass = 'status-pendiente';
-                        if (p.Estado === 'En Preparación') statusClass = 'status-preparacion';
-                        if (p.Estado === 'En Camino') statusClass = 'status-camino';
-                        if (p.Estado === 'Entregado') statusClass = 'status-entregado';
+                        if (estado === 'En Preparación') statusClass = 'status-preparacion';
+                        if (estado === 'En Camino') statusClass = 'status-camino';
+                        if (estado === 'Entregado') statusClass = 'status-entregado';
 
                         tableHTML += `
                             <tr>
-                                <td class="font-bold text-gray-800">#${p.ID}</td>
+                                <td class="font-bold text-gray-800">#${p.ID || p.id || '?'}</td>
                                 <td>
-                                    <div class="font-semibold">${p.Cliente || 'Sin nombre'}</div>
-                                    <div class="text-xs text-gray-500">${p.Telefono || ''}</div>
+                                    <div class="font-semibold">${p.Cliente || p.cliente || 'Sin nombre'}</div>
+                                    <div class="text-xs text-gray-500">${p.Telefono || p.telefono || ''}</div>
                                 </td>
                                 <td>
-                                    <button onclick="toggleDetalle(this, 'detalle-${p.ID}')" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                    <button onclick="toggleDetalle(this, 'detalle-${p.ID || p.id}')" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
                                         <i class="fas fa-eye mr-1"></i> Ver detalle
                                     </button>
-                                    <div id="detalle-${p.ID}" class="hidden mt-2 detalle-expand rounded-lg">
+                                    <div id="detalle-${p.ID || p.id}" class="hidden mt-2 detalle-expand rounded-lg">
                                         ${detalleHTML}
+                                        <div class="mt-2 text-xs text-gray-400">Valor raw: ${detalle.toString().substring(0, 50)}</div>
                                     </div>
                                 </td>
                                 <td><span class="total-destacado">${totalARS}</span></td>
-                                <td><span class="status-badge ${statusClass}">${p.Estado}</span></td>
+                                <td><span class="status-badge ${statusClass}">${estado}</span></td>
                                 <td>
                                     ${repartidorActual !== 'Sin asignar' 
                                         ? `<i class="fas fa-motorcycle text-green-600 mr-1"></i>${repartidorActual}`
@@ -385,19 +621,19 @@
                                         <a href="${waLink}" target="_blank" class="accion-btn btn-whatsapp text-center">
                                             <i class="fab fa-whatsapp"></i> WhatsApp
                                         </a>
-                                        <select onchange="updateStatus('${p.ID}', this.value)" class="border border-gray-300 rounded-lg px-2 py-1 text-xs">
+                                        <select onchange="updateStatus('${p.ID || p.id}', this.value)" class="border border-gray-300 rounded-lg px-2 py-1 text-xs">
                                             <option value="">Estado...</option>
                                             <option value="Pendiente">Pendiente</option>
                                             <option value="En Preparación">En Preparación</option>
                                             <option value="En Camino">En Camino</option>
                                             <option value="Entregado">Entregado</option>
                                         </select>
-                                        ${p.Estado !== 'Entregado' ? `
+                                        ${estado !== 'Entregado' ? `
                                         <div class="flex gap-1">
-                                            <select id="rep-${p.ID}" class="flex-1 border border-gray-300 rounded-lg px-2 py-1 text-xs">
+                                            <select id="rep-${p.ID || p.id}" class="flex-1 border border-gray-300 rounded-lg px-2 py-1 text-xs">
                                                 <option value="">Repartidor...</option>
                                             </select>
-                                            <button onclick="assignDriver('${p.ID}')" class="accion-btn btn-asignar">✓</button>
+                                            <button onclick="assignDriver('${p.ID || p.id}')" class="accion-btn btn-asignar">✓</button>
                                         </div>` : ''}
                                     </div>
                                 </td>
@@ -409,34 +645,58 @@
                     loadRepartidoresForSelect();
                 })
                 .catch(err => {
-                    console.error(err);
-                    container.innerHTML = `<div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg"><h3 class="text-red-800 font-bold text-lg"><i class="fas fa-exclamation-circle"></i> Error</h3><p>No se pudo cargar. ${err.message}</p></div>`;
+                    console.error('Error:', err);
+                    container.innerHTML = `<div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg"><h3 class="text-red-800 font-bold text-lg"><i class="fas fa-exclamation-circle"></i> Error</h3><p>${err.message}</p></div>`;
                 });
         }
 
         function updateStatus(id, nuevoEstado) {
             if(!nuevoEstado) return;
-            fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'actualizarEstado', idPedido: id, estado: nuevoEstado }) }).then(() => loadPedidos());
+            fetch(API_URL, { 
+                method: 'POST', 
+                body: JSON.stringify({ action: 'actualizarEstado', idPedido: id, estado: nuevoEstado }) 
+            }).then(() => loadPedidos());
         }
 
         function assignDriver(idPedido) {
             const select = document.getElementById(`rep-${idPedido}`);
+            if (!select) return;
             const repartidor = select.value;
             if(!repartidor) return alert('Selecciona un repartidor');
             const btn = select.nextElementSibling;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; btn.disabled = true;
-            fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'actualizarEstado', idPedido: idPedido, estado: 'En Camino', repartidor: repartidor }) })
-            .then(() => { alert('✅ Repartidor asignado'); loadPedidos(); })
-            .catch(() => { alert('Error'); btn.innerHTML = '✓'; btn.disabled = false; });
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; 
+            btn.disabled = true;
+            fetch(API_URL, { 
+                method: 'POST', 
+                body: JSON.stringify({ 
+                    action: 'actualizarEstado', 
+                    idPedido: idPedido, 
+                    estado: 'En Camino', 
+                    repartidor: repartidor 
+                }) 
+            })
+            .then(() => { 
+                alert('✅ Repartidor asignado'); 
+                loadPedidos(); 
+            })
+            .catch(() => { 
+                alert('Error al asignar'); 
+                btn.innerHTML = '✓'; 
+                btn.disabled = false; 
+            });
         }
 
         function loadRepartidoresForSelect() {
             document.querySelectorAll('select[id^="rep-"]').forEach(select => {
                 const currentVal = select.value;
                 select.innerHTML = '<option value="">Repartidor...</option>';
-                repartidoresDB.forEach(r => {
-                    if(r.Estado === 'Disponible') select.innerHTML += `<option value="${r.Nombre}">${r.Nombre}</option>`;
-                });
+                if (repartidoresDB && repartidoresDB.length > 0) {
+                    repartidoresDB.forEach(r => {
+                        if(r.Estado === 'Disponible' || r.estado === 'Disponible') {
+                            select.innerHTML += `<option value="${r.Nombre || r.nombre}">${r.Nombre || r.nombre}</option>`;
+                        }
+                    });
+                }
                 select.value = currentVal;
             });
         }
@@ -444,28 +704,94 @@
         function loadRepartidores() {
             const container = document.getElementById('lista-repartidores');
             container.innerHTML = '<p class="text-center text-gray-500 py-4">Cargando...</p>';
-            fetch(`${API_URL}?action=getRepartidores`).then(res => res.json()).then(reps => {
-                container.innerHTML = '';
-                if(reps.length === 0) { container.innerHTML = '<p class="text-center text-gray-500 py-4 bg-white rounded-lg">No hay repartidores.</p>'; return; }
-                reps.forEach(r => {
-                    container.innerHTML += `
-                    <div class="bg-white p-4 rounded-lg shadow border-l-4 ${r.Estado === 'Disponible' ? 'border-green-500' : 'border-red-500'}">
-                        <h4 class="font-bold">${r.Nombre}</h4>
-                        <p class="text-sm"><i class="fas fa-phone"></i> ${r.Telefono}</p>
-                        <span class="inline-block mt-1 px-2 py-1 text-xs rounded-full font-bold ${r.Estado === 'Disponible' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${r.Estado}</span>
-                        <div class="flex gap-2 mt-2">
-                            <button onclick="editRepartidor('${r.ID}', '${r.Nombre}', '${r.Telefono}')" class="flex-1 bg-blue-100 text-blue-700 py-1 rounded text-sm font-bold"><i class="fas fa-edit"></i></button>
-                            <button onclick="deleteRepartidor('${r.ID}')" class="flex-1 bg-red-100 text-red-700 py-1 rounded text-sm font-bold"><i class="fas fa-trash"></i></button>
-                        </div>
-                    </div>`;
+            fetch(`${API_URL}?action=getRepartidores`)
+                .then(res => res.json())
+                .then(reps => {
+                    container.innerHTML = '';
+                    if(reps.length === 0) { 
+                        container.innerHTML = '<p class="text-center text-gray-500 py-4 bg-white rounded-lg">No hay repartidores.</p>'; 
+                        return; 
+                    }
+                    reps.forEach(r => {
+                        const id = r.ID || r.id;
+                        const nombre = r.Nombre || r.nombre;
+                        const telefono = r.Telefono || r.telefono;
+                        const estado = r.Estado || r.estado;
+                        
+                        container.innerHTML += `
+                        <div class="bg-white p-4 rounded-lg shadow border-l-4 ${estado === 'Disponible' ? 'border-green-500' : 'border-red-500'}">
+                            <h4 class="font-bold">${nombre}</h4>
+                            <p class="text-sm"><i class="fas fa-phone"></i> ${telefono}</p>
+                            <span class="inline-block mt-1 px-2 py-1 text-xs rounded-full font-bold ${estado === 'Disponible' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${estado}</span>
+                            <div class="flex gap-2 mt-2">
+                                <button onclick="editRepartidor('${id}', '${nombre}', '${telefono}')" class="flex-1 bg-blue-100 text-blue-700 py-1 rounded text-sm font-bold"><i class="fas fa-edit"></i></button>
+                                <button onclick="deleteRepartidor('${id}')" class="flex-1 bg-red-100 text-red-700 py-1 rounded text-sm font-bold"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>`;
+                    });
+                })
+                .catch(err => {
+                    container.innerHTML = `<p class="text-red-500">Error: ${err.message}</p>`;
                 });
+        }
+
+        function editRepartidor(id, nombreActual, telefonoActual) {
+            const nuevoNombre = prompt("Editar nombre:", nombreActual);
+            if (nuevoNombre === null) return;
+            const nuevoTelefono = prompt("Editar teléfono:", telefonoActual);
+            if (nuevoTelefono === null) return;
+            
+            fetch(API_URL, { 
+                method: 'POST', 
+                body: JSON.stringify({ 
+                    action: 'editarRepartidor', 
+                    id: id, 
+                    nombre: nuevoNombre, 
+                    telefono: nuevoTelefono 
+                }) 
+            })
+            .then(res => res.json())
+            .then(() => {
+                alert('Repartidor actualizado');
+                loadRepartidores();
             });
         }
 
-        function editRepartidor(id, nombreActual, telefonoActual) { /* igual */ }
-        function deleteRepartidor(id) { /* igual */ }
-        function addRepartidor(e) { /* igual */ }
+        function deleteRepartidor(id) {
+            if(!confirm("¿Eliminar este repartidor?")) return;
+            fetch(API_URL, { 
+                method: 'POST', 
+                body: JSON.stringify({ action: 'borrarRepartidor', id: id }) 
+            })
+            .then(res => res.json())
+            .then(() => {
+                alert('Repartidor eliminado');
+                loadRepartidores();
+            });
+        }
 
+        function addRepartidor(e) {
+            e.preventDefault();
+            const nombre = document.getElementById('rep-nombre').value.trim();
+            const telefono = document.getElementById('rep-telefono').value.trim();
+            
+            fetch(API_URL, { 
+                method: 'POST', 
+                body: JSON.stringify({ 
+                    action: 'nuevoRepartidor', 
+                    nombre: nombre, 
+                    telefono: telefono 
+                }) 
+            })
+            .then(res => res.json())
+            .then(() => { 
+                alert('Repartidor registrado'); 
+                e.target.reset(); 
+                loadRepartidores(); 
+            });
+        }
+
+        // Iniciar
         renderMenu();
     </script>
 </body>
