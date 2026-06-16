@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FastFood+CRM & Pedidos</title>
+    <title>FastFood CRM & Pedidos</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -40,7 +40,6 @@
             <h2 class="text-4xl font-bold text-gray-800 mb-2">Nuestro Menú</h2>
             <p class="text-gray-600">Selecciona cantidad y personaliza tu pedido</p>
         </div>
-
         <div class="flex justify-center space-x-2 mb-8 overflow-x-auto pb-2 no-scrollbar">
             <button onclick="filterMenu('all')" class="px-6 py-2 bg-orange-600 text-white rounded-full shadow-md hover:bg-orange-700 transition whitespace-nowrap">Todos</button>
             <button onclick="filterMenu('empanadas')" class="px-6 py-2 bg-white text-gray-700 rounded-full shadow-md hover:bg-gray-100 transition whitespace-nowrap">Empanadas</button>
@@ -49,109 +48,87 @@
             <button onclick="filterMenu('aderezos')" class="px-6 py-2 bg-white text-gray-700 rounded-full shadow-md hover:bg-gray-100 transition whitespace-nowrap">Aderezos</button>
             <button onclick="filterMenu('bebidas')" class="px-6 py-2 bg-white text-gray-700 rounded-full shadow-md hover:bg-gray-100 transition whitespace-nowrap">Bebidas</button>
         </div>
-
-        <div id="menu-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            <!-- Se llena con JS -->
-        </div>
+        <div id="menu-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
     </div>
 
     <!-- VISTA ADMIN: CRM -->
     <div id="view-admin" class="container mx-auto px-4 py-8 hidden fade-in">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
             <h2 class="text-3xl font-bold text-gray-800"><i class="fas fa-chart-line text-orange-600"></i> Panel de Pedidos</h2>
-            <button onclick="loadPedidos()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition shadow"><i class="fas fa-sync"></i> Actualizar Pedidos</button>
+            <button onclick="loadPedidos()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition shadow"><i class="fas fa-sync"></i> Actualizar</button>
         </div>
-
         <div class="flex space-x-6 mb-6 border-b border-gray-300">
             <button onclick="showAdminTab('pedidos')" id="tab-pedidos" class="pb-2 border-b-2 border-orange-600 font-bold text-orange-600 transition">Pedidos Activos</button>
-            <button onclick="showAdminTab('repartidores')" id="tab-repartidores" class="pb-2 border-b-2 border-transparent hover:border-gray-400 text-gray-600 transition">Gestión Repartidores</button>
+            <button onclick="showAdminTab('repartidores')" id="tab-repartidores" class="pb-2 border-b-2 border-transparent hover:border-gray-400 text-gray-600 transition">Repartidores</button>
         </div>
-
-        <div id="admin-pedidos" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div class="col-span-full text-center py-10 text-gray-500 bg-white rounded-xl shadow">Cargando pedidos...</div>
-        </div>
-
+        <div id="admin-pedidos" class="grid grid-cols-1 lg:grid-cols-2 gap-6"></div>
         <div id="admin-repartidores" class="hidden">
             <div class="bg-white p-6 rounded-xl shadow-md mb-6 border-l-4 border-green-500">
                 <h3 class="text-xl font-bold mb-4 text-gray-800">Registrar Nuevo Repartidor</h3>
                 <form onsubmit="addRepartidor(event)" class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <input type="text" id="rep-nombre" placeholder="Nombre Completo" class="border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-green-500 outline-none" required>
                     <input type="tel" id="rep-telefono" placeholder="Teléfono (Ej: 54911...)" class="border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-green-500 outline-none" required>
-                    <button type="submit" class="bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 font-bold transition shadow">Guardar Repartidor</button>
+                    <button type="submit" class="bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 font-bold transition shadow">Guardar</button>
                 </form>
             </div>
-            <div id="lista-repartidores" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <!-- Se llena con JS -->
-            </div>
+            <div id="lista-repartidores" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
         </div>
     </div>
 
-    <!-- MODAL CARRITO / CHECKOUT -->
+    <!-- MODAL CARRITO -->
     <div id="cart-modal" class="fixed inset-0 bg-black bg-opacity-60 hidden z-50 flex justify-end backdrop-blur-sm">
         <div class="bg-white w-full max-w-md h-full overflow-y-auto p-6 shadow-2xl fade-in flex flex-col">
             <div class="flex justify-between items-center mb-6 border-b pb-4">
                 <h3 class="text-2xl font-bold text-gray-800">Tu Pedido</h3>
                 <button onclick="toggleCart()" class="text-gray-400 hover:text-red-600 text-3xl transition">&times;</button>
             </div>
-            
-            <div id="cart-items" class="space-y-4 mb-6 flex-grow">
-                <p class="text-gray-500 text-center py-10">El carrito está vacío</p>
-            </div>
-
+            <div id="cart-items" class="space-y-4 mb-6 flex-grow"></div>
             <div class="border-t pt-4 mb-6 bg-gray-50 p-4 rounded-xl">
                 <div class="flex justify-between text-2xl font-bold text-gray-800">
                     <span>Total a Pagar:</span>
                     <span id="cart-total" class="ars text-orange-600">$0</span>
                 </div>
             </div>
-
             <form onsubmit="processOrder(event)" class="space-y-4">
                 <h4 class="font-bold text-gray-700 border-b pb-2">Datos de Entrega</h4>
                 <input type="text" id="cliente-nombre" placeholder="Tu Nombre y Apellido" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" required>
                 <input type="tel" id="cliente-telefono" placeholder="Tu Teléfono (Ej: 54911...)" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" required>
-                
                 <div class="flex space-x-4 bg-gray-50 p-3 rounded-lg">
                     <label class="flex items-center space-x-2 cursor-pointer flex-1">
                         <input type="radio" name="tipoEntrega" value="Envio" checked onchange="toggleDireccion(true)" class="text-orange-600 focus:ring-orange-500 w-4 h-4">
-                        <span class="font-semibold">Envío a Domicilio</span>
+                        <span class="font-semibold">Envío</span>
                     </label>
                     <label class="flex items-center space-x-2 cursor-pointer flex-1">
                         <input type="radio" name="tipoEntrega" value="Retiro" onchange="toggleDireccion(false)" class="text-orange-600 focus:ring-orange-500 w-4 h-4">
-                        <span class="font-semibold">Retiro en Local</span>
+                        <span class="font-semibold">Retiro</span>
                     </label>
                 </div>
-
                 <div id="campo-direccion" class="transition-all duration-300">
-                    <input type="text" id="cliente-direccion" placeholder="Dirección completa (Calle, número, piso, depto)" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none">
+                    <input type="text" id="cliente-direccion" placeholder="Dirección completa" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none">
                 </div>
-
                 <button type="submit" class="w-full bg-green-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-green-700 shadow-lg transition transform active:scale-95 flex items-center justify-center gap-2">
-                    <i class="fab fa-whatsapp text-xl"></i> Confirmar y Enviar Pedido
+                    <i class="fab fa-whatsapp text-xl"></i> Confirmar Pedido
                 </button>
             </form>
         </div>
     </div>
 
     <script>
-        // ================= CONFIGURACIÓN =================
-        const API_URL = 'https://script.google.com/macros/s/AKfycbxx7e6ShD0Xistz7zEtjf2DCeeK_dpnr3p8R7QwCoIczqQkHSGBWU2ZM8N4FYovbCnsiw/exec'; // <-- PEGA LA URL AQUÍ
+        const API_URL = 'https://script.google.com/macros/s/AKfycbxwe2zPsjiN_i4xZUbKaKOKhIW3lMvdgHfvrJ9LY6AuaR4AcUhGVc2Gc7g_M4MPvvmhQg/exec'; 
+        let repartidoresDB = []; // Variable global para guardar datos de repartidores
 
-        // ================= DATOS DEL MENÚ =================
         const productos = [
-            { id: 1, nombre: 'Empanada Carne', categoria: 'empanadas', precio: 1500, img: 'https://images.unsplash.com/photo-1626700051175-6818013e1d4f?w=500', opciones: ['Carne Suave', 'Carne Picante', 'Carne con Aceitunas'], tieneAderezos: false },
-            { id: 2, nombre: 'Empanada Jamón y Queso', categoria: 'empanadas', precio: 1500, img: 'https://images.unsplash.com/photo-1626700051175-6818013e1d4f?w=500', opciones: ['Jamón y Queso', 'Jamón, Queso y Morrón'], tieneAderezos: false },
+            { id: 1, nombre: 'Empanada Carne', categoria: 'empanadas', precio: 1500, img: 'https://images.unsplash.com/photo-1626700051175-6818013e1d4f?w=500', opciones: ['Carne Suave', 'Carne Picante'], tieneAderezos: false },
+            { id: 2, nombre: 'Empanada J y Q', categoria: 'empanadas', precio: 1500, img: 'https://images.unsplash.com/photo-1626700051175-6818013e1d4f?w=500', opciones: ['Jamón y Queso'], tieneAderezos: false },
             { id: 3, nombre: 'Pizza Muzzarella', categoria: 'pizzas', precio: 8500, img: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500', opciones: ['Media', 'Entera'], tieneAderezos: true },
             { id: 4, nombre: 'Pizza Especial', categoria: 'pizzas', precio: 10500, img: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?w=500', opciones: ['Media', 'Entera'], tieneAderezos: true },
             { id: 5, nombre: 'Lomito Completo', categoria: 'lomitos', precio: 12000, img: 'https://images.unsplash.com/photo-1550507992-eb63ffee0847?w=500', opciones: ['Carne', 'Pollo', 'Milanesa'], tieneAderezos: true },
             { id: 6, nombre: 'Coca Cola 1.5L', categoria: 'bebidas', precio: 3000, img: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=500', opciones: ['Original', 'Zero'], tieneAderezos: false },
             { id: 7, nombre: 'Mayonesa', categoria: 'aderezos', precio: 500, img: 'https://images.unsplash.com/photo-1585664811087-47f65be1bac9?w=500', opciones: ['Pote Chico', 'Pote Grande'], tieneAderezos: false },
-            { id: 8, nombre: 'Salsa Golf', categoria: 'aderezos', precio: 600, img: 'https://images.unsplash.com/photo-1472476443507-c7a392dd6182?w=500', opciones: ['Pote Chico', 'Pote Grande'], tieneAderezos: false },
-            { id: 9, nombre: 'Ketchup', categoria: 'aderezos', precio: 500, img: 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?w=500', opciones: ['Pote Chico', 'Pote Grande'], tieneAderezos: false }
+            { id: 8, nombre: 'Salsa Golf', categoria: 'aderezos', precio: 600, img: 'https://images.unsplash.com/photo-1472476443507-c7a392dd6182?w=500', opciones: ['Pote Chico', 'Pote Grande'], tieneAderezos: false }
         ];
-
         let cart = [];
 
-        // ================= FUNCIONES DE VISTA =================
         function showView(view) {
             document.getElementById('view-cliente').classList.add('hidden');
             document.getElementById('view-admin').classList.add('hidden');
@@ -163,55 +140,36 @@
             document.getElementById('admin-pedidos').classList.add('hidden');
             document.getElementById('admin-repartidores').classList.add('hidden');
             document.getElementById(`admin-${tab}`).classList.remove('hidden');
-            
             document.getElementById('tab-pedidos').className = tab === 'pedidos' ? "pb-2 border-b-2 border-orange-600 font-bold text-orange-600 transition" : "pb-2 border-b-2 border-transparent hover:border-gray-400 text-gray-600 transition";
             document.getElementById('tab-repartidores').className = tab === 'repartidores' ? "pb-2 border-b-2 border-orange-600 font-bold text-orange-600 transition" : "pb-2 border-b-2 border-transparent hover:border-gray-400 text-gray-600 transition";
-
             if(tab === 'repartidores') loadRepartidores();
         }
 
-        // ================= LÓGICA DEL MENÚ =================
         function renderMenu(filtro = 'all') {
             const grid = document.getElementById('menu-grid');
             grid.innerHTML = '';
             const items = filtro === 'all' ? productos : productos.filter(p => p.categoria === filtro);
-            
             items.forEach(p => {
                 const opcionesHTML = p.opciones.map(op => `<option value="${op}">${op}</option>`).join('');
-                
-                let aderezoHTML = '';
-                if (p.tieneAderezos) {
-                    aderezoHTML = `
-                        <div class="mb-3">
-                            <label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Aderezo:</label>
-                            <select id="adz-${p.id}" class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-orange-500 outline-none bg-gray-50">
-                                <option value="Sin aderezo">Sin aderezo</option>
-                                <option value="Con Mayonesa">Con Mayonesa</option>
-                                <option value="Con Ketchup">Con Ketchup</option>
-                                <option value="Con Salsa Golf">Con Salsa Golf</option>
-                                <option value="Con Mostaza">Con Mostaza</option>
-                            </select>
-                        </div>
-                    `;
-                }
+                let aderezoHTML = p.tieneAderezos ? `
+                    <div class="mb-3">
+                        <label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Aderezo:</label>
+                        <select id="adz-${p.id}" class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-orange-500 outline-none bg-gray-50">
+                            <option value="Sin aderezo">Sin aderezo</option>
+                            <option value="Con Mayonesa">Con Mayonesa</option>
+                            <option value="Con Ketchup">Con Ketchup</option>
+                            <option value="Con Salsa Golf">Con Salsa Golf</option>
+                        </select>
+                    </div>` : '';
 
                 grid.innerHTML += `
                     <div class="bg-white rounded-2xl shadow-md overflow-hidden card-hover border border-gray-100 flex flex-col">
-                        <div class="relative">
-                            <img src="${p.img}" alt="${p.nombre}" class="w-full h-48 object-cover">
-                            <span class="absolute top-3 right-3 bg-white text-gray-800 px-3 py-1 rounded-full font-bold shadow-md text-sm uppercase tracking-wide">${p.categoria}</span>
-                        </div>
+                        <div class="relative"><img src="${p.img}" alt="${p.nombre}" class="w-full h-48 object-cover">
+                        <span class="absolute top-3 right-3 bg-white text-gray-800 px-3 py-1 rounded-full font-bold shadow-md text-xs uppercase">${p.categoria}</span></div>
                         <div class="p-5 flex flex-col flex-grow">
-                            <div class="flex justify-between items-start mb-2">
-                                <h3 class="text-lg font-bold text-gray-800 leading-tight">${p.nombre}</h3>
-                            </div>
-                            
-                            <select id="opt-${p.id}" class="w-full border border-gray-300 rounded-lg p-2 mb-3 text-sm focus:ring-2 focus:ring-orange-500 outline-none bg-gray-50">
-                                ${opcionesHTML}
-                            </select>
-
+                            <h3 class="text-lg font-bold text-gray-800 leading-tight mb-2">${p.nombre}</h3>
+                            <select id="opt-${p.id}" class="w-full border border-gray-300 rounded-lg p-2 mb-3 text-sm focus:ring-2 focus:ring-orange-500 outline-none bg-gray-50">${opcionesHTML}</select>
                             ${aderezoHTML}
-
                             <div class="mt-auto pt-4 border-t border-gray-100 flex items-center justify-between gap-3">
                                 <div class="flex items-center border border-gray-300 rounded-lg overflow-hidden">
                                     <button type="button" onclick="adjustQty(${p.id}, -1)" class="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold">-</button>
@@ -220,14 +178,11 @@
                                 </div>
                                 <div class="text-right">
                                     <span class="block text-xl font-bold text-orange-600 ars">$${p.precio.toLocaleString('es-AR')}</span>
-                                    <button onclick="addToCart(${p.id})" class="text-sm bg-orange-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-orange-700 transition mt-1 w-full">
-                                        Agregar
-                                    </button>
+                                    <button onclick="addToCart(${p.id})" class="text-sm bg-orange-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-orange-700 transition mt-1 w-full">Agregar</button>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                `;
+                    </div>`;
             });
         }
 
@@ -240,239 +195,117 @@
 
         function filterMenu(cat) { renderMenu(cat); }
 
-        // ================= LÓGICA DEL CARRITO =================
         function addToCart(id) {
             const prod = productos.find(p => p.id === id);
             const qty = parseInt(document.getElementById(`qty-${id}`).value) || 1;
             const opcion = document.getElementById(`opt-${id}`).value;
             const aderezo = prod.tieneAderezos ? document.getElementById(`adz-${id}`).value : null;
-            
             const existingIndex = cart.findIndex(item => item.id === id && item.opcionSeleccionada === opcion && item.aderezo === aderezo);
-            
-            if (existingIndex > -1) {
-                cart[existingIndex].cantidad += qty;
-            } else {
-                cart.push({ ...prod, opcionSeleccionada: opcion, aderezo: aderezo, cantidad: qty });
-            }
-            
+            if (existingIndex > -1) cart[existingIndex].cantidad += qty;
+            else cart.push({ ...prod, opcionSeleccionada: opcion, aderezo: aderezo, cantidad: qty });
             updateCartUI();
-            
             const btn = event.target;
             const originalText = btn.innerHTML;
             btn.innerHTML = '<i class="fas fa-check"></i> Listo';
             btn.classList.replace('bg-orange-600', 'bg-green-600');
-            setTimeout(() => {
-                btn.innerHTML = originalText;
-                btn.classList.replace('bg-green-600', 'bg-orange-600');
-            }, 800);
+            setTimeout(() => { btn.innerHTML = originalText; btn.classList.replace('bg-green-600', 'bg-orange-600'); }, 800);
         }
 
         function updateCartUI() {
             document.getElementById('cart-count').innerText = cart.reduce((sum, item) => sum + item.cantidad, 0);
             const container = document.getElementById('cart-items');
-            
-            if (cart.length === 0) {
-                container.innerHTML = '<p class="text-gray-500 text-center py-10">El carrito está vacío</p>';
-                document.getElementById('cart-total').innerText = '$0';
-                return;
-            }
-
-            let total = 0;
-            let html = '';
-
+            if (cart.length === 0) { container.innerHTML = '<p class="text-gray-500 text-center py-10">El carrito está vacío</p>'; document.getElementById('cart-total').innerText = '$0'; return; }
+            let total = 0, html = '';
             const mainItems = cart.filter(i => i.categoria !== 'aderezos');
             mainItems.forEach((item) => {
-                const subtotal = item.precio * item.cantidad;
-                total += subtotal;
+                const subtotal = item.precio * item.cantidad; total += subtotal;
                 const aderezoText = item.aderezo && item.aderezo !== 'Sin aderezo' ? `<br><span class="text-xs text-orange-600 font-semibold">${item.aderezo}</span>` : '';
                 const realIndex = cart.indexOf(item);
-
-                html += `
-                    <div class="flex justify-between items-start bg-gray-50 p-3 rounded-lg border border-gray-100">
-                        <div class="flex-grow">
-                            <p class="font-bold text-sm text-gray-800">${item.cantidad}x ${item.nombre}</p>
-                            <p class="text-xs text-gray-500">${item.opcionSeleccionada}</p>
-                            ${aderezoText}
-                        </div>
-                        <div class="flex flex-col items-end gap-2">
-                            <span class="font-bold text-gray-800 ars">$${subtotal.toLocaleString('es-AR')}</span>
-                            <button onclick="removeFromCart(${realIndex})" class="text-red-400 hover:text-red-600 text-xs flex items-center gap-1 transition">
-                                <i class="fas fa-trash"></i> Quitar
-                            </button>
-                        </div>
-                    </div>
-                `;
+                html += `<div class="flex justify-between items-start bg-gray-50 p-3 rounded-lg border border-gray-100">
+                    <div class="flex-grow"><p class="font-bold text-sm text-gray-800">${item.cantidad}x ${item.nombre}</p><p class="text-xs text-gray-500">${item.opcionSeleccionada}</p>${aderezoText}</div>
+                    <div class="flex flex-col items-end gap-2"><span class="font-bold text-gray-800 ars">$${subtotal.toLocaleString('es-AR')}</span>
+                    <button onclick="removeFromCart(${realIndex})" class="text-red-400 hover:text-red-600 text-xs flex items-center gap-1 transition"><i class="fas fa-trash"></i> Quitar</button></div></div>`;
             });
-
             const aderezosItems = cart.filter(i => i.categoria === 'aderezos');
             if (aderezosItems.length > 0) {
                 let aderezosTotal = 0;
-                let aderezosDetalle = aderezosItems.map(item => {
-                    aderezosTotal += (item.precio * item.cantidad);
-                    return `${item.cantidad}x ${item.nombre} (${item.opcionSeleccionada})`;
-                }).join(', ');
+                let aderezosDetalle = aderezosItems.map(item => { aderezosTotal += (item.precio * item.cantidad); return `${item.cantidad}x ${item.nombre} (${item.opcionSeleccionada})`; }).join(', ');
                 total += aderezosTotal;
-
-                html += `
-                    <div class="flex justify-between items-start bg-yellow-50 p-3 rounded-lg border border-yellow-200">
-                        <div class="flex-grow">
-                            <p class="font-bold text-sm text-yellow-800"><i class="fas fa-wine-bottle mr-1"></i> Aderezos:</p>
-                            <p class="text-xs text-yellow-700 mt-1">${aderezosDetalle}</p>
-                        </div>
-                        <div class="flex flex-col items-end gap-2">
-                            <span class="font-bold text-yellow-800 ars">$${aderezosTotal.toLocaleString('es-AR')}</span>
-                            <button onclick="removeAderezos()" class="text-red-400 hover:text-red-600 text-xs flex items-center gap-1 transition">
-                                <i class="fas fa-trash"></i> Quitar todos
-                            </button>
-                        </div>
-                    </div>
-                `;
+                html += `<div class="flex justify-between items-start bg-yellow-50 p-3 rounded-lg border border-yellow-200">
+                    <div class="flex-grow"><p class="font-bold text-sm text-yellow-800"><i class="fas fa-wine-bottle mr-1"></i> Aderezos:</p><p class="text-xs text-yellow-700 mt-1">${aderezosDetalle}</p></div>
+                    <div class="flex flex-col items-end gap-2"><span class="font-bold text-yellow-800 ars">$${aderezosTotal.toLocaleString('es-AR')}</span>
+                    <button onclick="removeAderezos()" class="text-red-400 hover:text-red-600 text-xs flex items-center gap-1 transition"><i class="fas fa-trash"></i> Quitar todos</button></div></div>`;
             }
-
             container.innerHTML = html;
             document.getElementById('cart-total').innerText = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(total);
         }
 
-        function removeFromCart(index) {
-            cart.splice(index, 1);
-            updateCartUI();
-        }
-
-        function removeAderezos() {
-            cart = cart.filter(i => i.categoria !== 'aderezos');
-            updateCartUI();
-        }
-
-        function toggleCart() {
-            const modal = document.getElementById('cart-modal');
-            modal.classList.toggle('hidden');
-        }
-
+        function removeFromCart(index) { cart.splice(index, 1); updateCartUI(); }
+        function removeAderezos() { cart = cart.filter(i => i.categoria !== 'aderezos'); updateCartUI(); }
+        function toggleCart() { document.getElementById('cart-modal').classList.toggle('hidden'); }
         function toggleDireccion(mostrar) {
-            const campo = document.getElementById('campo-direccion');
-            const input = document.getElementById('cliente-direccion');
-            if (mostrar) {
-                campo.classList.remove('hidden');
-                input.required = true;
-            } else {
-                campo.classList.add('hidden');
-                input.required = false;
-                input.value = '';
-            }
+            const campo = document.getElementById('campo-direccion'), input = document.getElementById('cliente-direccion');
+            if (mostrar) { campo.classList.remove('hidden'); input.required = true; } 
+            else { campo.classList.add('hidden'); input.required = false; input.value = ''; }
         }
 
-        // ================= PROCESAR PEDIDO =================
         function processOrder(e) {
             e.preventDefault();
             if (cart.length === 0) return alert('El carrito está vacío');
-
             const nombre = document.getElementById('cliente-nombre').value;
             const telefono = document.getElementById('cliente-telefono').value;
             const tipo = document.querySelector('input[name="tipoEntrega"]:checked').value;
             const direccion = tipo === 'Envio' ? document.getElementById('cliente-direccion').value : 'Retiro en Local';
-            
             const mainItems = cart.filter(i => i.categoria !== 'aderezos');
             const aderezosItems = cart.filter(i => i.categoria === 'aderezos');
-
-            let detalleComida = mainItems.map(i => {
-                let desc = `• ${i.cantidad}x ${i.nombre} (${i.opcionSeleccionada})`;
-                if (i.aderezo && i.aderezo !== 'Sin aderezo') desc += ` [${i.aderezo}]`;
-                return desc;
-            }).join('\n');
-
-            let detalleAderezos = "";
-            if (aderezosItems.length > 0) {
-                const aderezosResumen = aderezosItems.map(i => `• ${i.cantidad}x ${i.nombre} (${i.opcionSeleccionada})`).join('\n');
-                detalleAderezos = `\n\n🧴 ADEREZOS:\n${aderezosResumen}`;
-            }
-
+            let detalleComida = mainItems.map(i => { let desc = `• ${i.cantidad}x ${i.nombre} (${i.opcionSeleccionada})`; if (i.aderezo && i.aderezo !== 'Sin aderezo') desc += ` [${i.aderezo}]`; return desc; }).join('\n');
+            let detalleAderezos = aderezosItems.length > 0 ? `\n\n🧴 ADEREZOS:\n` + aderezosItems.map(i => `• ${i.cantidad}x ${i.nombre} (${i.opcionSeleccionada})`).join('\n') : "";
             const detalleFinal = detalleComida + detalleAderezos;
             const total = cart.reduce((sum, i) => sum + (i.precio * i.cantidad), 0);
 
-            const pedidoData = {
-                action: 'nuevoPedido',
-                cliente: nombre,
-                telefono: telefono,
-                direccion: direccion,
-                tipo: tipo,
-                detalle: detalleFinal,
-                total: total
-            };
-
             const btn = e.target.querySelector('button[type="submit"]');
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
-            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...'; btn.disabled = true;
 
-            fetch(API_URL, {
-                method: 'POST',
-                body: JSON.stringify(pedidoData)
-            })
-            .then(res => res.json())
-            .then(data => {
+            fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'nuevoPedido', cliente: nombre, telefono: telefono, direccion: direccion, tipo: tipo, detalle: detalleFinal, total: total }) })
+            .then(res => res.json()).then(data => {
                 if(data.status === 'success') {
                     alert('¡Pedido enviado con éxito! ID: ' + data.id);
-                    cart = [];
-                    updateCartUI();
-                    toggleCart();
-                    e.target.reset();
-                    toggleDireccion(false);
+                    cart = []; updateCartUI(); toggleCart(); e.target.reset(); toggleDireccion(false);
                 }
-            })
-            .catch(err => {
-                console.error(err);
-                alert('Error de conexión. Intenta de nuevo.');
-            })
-            .finally(() => {
-                btn.innerHTML = '<i class="fab fa-whatsapp text-xl"></i> Confirmar y Enviar Pedido';
-                btn.disabled = false;
-            });
+            }).catch(err => { console.error(err); alert('Error de conexión.'); })
+            .finally(() => { btn.innerHTML = '<i class="fab fa-whatsapp text-xl"></i> Confirmar Pedido'; btn.disabled = false; });
         }
 
-        // ================= LÓGICA DEL ADMIN CRM =================
-        
         function formatDetalleToHTML(detalleString) {
             if (!detalleString) return '';
             const lines = detalleString.split('\n').filter(line => line.trim() !== '');
-            return `<ul class="list-disc list-inside space-y-1 text-gray-700">
-                ${lines.map(line => `<li class="text-sm">${line.replace(/^•\s*/, '')}</li>`).join('')}
-            </ul>`;
+            return `<ul class="list-disc list-inside space-y-1 text-gray-700">${lines.map(line => `<li class="text-sm">${line.replace(/^•\s*/, '')}</li>`).join('')}</ul>`;
         }
 
         function loadPedidos() {
             const container = document.getElementById('admin-pedidos');
-            container.innerHTML = '<div class="col-span-full text-center py-10"><i class="fas fa-spinner fa-spin text-3xl text-orange-600"></i><p class="mt-2 text-gray-500">Cargando pedidos...</p></div>';
+            container.innerHTML = '<div class="col-span-full text-center py-10"><i class="fas fa-spinner fa-spin text-3xl text-orange-600"></i><p class="mt-2 text-gray-500">Cargando...</p></div>';
 
-            fetch(`${API_URL}?action=getPedidos`)
+            // 1. Cargar repartidores primero para tener sus teléfonos
+            fetch(`${API_URL}?action=getRepartidores`)
+                .then(res => res.json())
+                .then(reps => {
+                    repartidoresDB = reps;
+                    // 2. Luego cargar pedidos
+                    return fetch(`${API_URL}?action=getPedidos`);
+                })
                 .then(res => res.json())
                 .then(pedidos => {
                     container.innerHTML = '';
-                    if(pedidos.length === 0) {
-                        container.innerHTML = '<div class="col-span-full text-center text-gray-500 bg-white p-10 rounded-xl shadow">No hay pedidos registrados.</div>';
-                        return;
-                    }
+                    if(pedidos.length === 0) { container.innerHTML = '<div class="col-span-full text-center text-gray-500 bg-white p-10 rounded-xl shadow">No hay pedidos.</div>'; return; }
 
-                    // ==========================================
-                    // LÓGICA DE ORDENAMIENTO POR ESTADO
-                    // ==========================================
-                    const estadoPrioridad = {
-                        'Pendiente': 1,
-                        'En Preparación': 2,
-                        'En Camino': 3,
-                        'Entregado': 4
-                    };
-
+                    const estadoPrioridad = { 'Pendiente': 1, 'En Preparación': 2, 'En Camino': 3, 'Entregado': 4 };
                     pedidos.sort((a, b) => {
                         const prioA = estadoPrioridad[a.Estado] || 5;
                         const prioB = estadoPrioridad[b.Estado] || 5;
-                        
-                        // Primero ordena por prioridad de estado (Pendiente arriba, Entregado abajo)
-                        if (prioA !== prioB) {
-                            return prioA - prioB; 
-                        }
-                        // Si tienen el mismo estado, ordena por fecha (el más reciente primero)
+                        if (prioA !== prioB) return prioA - prioB;
                         return new Date(b.Fecha) - new Date(a.Fecha);
                     });
-                    // ==========================================
 
                     pedidos.forEach(p => {
                         let statusColor = 'bg-yellow-100 text-yellow-800 border-yellow-300';
@@ -480,43 +313,33 @@
                         if(p.Estado === 'En Camino') statusColor = 'bg-purple-100 text-purple-800 border-purple-300';
                         if(p.Estado === 'Entregado') statusColor = 'bg-green-100 text-green-800 border-green-300';
 
-                        const totalARS = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(p.Total);
-                        
+                        // Usamos || 0 para evitar NaN si el dato viene vacío
+                        const totalARS = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(p.Total || 0);
                         const msg = `Hola ${p.Cliente}, te escribimos de FastFood Express.%0A%0A📦 *Tu Pedido ${p.ID}*%0A💰 Total: *${totalARS}*%0A📍 Estado: *${p.Estado}*%0A${p.Repartidor ? '🛵 Repartidor: ' + p.Repartidor : ''}`;
                         const waLink = `https://wa.me/${p.Telefono}?text=${msg}`;
 
                         const direccionDisplay = p.TipoEntrega === 'Retiro' 
                             ? `<span class="text-gray-500"><i class="fas fa-store mr-2"></i>Retiro en Local</span>` 
-                            : `<span class="font-semibold text-gray-800"><i class="fas fa-map-marker-alt text-red-500 mr-2"></i>${p.Direccion}</span>`;
+                            : `<span class="font-semibold text-gray-800"><i class="fas fa-map-marker-alt text-red-500 mr-2"></i>${p.Direccion || 'Sin dirección'}</span>`;
 
                         const repartidorActual = p.Repartidor || 'Sin asignar';
                         const repartidorClass = p.Repartidor ? 'text-green-700 font-bold' : 'text-gray-500 italic';
+                        
+                        // Buscar teléfono del repartidor asignado
+                        const repInfo = repartidoresDB.find(r => r.Nombre === p.Repartidor);
+                        const repTel = repInfo ? repInfo.Telefono : '';
+                        const waRepLink = repTel ? `https://wa.me/${repTel}?text=${encodeURIComponent('Hola ' + p.Repartidor + ', el pedido ' + p.ID + ' está listo para entregar. Dirección: ' + (p.Direccion || 'Retiro en local'))}` : '#';
 
                         container.innerHTML += `
                             <div class="bg-white rounded-xl shadow-md p-5 border-t-4 ${p.Estado === 'Entregado' ? 'border-green-500' : 'border-orange-500'} fade-in">
                                 <div class="flex justify-between items-start mb-4">
-                                    <div>
-                                        <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">${p.Fecha}</span>
-                                        <h4 class="text-xl font-bold text-gray-800">${p.ID}</h4>
-                                    </div>
+                                    <div><span class="text-xs font-bold text-gray-400 uppercase tracking-wider">${p.Fecha}</span><h4 class="text-xl font-bold text-gray-800">${p.ID}</h4></div>
                                     <span class="px-3 py-1 rounded-full text-xs font-bold border ${statusColor}">${p.Estado}</span>
                                 </div>
-                                
                                 <div class="space-y-3 mb-4 text-sm">
-                                    <div class="flex items-center text-gray-700">
-                                        <i class="fas fa-user text-gray-400 w-6"></i> <strong>${p.Cliente}</strong>
-                                    </div>
-                                    <div class="flex items-center text-gray-700">
-                                        <i class="fas fa-phone text-gray-400 w-6"></i> ${p.Telefono}
-                                    </div>
-                                    <div class="flex items-start text-gray-700">
-                                        <i class="fas fa-truck text-gray-400 w-6 mt-1"></i> 
-                                        <div>
-                                            <span class="text-xs text-gray-500 uppercase block">Entrega:</span>
-                                            ${direccionDisplay}
-                                        </div>
-                                    </div>
-                                    
+                                    <div class="flex items-center text-gray-700"><i class="fas fa-user text-gray-400 w-6"></i> <strong>${p.Cliente}</strong></div>
+                                    <div class="flex items-center text-gray-700"><i class="fas fa-phone text-gray-400 w-6"></i> ${p.Telefono}</div>
+                                    <div class="flex items-start text-gray-700"><i class="fas fa-truck text-gray-400 w-6 mt-1"></i> <div><span class="text-xs text-gray-500 uppercase block">Entrega:</span>${direccionDisplay}</div></div>
                                     <div class="bg-gray-50 p-4 rounded-lg border border-gray-100 mt-3">
                                         <p class="text-xs font-bold text-gray-500 uppercase mb-2">Detalle del Pedido:</p>
                                         ${formatDetalleToHTML(p.Detalle)}
@@ -526,11 +349,8 @@
                                         </div>
                                     </div>
                                 </div>
-
                                 <div class="grid grid-cols-2 gap-3 mb-3">
-                                    <a href="${waLink}" target="_blank" class="bg-green-500 text-white text-center py-3 rounded-lg hover:bg-green-600 font-semibold text-sm transition flex items-center justify-center gap-2">
-                                        <i class="fab fa-whatsapp text-lg"></i> Notificar
-                                    </a>
+                                    <a href="${waLink}" target="_blank" class="bg-green-500 text-white text-center py-3 rounded-lg hover:bg-green-600 font-semibold text-sm transition flex items-center justify-center gap-2"><i class="fab fa-whatsapp text-lg"></i> Notificar Cliente</a>
                                     <select onchange="updateStatus('${p.ID}', this.value)" class="border border-gray-300 rounded-lg p-3 text-sm font-semibold text-gray-700 focus:ring-2 focus:ring-orange-500 outline-none cursor-pointer">
                                         <option value="" disabled selected>Cambiar Estado...</option>
                                         <option value="Pendiente">Pendiente</option>
@@ -539,8 +359,6 @@
                                         <option value="Entregado">Entregado</option>
                                     </select>
                                 </div>
-
-                                <!-- OPCION DE ASIGNAR REPARTIDOR EN TODOS LOS PEDIDOS ACTIVOS -->
                                 ${p.Estado !== 'Entregado' ? `
                                 <div class="mt-4 pt-4 border-t border-gray-200 bg-blue-50 p-4 rounded-lg">
                                     <div class="flex justify-between items-center mb-2">
@@ -551,20 +369,21 @@
                                         <select id="rep-${p.ID}" class="flex-grow border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
                                             <option value="">Seleccionar repartidor...</option>
                                         </select>
-                                        <button onclick="assignDriver('${p.ID}')" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-700 transition whitespace-nowrap">
-                                            Asignar
-                                        </button>
+                                        <button onclick="assignDriver('${p.ID}')" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-700 transition whitespace-nowrap">Asignar</button>
                                     </div>
                                 </div>` : ''}
                                 
                                 ${p.Repartidor && p.Estado !== 'Entregado' ? `
-                                <div class="mt-2 text-center">
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                        <i class="fas fa-motorcycle mr-1"></i> Asignado a: ${p.Repartidor}
+                                <div class="mt-3 flex items-center justify-between bg-green-50 p-3 rounded-lg border border-green-200">
+                                    <span class="inline-flex items-center text-sm font-medium text-green-800">
+                                        <i class="fas fa-motorcycle mr-2"></i> Asignado a: <strong class="ml-1">${p.Repartidor}</strong>
                                     </span>
+                                    ${repTel ? `
+                                    <a href="${waRepLink}" target="_blank" class="bg-green-600 text-white px-3 py-1.5 rounded-md text-xs font-bold hover:bg-green-700 transition flex items-center gap-1 shadow-sm">
+                                        <i class="fab fa-whatsapp"></i> Contactar
+                                    </a>` : '<span class="text-xs text-gray-500">(Sin tel.)</span>'}
                                 </div>` : ''}
-                            </div>
-                        `;
+                            </div>`;
                     });
                     loadRepartidoresForSelect();
                 });
@@ -572,100 +391,51 @@
 
         function updateStatus(id, nuevoEstado) {
             if(!nuevoEstado) return;
-            fetch(API_URL, {
-                method: 'POST',
-                body: JSON.stringify({ action: 'actualizarEstado', idPedido: id, estado: nuevoEstado })
-            }).then(() => loadPedidos()); // Al recargar, el ordenamiento lo moverá automáticamente
+            fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'actualizarEstado', idPedido: id, estado: nuevoEstado }) }).then(() => loadPedidos());
         }
 
         function assignDriver(idPedido) {
             const select = document.getElementById(`rep-${idPedido}`);
             const repartidor = select.value;
-            
-            if(!repartidor) return alert('Por favor, selecciona un repartidor registrado de la lista');
-            
+            if(!repartidor) return alert('Selecciona un repartidor de la lista');
             const btn = select.nextElementSibling;
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-            btn.disabled = true;
-
-            fetch(API_URL, {
-                method: 'POST',
-                body: JSON.stringify({ action: 'actualizarEstado', idPedido: idPedido, estado: 'En Camino', repartidor: repartidor })
-            }).then(() => {
-                alert(`✅ Repartidor "${repartidor}" asignado correctamente.`);
-                loadPedidos(); // Al recargar, el pedido bajará al final de la fila por ser "En Camino"
-            }).catch(() => {
-                alert('Error al asignar. Intenta de nuevo.');
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            });
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; btn.disabled = true;
+            fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'actualizarEstado', idPedido: idPedido, estado: 'En Camino', repartidor: repartidor }) })
+            .then(() => { alert(`✅ Repartidor "${repartidor}" asignado.`); loadPedidos(); })
+            .catch(() => { alert('Error al asignar.'); btn.innerHTML = 'Asignar'; btn.disabled = false; });
         }
 
         function loadRepartidoresForSelect() {
-            fetch(`${API_URL}?action=getRepartidores`)
-                .then(res => res.json())
-                .then(reps => {
-                    document.querySelectorAll('select[id^="rep-"]').forEach(select => {
-                        const currentVal = select.value;
-                        select.innerHTML = '<option value="">Seleccionar repartidor...</option>';
-                        reps.forEach(r => {
-                            if(r.Estado === 'Disponible') {
-                                select.innerHTML += `<option value="${r.Nombre}">${r.Nombre}</option>`;
-                            }
-                        });
-                        select.value = currentVal;
-                    });
+            document.querySelectorAll('select[id^="rep-"]').forEach(select => {
+                const currentVal = select.value;
+                select.innerHTML = '<option value="">Seleccionar repartidor...</option>';
+                repartidoresDB.forEach(r => {
+                    if(r.Estado === 'Disponible') select.innerHTML += `<option value="${r.Nombre}">${r.Nombre}</option>`;
                 });
+                select.value = currentVal;
+            });
         }
 
-        // ================= GESTIÓN REPARTIDORES =================
         function loadRepartidores() {
             const container = document.getElementById('lista-repartidores');
-            container.innerHTML = '<p class="col-span-full text-center text-gray-500 py-4">Cargando repartidores...</p>';
-            
-            fetch(`${API_URL}?action=getRepartidores`)
-                .then(res => res.json())
-                .then(reps => {
-                    container.innerHTML = '';
-                    if(reps.length === 0) {
-                        container.innerHTML = '<p class="col-span-full text-center text-gray-500 py-4 bg-white rounded-lg">No hay repartidores registrados.</p>';
-                        return;
-                    }
-                    reps.forEach(r => {
-                        container.innerHTML += `
-                            <div class="bg-white p-4 rounded-lg shadow border-l-4 ${r.Estado === 'Disponible' ? 'border-green-500' : 'border-red-500'} flex justify-between items-center">
-                                <div>
-                                    <h4 class="font-bold text-gray-800">${r.Nombre}</h4>
-                                    <p class="text-sm text-gray-600"><i class="fas fa-phone text-xs mr-1"></i> ${r.Telefono}</p>
-                                </div>
-                                <span class="px-3 py-1 text-xs rounded-full font-bold ${r.Estado === 'Disponible' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
-                                    ${r.Estado}
-                                </span>
-                            </div>
-                        `;
-                    });
+            container.innerHTML = '<p class="col-span-full text-center text-gray-500 py-4">Cargando...</p>';
+            fetch(`${API_URL}?action=getRepartidores`).then(res => res.json()).then(reps => {
+                container.innerHTML = '';
+                if(reps.length === 0) { container.innerHTML = '<p class="col-span-full text-center text-gray-500 py-4 bg-white rounded-lg">No hay repartidores.</p>'; return; }
+                reps.forEach(r => {
+                    container.innerHTML += `<div class="bg-white p-4 rounded-lg shadow border-l-4 ${r.Estado === 'Disponible' ? 'border-green-500' : 'border-red-500'} flex justify-between items-center">
+                        <div><h4 class="font-bold text-gray-800">${r.Nombre}</h4><p class="text-sm text-gray-600"><i class="fas fa-phone text-xs mr-1"></i> ${r.Telefono}</p></div>
+                        <span class="px-3 py-1 text-xs rounded-full font-bold ${r.Estado === 'Disponible' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${r.Estado}</span></div>`;
                 });
+            });
         }
 
         function addRepartidor(e) {
             e.preventDefault();
-            const data = {
-                action: 'nuevoRepartidor',
-                nombre: document.getElementById('rep-nombre').value,
-                telefono: document.getElementById('rep-telefono').value
-            };
-            
-            fetch(API_URL, { method: 'POST', body: JSON.stringify(data) })
-                .then(res => res.json())
-                .then(() => {
-                    alert('Repartidor registrado exitosamente');
-                    e.target.reset();
-                    loadRepartidores();
-                });
+            fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'nuevoRepartidor', nombre: document.getElementById('rep-nombre').value, telefono: document.getElementById('rep-telefono').value }) })
+            .then(res => res.json()).then(() => { alert('Repartidor registrado'); e.target.reset(); loadRepartidores(); });
         }
 
-        // Inicializar
         renderMenu();
     </script>
 </body>
