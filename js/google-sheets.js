@@ -1,11 +1,16 @@
 // ============================================
-// CONFIGURACIÓN DE GOOGLE SHEETS
+// CONFIGURACIÓN DE GOOGLE SHEETS CON OAUTH2
 // ============================================
+
+// 🔴 REEMPLAZÁ CON TU CLIENT ID DE OAuth2
+const CLIENT_ID = '1038997880728-v5dg34jpandsrvnprtkvm3atd9tldhmc.apps.googleusercontent.com';  // ← PEGA TU CLIENT ID AQUÍ
+const API_KEY = 'AIzaSyAJgw0PQKO4qhby7mYDkopJPUXJBu79rGk';
+
 const SHEETS_CONFIG = {
-    // 🔴 TU SPREADSHEET ID
     spreadsheetId: '14xD_209wbWswASj3uFTBnTPC_NLf3_dKtDoIeP-Q3hE',
-    // 🔴 TU API KEY
-    apiKey: 'AIzaSyAJgw0PQKO4qhby7mYDkopJPUXJBu79rGk',
+    apiKey: API_KEY,
+    clientId: CLIENT_ID,
+    scopes: 'https://www.googleapis.com/auth/spreadsheets',
     sheets: {
         orders: 'Pedidos',
         products: 'Productos',
@@ -17,16 +22,104 @@ console.log('📊 Configuración de Google Sheets cargada');
 console.log('📊 Spreadsheet ID:', SHEETS_CONFIG.spreadsheetId);
 
 // ============================================
-// CLASE PARA MANEJAR GOOGLE SHEETS
+// TOKEN DE AUTENTICACIÓN
+// ============================================
+let authToken = null;
+
+// ============================================
+// CLASE PARA MANEJAR GOOGLE SHEETS CON OAUTH
 // ============================================
 class GoogleSheetsManager {
     constructor(config) {
         this.spreadsheetId = config.spreadsheetId;
         this.apiKey = config.apiKey;
+        this.clientId = config.clientId;
+        this.scopes = config.scopes;
         this.baseUrl = `https://sheets.googleapis.com/v4/spreadsheets/${this.spreadsheetId}/values`;
+        this.isAuthenticated = false;
         console.log('✅ GoogleSheetsManager inicializado');
-        console.log('📊 Spreadsheet ID:', this.spreadsheetId);
-        console.log('🔑 API Key:', this.apiKey ? '✅ Configurada' : '❌ No configurada');
+    }
+
+    // ===== INICIAR SESIÓN CON GOOGLE =====
+    async authenticate() {
+        return new Promise((resolve, reject) => {
+            try {
+                // Si ya está cargado gapi, usar directamente
+                if (typeof gapi !== 'undefined' && gapi.client) {
+                    this._initGapi(resolve, reject);
+                    return;
+                }
+
+                // Cargar la librería de Google OAuth
+                const script = document.createElement('script');
+                script.src = 'https://apis.google.com/js/api.js';
+                script.onload = () => {
+                    this._initGapi(resolve, reject);
+                };
+                script.onerror = () => {
+                    reject(new Error('No se pudo cargar la librería de Google'));
+                };
+                document.head.appendChild(script);
+            } catch (error) {
+                console.error('❌ Error en autenticación:', error);
+                reject(error);
+            }
+        });
+    }
+
+    async _initGapi(resolve, reject) {
+        try {
+            await gapi.client.init({
+                apiKey: this.apiKey,
+                clientId: this.clientId,
+                discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
+                scope: this.scopes
+            });
+            
+            const auth = gapi.auth2.getAuthInstance();
+            const isSignedIn = auth.isSignedIn.get();
+            
+            if (isSignedIn) {
+                this.isAuthenticated = true;
+                authToken = auth.currentUser.get().getAuthResponse().access_token;
+                console.log('✅ Ya autenticado con Google');
+                resolve(true);
+            } else {
+                // Mostrar popup de login
+                try {
+                    await auth.signIn();
+                    this.isAuthenticated = true;
+                    authToken = auth.currentUser.get().getAuthResponse().access_token;
+                    console.log('✅ Autenticación exitosa');
+                    resolve(true);
+                } catch (signInError) {
+                    console.error('❌ Error al iniciar sesión:', signInError);
+                    reject(signInError);
+                }
+            }
+        } catch (initError) {
+            console.error('❌ Error al inicializar gapi:', initError);
+            reject(initError);
+        }
+    }
+
+    // ===== VERIFICAR AUTENTICACIÓN =====
+    async ensureAuthenticated() {
+        if (!this.isAuthenticated) {
+            await this.authenticate();
+        }
+        return this.isAuthenticated;
+    }
+
+    // ===== OBTENER TOKEN =====
+    getAuthToken() {
+        if (gapi && gapi.auth2) {
+            const auth = gapi.auth2.getAuthInstance();
+            if (auth && auth.isSignedIn.get()) {
+                return auth.currentUser.get().getAuthResponse().access_token;
+            }
+        }
+        return null;
     }
 
     // ============================================
@@ -35,31 +128,33 @@ class GoogleSheetsManager {
 
     // ===== GUARDAR PEDIDO =====
     async saveOrder(order) {
-        console.log('📦 Guardando pedido en Google Sheets:', order);
-
-        const values = [[
-            order.id || 'order-' + Date.now(),
-            order.fecha || new Date().toISOString(),
-            order.cliente || 'Cliente',
-            order.telefono || '11 0000-0000',
-            order.tipo_entrega || 'Envío',
-            order.direccion || '',
-            order.items || '',
-            order.total || 0,
-            order.pago || 'efectivo',
-            order.notas || '',
-            order.estado || 'pendiente',
-            order.entregador || 'Sin asignar'
-        ]];
-
-        const url = `${this.baseUrl}/Pedidos:append?valueInputOption=USER_ENTERED&key=${this.apiKey}`;
-
         try {
-            console.log('📤 Enviando a Google Sheets...');
+            await this.ensureAuthenticated();
             
+            console.log('📦 Guardando pedido en Google Sheets:', order);
+
+            const values = [[
+                order.id || 'order-' + Date.now(),
+                order.fecha || new Date().toISOString(),
+                order.cliente || 'Cliente',
+                order.telefono || '11 0000-0000',
+                order.tipo_entrega || 'Envío',
+                order.direccion || '',
+                order.items || '',
+                order.total || 0,
+                order.pago || 'efectivo',
+                order.notas || '',
+                order.estado || 'pendiente',
+                order.entregador || 'Sin asignar'
+            ]];
+
+            const token = this.getAuthToken();
+            const url = `${this.baseUrl}/Pedidos:append?valueInputOption=USER_ENTERED`;
+
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
+                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
@@ -78,9 +173,7 @@ class GoogleSheetsManager {
             const data = await response.json();
             console.log('✅ Pedido guardado en Google Sheets:', data);
             
-            // Guardar en localStorage como respaldo
             this.saveToLocalStorage('orders', order);
-            
             return data;
 
         } catch (error) {
@@ -90,10 +183,11 @@ class GoogleSheetsManager {
         }
     }
 
-    // ===== OBTENER PEDIDOS =====
+    // ===== OBTENER PEDIDOS (lectura pública) =====
     async getOrders() {
         try {
-            const response = await fetch(`${this.baseUrl}/Pedidos?key=${this.apiKey}`);
+            const url = `${this.baseUrl}/Pedidos?key=${this.apiKey}`;
+            const response = await fetch(url);
             
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}`);
@@ -129,6 +223,8 @@ class GoogleSheetsManager {
     // ===== ACTUALIZAR ESTADO DEL PEDIDO =====
     async updateOrderStatus(orderId, newStatus) {
         try {
+            await this.ensureAuthenticated();
+            
             const orders = await this.getOrders();
             const orderIndex = orders.findIndex(o => o.id === orderId);
             
@@ -137,11 +233,13 @@ class GoogleSheetsManager {
             }
 
             const rowIndex = orderIndex + 2;
-            const url = `${this.baseUrl}/Pedidos!K${rowIndex}?valueInputOption=USER_ENTERED&key=${this.apiKey}`;
+            const token = this.getAuthToken();
+            const url = `${this.baseUrl}/Pedidos!K${rowIndex}?valueInputOption=USER_ENTERED`;
             
             const response = await fetch(url, {
                 method: 'PUT',
                 headers: {
+                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
@@ -156,7 +254,6 @@ class GoogleSheetsManager {
             const data = await response.json();
             console.log('✅ Estado actualizado en Google Sheets:', data);
             
-            // Actualizar en localStorage
             const localOrders = this.getFromLocalStorage('orders');
             const localOrder = localOrders.find(o => o.id === orderId);
             if (localOrder) {
@@ -176,12 +273,13 @@ class GoogleSheetsManager {
     // ===== PRODUCTOS =====
     // ============================================
 
-    // ===== OBTENER PRODUCTOS =====
+    // ===== OBTENER PRODUCTOS (lectura pública) =====
     async getProductsFromSheets() {
         try {
             console.log('📦 Obteniendo productos de Google Sheets...');
             
-            const response = await fetch(`${this.baseUrl}/Productos?key=${this.apiKey}`);
+            const url = `${this.baseUrl}/Productos?key=${this.apiKey}`;
+            const response = await fetch(url);
             
             if (!response.ok) {
                 console.warn(`⚠️ Error HTTP ${response.status} al obtener productos`);
@@ -221,6 +319,8 @@ class GoogleSheetsManager {
     // ===== GUARDAR PRODUCTO =====
     async saveProductToSheets(product) {
         try {
+            await this.ensureAuthenticated();
+            
             console.log('📦 Guardando producto en Google Sheets:', product);
             
             const values = [[
@@ -232,9 +332,13 @@ class GoogleSheetsManager {
                 product.categoria || ''
             ]];
             
-            const response = await fetch(`${this.baseUrl}/Productos:append?valueInputOption=USER_ENTERED&key=${this.apiKey}`, {
+            const token = this.getAuthToken();
+            const url = `${this.baseUrl}/Productos:append?valueInputOption=USER_ENTERED`;
+            
+            const response = await fetch(url, {
                 method: 'POST',
                 headers: {
+                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
@@ -264,12 +368,13 @@ class GoogleSheetsManager {
     // ===== ENTREGADORES =====
     // ============================================
 
-    // ===== OBTENER ENTREGADORES =====
+    // ===== OBTENER ENTREGADORES (lectura pública) =====
     async getDeliverersFromSheets() {
         try {
             console.log('📦 Obteniendo entregadores de Google Sheets...');
             
-            const response = await fetch(`${this.baseUrl}/Entregadores?key=${this.apiKey}`);
+            const url = `${this.baseUrl}/Entregadores?key=${this.apiKey}`;
+            const response = await fetch(url);
             
             if (!response.ok) {
                 console.warn(`⚠️ Error HTTP ${response.status} al obtener entregadores`);
@@ -309,6 +414,8 @@ class GoogleSheetsManager {
     // ===== GUARDAR ENTREGADOR =====
     async saveDelivererToSheets(deliverer) {
         try {
+            await this.ensureAuthenticated();
+            
             console.log('📦 Guardando entregador en Google Sheets:', deliverer);
             
             const values = [[
@@ -319,9 +426,13 @@ class GoogleSheetsManager {
                 deliverer.disponible ? 'Sí' : 'No'
             ]];
             
-            const response = await fetch(`${this.baseUrl}/Entregadores:append?valueInputOption=USER_ENTERED&key=${this.apiKey}`, {
+            const token = this.getAuthToken();
+            const url = `${this.baseUrl}/Entregadores:append?valueInputOption=USER_ENTERED`;
+            
+            const response = await fetch(url, {
                 method: 'POST',
                 headers: {
+                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
@@ -350,6 +461,8 @@ class GoogleSheetsManager {
     // ===== ACTUALIZAR ENTREGADOR =====
     async updateDelivererInSheets(delivererId, updatedData) {
         try {
+            await this.ensureAuthenticated();
+            
             console.log('📦 Actualizando entregador en Google Sheets:', delivererId);
             
             const deliverers = await this.getDeliverersFromSheets();
@@ -360,7 +473,8 @@ class GoogleSheetsManager {
             }
 
             const rowIndex = index + 2;
-            const url = `${this.baseUrl}/Entregadores!A${rowIndex}:E${rowIndex}?valueInputOption=USER_ENTERED&key=${this.apiKey}`;
+            const token = this.getAuthToken();
+            const url = `${this.baseUrl}/Entregadores!A${rowIndex}:E${rowIndex}?valueInputOption=USER_ENTERED`;
             
             const values = [[
                 delivererId,
@@ -373,6 +487,7 @@ class GoogleSheetsManager {
             const response = await fetch(url, {
                 method: 'PUT',
                 headers: {
+                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
@@ -392,34 +507,6 @@ class GoogleSheetsManager {
 
         } catch (error) {
             console.error('❌ Error al actualizar entregador:', error);
-            throw error;
-        }
-    }
-
-    // ===== ELIMINAR ENTREGADOR =====
-    async deleteDelivererFromSheets(delivererId) {
-        try {
-            console.log('📦 Eliminando entregador de Google Sheets:', delivererId);
-            
-            // No podemos eliminar filas directamente con la API de Sheets
-            // Marcamos como no disponible en su lugar
-            const deliverers = await this.getDeliverersFromSheets();
-            const index = deliverers.findIndex(d => d.id === delivererId);
-            
-            if (index === -1) {
-                throw new Error('Entregador no encontrado');
-            }
-
-            // Actualizar a "No disponible"
-            const updatedData = {
-                ...deliverers[index],
-                disponible: false
-            };
-            
-            return await this.updateDelivererInSheets(delivererId, updatedData);
-
-        } catch (error) {
-            console.error('❌ Error al eliminar entregador:', error);
             throw error;
         }
     }
@@ -451,6 +538,23 @@ class GoogleSheetsManager {
             return [];
         }
     }
+
+    // ===== CERRAR SESIÓN =====
+    async logout() {
+        try {
+            if (gapi && gapi.auth2) {
+                const auth = gapi.auth2.getAuthInstance();
+                await auth.signOut();
+                this.isAuthenticated = false;
+                authToken = null;
+                console.log('🔴 Sesión cerrada');
+                return true;
+            }
+        } catch (error) {
+            console.error('Error al cerrar sesión:', error);
+        }
+        return false;
+    }
 }
 
 // ============================================
@@ -459,13 +563,15 @@ class GoogleSheetsManager {
 console.log('🚀 Inicializando GoogleSheets...');
 
 const GoogleSheets = new GoogleSheetsManager(SHEETS_CONFIG);
-
-// Hacerla global
 window.GoogleSheets = GoogleSheets;
 
 // ============================================
 // FUNCIONES GLOBALES
 // ============================================
+
+// Autenticación
+window.authenticateGoogle = async () => await GoogleSheets.authenticate();
+window.logoutGoogle = async () => await GoogleSheets.logout();
 
 // Pedidos
 window.saveOrderToSheets = async (order) => await GoogleSheets.saveOrder(order);
@@ -480,9 +586,8 @@ window.saveProductToSheets = async (product) => await GoogleSheets.saveProductTo
 window.getDeliverersFromSheets = async () => await GoogleSheets.getDeliverersFromSheets();
 window.saveDelivererToSheets = async (deliverer) => await GoogleSheets.saveDelivererToSheets(deliverer);
 window.updateDelivererInSheets = async (id, data) => await GoogleSheets.updateDelivererInSheets(id, data);
-window.deleteDelivererFromSheets = async (id) => await GoogleSheets.deleteDelivererFromSheets(id);
 
 console.log('✅ GoogleSheets disponible globalmente');
 console.log('📊 Spreadsheet:', SHEETS_CONFIG.spreadsheetId);
-console.log('🔑 API Key:', SHEETS_CONFIG.apiKey ? '✅ Configurada' : '❌ No configurada');
 console.log('📋 Pestañas:', SHEETS_CONFIG.sheets);
+console.log('🔐 OAuth2 configurado. Llamá a authenticateGoogle() para iniciar sesión.');
