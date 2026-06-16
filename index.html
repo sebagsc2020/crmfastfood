@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FastFood CRM & Pedidos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+        body { font-family: 'Poppins', sans-serif; background-color: #f8fafc; }
+        .card-hover:hover { transform: translateY(-5px); transition: all 0.3s ease; }
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Navegación -->
+    <nav class="bg-orange-600 text-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-white text-orange-600 p-2 rounded-full font-bold text-xl">FF</div>
+                <h1 class="text-2xl font-bold tracking-wide">FastFood Express</h1>
+            </div>
+            <div class="space-x-4">
+                <button onclick="showView('cliente')" class="hover:text-orange-200 font-semibold"><i class="fas fa-utensils"></i> Menú</button>
+                <button onclick="showView('admin')" class="hover:text-orange-200 font-semibold"><i class="fas fa-cog"></i> CRM Admin</button>
+                <button onclick="toggleCart()" class="bg-white text-orange-600 px-4 py-2 rounded-full font-bold relative">
+                    <i class="fas fa-shopping-cart"></i> <span id="cart-count" class="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- VISTA CLIENTE: Menú -->
+    <div id="view-cliente" class="container mx-auto px-4 py-8 fade-in">
+        <div class="text-center mb-10">
+            <h2 class="text-4xl font-bold text-gray-800 mb-2">Nuestro Menú</h2>
+            <p class="text-gray-600">Empanadas, Pizzas, Lomitos y más. ¡Elige tu favorito!</p>
+        </div>
+
+        <!-- Categorías -->
+        <div class="flex justify-center space-x-2 mb-8 overflow-x-auto pb-2">
+            <button onclick="filterMenu('all')" class="px-6 py-2 bg-orange-600 text-white rounded-full shadow-md hover:bg-orange-700">Todos</button>
+            <button onclick="filterMenu('empanadas')" class="px-6 py-2 bg-white text-gray-700 rounded-full shadow-md hover:bg-gray-100">Empanadas</button>
+            <button onclick="filterMenu('pizzas')" class="px-6 py-2 bg-white text-gray-700 rounded-full shadow-md hover:bg-gray-100">Pizzas</button>
+            <button onclick="filterMenu('lomitos')" class="px-6 py-2 bg-white text-gray-700 rounded-full shadow-md hover:bg-gray-100">Lomitos</button>
+            <button onclick="filterMenu('bebidas')" class="px-6 py-2 bg-white text-gray-700 rounded-full shadow-md hover:bg-gray-100">Bebidas</button>
+        </div>
+
+        <!-- Grid de Productos -->
+        <div id="menu-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Se llena con JS -->
+        </div>
+    </div>
+
+    <!-- VISTA ADMIN: CRM -->
+    <div id="view-admin" class="container mx-auto px-4 py-8 hidden fade-in">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-3xl font-bold text-gray-800"><i class="fas fa-chart-line text-orange-600"></i> Panel de Pedidos</h2>
+            <button onclick="loadPedidos()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"><i class="fas fa-sync"></i> Actualizar</button>
+        </div>
+
+        <!-- Pestañas Admin -->
+        <div class="flex space-x-4 mb-6 border-b">
+            <button onclick="showAdminTab('pedidos')" class="pb-2 border-b-2 border-orange-600 font-bold text-orange-600">Pedidos Activos</button>
+            <button onclick="showAdminTab('repartidores')" class="pb-2 border-b-2 border-transparent hover:border-gray-300 text-gray-600">Gestión Repartidores</button>
+        </div>
+
+        <!-- Lista de Pedidos -->
+        <div id="admin-pedidos" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Se llena con JS -->
+            <div class="col-span-full text-center py-10 text-gray-500">Cargando pedidos...</div>
+        </div>
+
+        <!-- Gestión Repartidores -->
+        <div id="admin-repartidores" class="hidden">
+            <div class="bg-white p-6 rounded-xl shadow-md mb-6">
+                <h3 class="text-xl font-bold mb-4">Registrar Nuevo Repartidor</h3>
+                <form onsubmit="addRepartidor(event)" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <input type="text" id="rep-nombre" placeholder="Nombre Completo" class="border p-2 rounded-lg" required>
+                    <input type="tel" id="rep-telefono" placeholder="Teléfono (con código país)" class="border p-2 rounded-lg" required>
+                    <button type="submit" class="bg-green-600 text-white p-2 rounded-lg hover:bg-green-700 font-bold">Guardar Repartidor</button>
+                </form>
+            </div>
+            <div id="lista-repartidores" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Se llena con JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CARRITO / CHECKOUT -->
+    <div id="cart-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex justify-end">
+        <div class="bg-white w-full max-w-md h-full overflow-y-auto p-6 shadow-2xl fade-in">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold">Tu Pedido</h3>
+                <button onclick="toggleCart()" class="text-gray-500 hover:text-red-600 text-2xl">&times;</button>
+            </div>
+            
+            <div id="cart-items" class="space-y-4 mb-6">
+                <p class="text-gray-500 text-center">El carrito está vacío</p>
+            </div>
+
+            <div class="border-t pt-4 mb-6">
+                <div class="flex justify-between text-xl font-bold">
+                    <span>Total:</span>
+                    <span id="cart-total">$0</span>
+                </div>
+            </div>
+
+            <form onsubmit="processOrder(event)" class="space-y-4">
+                <h4 class="font-bold text-gray-700">Datos de Entrega</h4>
+                <input type="text" id="cliente-nombre" placeholder="Tu Nombre" class="w-full border p-3 rounded-lg" required>
+                <input type="tel" id="cliente-telefono" placeholder="Tu Teléfono (Ej: 54911...)" class="w-full border p-3 rounded-lg" required>
+                
+                <div class="flex space-x-4">
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="radio" name="tipoEntrega" value="Envio" checked onchange="toggleDireccion(true)" class="text-orange-600">
+                        <span>Envío a Domicilio</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="radio" name="tipoEntrega" value="Retiro" onchange="toggleDireccion(false)" class="text-orange-600">
+                        <span>Retiro en Local</span>
+                    </label>
+                </div>
+
+                <div id="campo-direccion">
+                    <input type="text" id="cliente-direccion" placeholder="Dirección completa (Calle, número, piso)" class="w-full border p-3 rounded-lg">
+                </div>
+
+                <button type="submit" class="w-full bg-green-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-green-700 shadow-lg transition">
+                    <i class="fab fa-whatsapp"></i> Enviar Pedido
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // ================= CONFIGURACIÓN =================
+        const API_URL = 'https://script.google.com/macros/s/AKfycbxwe2zPsjiN_i4xZUbKaKOKhIW3lMvdgHfvrJ9LY6AuaR4AcUhGVc2Gc7g_M4MPvvmhQg/exec'; // <-- PEGA LA URL AQUÍ
+        const PHONE_NEGOCIO = '5491112345678'; // Tu número de WhatsApp para recibir alertas (opcional)
+
+        // ================= DATOS DEL MENÚ =================
+        const productos = [
+            { id: 1, nombre: 'Empanada Carne', categoria: 'empanadas', precio: 1500, img: 'https://images.unsplash.com/photo-1626700051175-6818013e1d4f?w=500', opciones: ['Carne Suave', 'Carne Picante', 'Carne con Aceitunas'] },
+            { id: 2, nombre: 'Empanada Jamón y Queso', categoria: 'empanadas', precio: 1500, img: 'https://images.unsplash.com/photo-1626700051175-6818013e1d4f?w=500', opciones: ['Jamón y Queso', 'Jamón, Queso y Morrón'] },
+            { id: 3, nombre: 'Pizza Muzzarella', categoria: 'pizzas', precio: 8500, img: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500', opciones: ['Media', 'Entera'] },
+            { id: 4, nombre: 'Pizza Especial', categoria: 'pizzas', precio: 10500, img: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?w=500', opciones: ['Media', 'Entera'] },
+            { id: 5, nombre: 'Lomito Completo', categoria: 'lomitos', precio: 12000, img: 'https://images.unsplash.com/photo-1550507992-eb63ffee0847?w=500', opciones: ['Carne', 'Pollo', 'Milanesa'] },
+            { id: 6, nombre: 'Coca Cola 1.5L', categoria: 'bebidas', precio: 3000, img: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=500', opciones: ['Original', 'Zero'] }
+        ];
+
+        let cart = [];
+
+        // ================= FUNCIONES DE VISTA =================
+        function showView(view) {
+            document.getElementById('view-cliente').classList.add('hidden');
+            document.getElementById('view-admin').classList.add('hidden');
+            document.getElementById(`view-${view}`).classList.remove('hidden');
+            if(view === 'admin') loadPedidos();
+        }
+
+        function showAdminTab(tab) {
+            document.getElementById('admin-pedidos').classList.add('hidden');
+            document.getElementById('admin-repartidores').classList.add('hidden');
+            document.getElementById(`admin-${tab}`).classList.remove('hidden');
+            if(tab === 'repartidores') loadRepartidores();
+        }
+
+        // ================= LÓGICA DEL MENÚ =================
+        function renderMenu(filtro = 'all') {
+            const grid = document.getElementById('menu-grid');
+            grid.innerHTML = '';
+            const items = filtro === 'all' ? productos : productos.filter(p => p.categoria === filtro);
+            
+            items.forEach(p => {
+                const opcionesHTML = p.opciones.map(op => `<option value="${op}">${op}</option>`).join('');
+                grid.innerHTML += `
+                    <div class="bg-white rounded-2xl shadow-lg overflow-hidden card-hover border border-gray-100">
+                        <img src="${p.img}" alt="${p.nombre}" class="w-full h-48 object-cover">
+                        <div class="p-5">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="text-xl font-bold text-gray-800">${p.nombre}</h3>
+                                <span class="bg-orange-100 text-orange-800 px-3 py-1 rounded-full font-bold">$${p.precio}</span>
+                            </div>
+                            <select id="opt-${p.id}" class="w-full border border-gray-300 rounded-lg p-2 mb-4 text-sm focus:ring-2 focus:ring-orange-500 outline-none">
+                                ${opcionesHTML}
+                            </select>
+                            <button onclick="addToCart(${p.id})" class="w-full bg-orange-600 text-white py-3 rounded-xl font-bold hover:bg-orange-700 transition flex items-center justify-center gap-2">
+                                <i class="fas fa-plus"></i> Agregar al Pedido
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function filterMenu(cat) { renderMenu(cat); }
+
+        // ================= LÓGICA DEL CARRITO =================
+        function addToCart(id) {
+            const prod = productos.find(p => p.id === id);
+            const opcion = document.getElementById(`opt-${id}`).value;
+            cart.push({ ...prod, opcionSeleccionada: opcion });
+            updateCartUI();
+            
+            // Animación simple de feedback
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check"></i> Agregado';
+            btn.classList.replace('bg-orange-600', 'bg-green-600');
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.classList.replace('bg-green-600', 'bg-orange-600');
+            }, 1000);
+        }
+
+        function updateCartUI() {
+            document.getElementById('cart-count').innerText = cart.length;
+            const container = document.getElementById('cart-items');
+            if (cart.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center">El carrito está vacío</p>';
+                document.getElementById('cart-total').innerText = '$0';
+                return;
+            }
+
+            let total = 0;
+            container.innerHTML = cart.map((item, index) => {
+                total += item.precio;
+                return `
+                    <div class="flex justify-between items-center bg-gray-50 p-3 rounded-lg">
+                        <div>
+                            <p class="font-bold text-sm">${item.nombre}</p>
+                            <p class="text-xs text-gray-500">${item.opcionSeleccionada}</p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="font-bold">$${item.precio}</span>
+                            <button onclick="removeFromCart(${index})" class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            document.getElementById('cart-total').innerText = `$${total}`;
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCartUI();
+        }
+
+        function toggleCart() {
+            const modal = document.getElementById('cart-modal');
+            modal.classList.toggle('hidden');
+        }
+
+        function toggleDireccion(mostrar) {
+            document.getElementById('campo-direccion').style.display = mostrar ? 'block' : 'none';
+            document.getElementById('cliente-direccion').required = mostrar;
+        }
+
+        // ================= PROCESAR PEDIDO =================
+        function processOrder(e) {
+            e.preventDefault();
+            if (cart.length === 0) return alert('El carrito está vacío');
+
+            const nombre = document.getElementById('cliente-nombre').value;
+            const telefono = document.getElementById('cliente-telefono').value;
+            const tipo = document.querySelector('input[name="tipoEntrega"]:checked').value;
+            const direccion = tipo === 'Envio' ? document.getElementById('cliente-direccion').value : 'Retiro en Local';
+            
+            const detalle = cart.map(i => `${i.nombre} (${i.opcionSeleccionada})`).join(' | ');
+            const total = cart.reduce((sum, i) => sum + i.precio, 0);
+
+            const pedidoData = {
+                action: 'nuevoPedido',
+                cliente: nombre,
+                telefono: telefono,
+                direccion: direccion,
+                tipo: tipo,
+                detalle: detalle,
+                total: total
+            };
+
+            // Mostrar carga
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+            btn.disabled = true;
+
+            fetch(API_URL, {
+                method: 'POST',
+                body: JSON.stringify(pedidoData)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === 'success') {
+                    alert('¡Pedido enviado con éxito! ID: ' + data.id);
+                    cart = [];
+                    updateCartUI();
+                    toggleCart();
+                    e.target.reset();
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Error al enviar. Intenta de nuevo.');
+            })
+            .finally(() => {
+                btn.innerHTML = '<i class="fab fa-whatsapp"></i> Enviar Pedido';
+                btn.disabled = false;
+            });
+        }
+
+        // ================= LÓGICA DEL ADMIN CRM =================
+        function loadPedidos() {
+            const container = document.getElementById('admin-pedidos');
+            container.innerHTML = '<div class="col-span-full text-center py-10"><i class="fas fa-spinner fa-spin text-3xl text-orange-600"></i><p>Cargando...</p></div>';
+
+            fetch(`${API_URL}?action=getPedidos`)
+                .then(res => res.json())
+                .then(pedidos => {
+                    container.innerHTML = '';
+                    if(pedidos.length === 0) {
+                        container.innerHTML = '<div class="col-span-full text-center text-gray-500">No hay pedidos registrados.</div>';
+                        return;
+                    }
+
+                    pedidos.forEach(p => {
+                        // Determinar color según estado
+                        let statusColor = 'bg-yellow-100 text-yellow-800';
+                        if(p.Estado === 'En Preparación') statusColor = 'bg-blue-100 text-blue-800';
+                        if(p.Estado === 'En Camino') statusColor = 'bg-purple-100 text-purple-800';
+                        if(p.Estado === 'Entregado') statusColor = 'bg-green-100 text-green-800';
+
+                        // Generar mensaje de WhatsApp
+                        const msg = `Hola ${p.Cliente}, tu pedido *${p.ID}* está *${p.Estado}*. ${p.Repartidor ? 'Repartidor: ' + p.Repartidor : ''}`;
+                        const waLink = `https://wa.me/${p.Telefono}?text=${encodeURIComponent(msg)}`;
+
+                        container.innerHTML += `
+                            <div class="bg-white rounded-xl shadow-md p-5 border-l-4 ${p.Estado === 'Entregado' ? 'border-green-500' : 'border-orange-500'}">
+                                <div class="flex justify-between items-start mb-3">
+                                    <div>
+                                        <span class="text-xs font-bold text-gray-500">${p.Fecha}</span>
+                                        <h4 class="text-lg font-bold text-gray-800">${p.ID}</h4>
+                                    </div>
+                                    <span class="px-3 py-1 rounded-full text-xs font-bold ${statusColor}">${p.Estado}</span>
+                                </div>
+                                
+                                <div class="space-y-2 mb-4 text-sm">
+                                    <p><i class="fas fa-user text-gray-400 w-5"></i> <strong>${p.Cliente}</strong></p>
+                                    <p><i class="fas fa-phone text-gray-400 w-5"></i> ${p.Telefono}</p>
+                                    <p><i class="fas fa-map-marker-alt text-gray-400 w-5"></i> ${p.TipoEntrega} - ${p.Direccion}</p>
+                                    <div class="bg-gray-50 p-3 rounded-lg mt-2">
+                                        <p class="font-semibold text-gray-700">Pedido:</p>
+                                        <p class="text-gray-600">${p.Detalle}</p>
+                                        <p class="font-bold text-orange-600 mt-1">Total: $${p.Total}</p>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-2">
+                                    <a href="${waLink}" target="_blank" class="bg-green-500 text-white text-center py-2 rounded-lg hover:bg-green-600 font-semibold text-sm">
+                                        <i class="fab fa-whatsapp"></i> Notificar
+                                    </a>
+                                    <select onchange="updateStatus('${p.ID}', this.value)" class="border border-gray-300 rounded-lg p-2 text-sm">
+                                        <option value="">Cambiar Estado...</option>
+                                        <option value="En Preparación">En Preparación</option>
+                                        <option value="En Camino">En Camino</option>
+                                        <option value="Entregado">Entregado</option>
+                                    </select>
+                                </div>
+                                ${p.TipoEntrega === 'Envio' ? `
+                                <div class="mt-3 pt-3 border-t">
+                                    <select id="rep-${p.ID}" class="w-full border border-gray-300 rounded-lg p-2 text-sm mb-2">
+                                        <option value="">Asignar Repartidor...</option>
+                                        <!-- Se llena dinámicamente -->
+                                    </select>
+                                    <button onclick="assignDriver('${p.ID}')" class="w-full bg-blue-600 text-white py-2 rounded-lg text-sm hover:bg-blue-700">Asignar y Notificar</button>
+                                </div>` : ''}
+                            </div>
+                        `;
+                    });
+                    loadRepartidoresForSelect(); // Cargar repartidores en los selects
+                });
+        }
+
+        function updateStatus(id, nuevoEstado) {
+            if(!nuevoEstado) return;
+            fetch(API_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'actualizarEstado', idPedido: id, estado: nuevoEstado })
+            }).then(() => loadPedidos());
+        }
+
+        function assignDriver(idPedido) {
+            const repartidor = document.getElementById(`rep-${idPedido}`).value;
+            if(!repartidor) return alert('Selecciona un repartidor');
+            
+            fetch(API_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'actualizarEstado', idPedido: idPedido, estado: 'En Camino', repartidor: repartidor })
+            }).then(() => loadPedidos());
+        }
+
+        function loadRepartidoresForSelect() {
+            fetch(`${API_URL}?action=getRepartidores`)
+                .then(res => res.json())
+                .then(reps => {
+                    document.querySelectorAll('select[id^="rep-"]').forEach(select => {
+                        reps.forEach(r => {
+                            if(r.Estado === 'Disponible') {
+                                select.innerHTML += `<option value="${r.Nombre}">${r.Nombre}</option>`;
+                            }
+                        });
+                    });
+                });
+        }
+
+        // ================= GESTIÓN REPARTIDORES =================
+        function loadRepartidores() {
+            const container = document.getElementById('lista-repartidores');
+            container.innerHTML = '<p class="col-span-full text-center">Cargando...</p>';
+            
+            fetch(`${API_URL}?action=getRepartidores`)
+                .then(res => res.json())
+                .then(reps => {
+                    container.innerHTML = '';
+                    reps.forEach(r => {
+                        container.innerHTML += `
+                            <div class="bg-white p-4 rounded-lg shadow border-l-4 ${r.Estado === 'Disponible' ? 'border-green-500' : 'border-red-500'}">
+                                <h4 class="font-bold">${r.Nombre}</h4>
+                                <p class="text-sm text-gray-600"><i class="fas fa-phone"></i> ${r.Telefono}</p>
+                                <span class="inline-block mt-2 px-2 py-1 text-xs rounded ${r.Estado === 'Disponible' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${r.Estado}</span>
+                            </div>
+                        `;
+                    });
+                });
+        }
+
+        function addRepartidor(e) {
+            e.preventDefault();
+            const data = {
+                action: 'nuevoRepartidor',
+                nombre: document.getElementById('rep-nombre').value,
+                telefono: document.getElementById('rep-telefono').value
+            };
+            
+            fetch(API_URL, { method: 'POST', body: JSON.stringify(data) })
+                .then(res => res.json())
+                .then(() => {
+                    alert('Repartidor registrado');
+                    e.target.reset();
+                    loadRepartidores();
+                });
+        }
+
+        // Inicializar
+        renderMenu();
+    </script>
+</body>
+</html>
