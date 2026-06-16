@@ -1,13 +1,11 @@
 // ===== CONFIGURACIÓN =====
 const CONFIG = {
-    // Configuración de Google Sheets (se reemplazará con los datos reales)
     SHEET_ID: '14xD_209wbWswASj3uFTBnTPC_NLf3_dKtDoIeP-Q3hE',
     API_KEY: 'AIzaSyAJgw0PQKO4qhby7mYDkopJPUXJBu79rGk',
-    // URL de la API de Google Sheets
     SHEETS_API: 'https://sheets.googleapis.com/v4/spreadsheets/'
 };
 
-// ===== DATOS DE PRODUCTOS (mock mientras no se conecta a Sheets) =====
+// ===== DATOS DE PRODUCTOS (FALLBACK) =====
 const PRODUCTOS = [
     {
         id: 1,
@@ -95,26 +93,102 @@ const PRODUCTOS = [
 let cart = [];
 let totalItems = 0;
 let totalPrice = 0;
+let productosActuales = [];
 
-// ===== INICIALIZACIÓN =====
-document.addEventListener('DOMContentLoaded', () => {
+// ============================================
+// CARGAR PRODUCTOS DESDE GOOGLE SHEETS
+// ============================================
+async function loadProductsFromSheets() {
+    try {
+        console.log('📦 Cargando productos desde Google Sheets...');
+        
+        // Intentar obtener productos de Google Sheets
+        if (window.GoogleSheets) {
+            const sheetProducts = await window.GoogleSheets.getProductsFromSheets();
+            
+            if (sheetProducts && sheetProducts.length > 0) {
+                console.log(`✅ ${sheetProducts.length} productos cargados desde Sheets`);
+                return sheetProducts;
+            } else {
+                console.log('⚠️ No hay productos en Sheets, usando datos locales');
+            }
+        } else {
+            console.warn('⚠️ GoogleSheets no disponible, usando datos locales');
+        }
+        
+        // Si no hay datos en Sheets, usar los datos locales
+        return PRODUCTOS;
+        
+    } catch (error) {
+        console.error('❌ Error al cargar productos:', error);
+        // Fallback a datos locales
+        return PRODUCTOS;
+    }
+}
+
+// ============================================
+// INICIALIZACIÓN
+// ============================================
+document.addEventListener('DOMContentLoaded', async () => {
+    console.log('🚀 Iniciando aplicación...');
+    
+    // Mostrar indicador de carga
+    const grid = document.getElementById('menuGrid');
+    if (grid) {
+        grid.innerHTML = `
+            <div style="text-align: center; padding: 3rem; grid-column: 1 / -1;">
+                <i class="fas fa-spinner fa-spin" style="font-size: 3rem; color: var(--primary);"></i>
+                <p style="color: #999; margin-top: 1rem;">Cargando productos...</p>
+            </div>
+        `;
+    }
+    
+    // Cargar productos desde Google Sheets
+    productosActuales = await loadProductsFromSheets();
+    
+    // Guardar en variable global para usar en otras funciones
+    window.PRODUCTOS_ACTUALES = productosActuales;
+    
+    // Renderizar menú
     renderMenu();
     updateCartUI();
     setupEventListeners();
+    
+    console.log(`✅ ${productosActuales.length} productos disponibles`);
 });
 
 // ===== RENDERIZAR MENÚ =====
 function renderMenu() {
     const grid = document.getElementById('menuGrid');
-    if (!grid) return;
+    if (!grid) {
+        console.error('❌ No se encontró el elemento #menuGrid');
+        return;
+    }
     
-    grid.innerHTML = PRODUCTOS.map(producto => `
+    const items = window.PRODUCTOS_ACTUALES || PRODUCTOS;
+    
+    if (!items || items.length === 0) {
+        grid.innerHTML = `
+            <div style="text-align: center; padding: 3rem; grid-column: 1 / -1;">
+                <i class="fas fa-utensils" style="font-size: 3rem; color: #ccc;"></i>
+                <p style="color: #999; margin-top: 1rem;">No hay productos disponibles</p>
+                <p style="color: #ccc; font-size: 0.9rem;">Agregá productos desde el panel de administración</p>
+            </div>
+        `;
+        return;
+    }
+    
+    grid.innerHTML = items.map(producto => `
         <div class="product-card" data-id="${producto.id}">
-            <img src="${producto.imagen}" alt="${producto.nombre}" class="product-image">
+            <img src="${producto.imagen || 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=300'}" 
+                 alt="${producto.nombre}" 
+                 class="product-image"
+                 loading="lazy"
+                 onerror="this.src='https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=300'">
             <div class="product-info">
                 <div class="product-name">${producto.nombre}</div>
-                <div class="product-description">${producto.descripcion}</div>
-                <div class="product-price">$${producto.precio.toLocaleString()}</div>
+                <div class="product-description">${producto.descripcion || ''}</div>
+                <div class="product-price">$${parseInt(producto.precio).toLocaleString()}</div>
                 <div class="product-actions">
                     <div class="quantity-control">
                         <button class="quantity-btn" onclick="changeQuantity(${producto.id}, -1)">−</button>
@@ -150,16 +224,22 @@ function addToCart(productId) {
         return;
     }
     
-    const product = PRODUCTOS.find(p => p.id === productId);
-    if (!product) return;
+    // Usar productos actuales (de Sheets o locales)
+    const products = window.PRODUCTOS_ACTUALES || PRODUCTOS;
+    const product = products.find(p => parseInt(p.id) === parseInt(productId));
+    
+    if (!product) {
+        showNotification('❌ Producto no encontrado', 'error');
+        return;
+    }
     
     // Buscar si ya existe en el carrito
-    const existing = cart.find(item => item.id === productId);
+    const existing = cart.find(item => parseInt(item.id) === parseInt(productId));
     if (existing) {
         existing.quantity += quantity;
     } else {
         cart.push({
-            id: productId,
+            id: parseInt(productId),
             ...product,
             quantity: quantity
         });
@@ -205,7 +285,7 @@ function updateCartUI() {
 
 // ===== ELIMINAR DEL CARRITO =====
 function removeFromCart(productId) {
-    cart = cart.filter(item => item.id !== productId);
+    cart = cart.filter(item => parseInt(item.id) !== parseInt(productId));
     updateCartUI();
     showNotification('Producto eliminado del carrito', 'info');
 }
@@ -297,10 +377,14 @@ document.getElementById('orderForm')?.addEventListener('submit', async (e) => {
     
     try {
         // Guardar en Google Sheets
-        await saveOrderToSheets(order);
-        
-        // Mostrar confirmación
-        showNotification('🎉 Pedido confirmado! Te llegará un WhatsApp de confirmación', 'success');
+        if (window.GoogleSheets) {
+            await window.GoogleSheets.saveOrder(order);
+            showNotification('🎉 Pedido confirmado! Se guardó en Google Sheets', 'success');
+        } else {
+            // Fallback: guardar localmente
+            console.log('📦 Pedido guardado localmente:', order);
+            showNotification('🎉 Pedido confirmado! (guardado localmente)', 'success');
+        }
         
         // Limpiar carrito
         cart = [];
@@ -315,21 +399,6 @@ document.getElementById('orderForm')?.addEventListener('submit', async (e) => {
         showNotification('❌ Error al procesar el pedido. Intentá de nuevo.', 'error');
     }
 });
-
-// ===== GUARDAR EN GOOGLE SHEETS =====
-async function saveOrderToSheets(order) {
-    // Implementación con Google Sheets API
-    // Por ahora, guardamos localmente y mostramos en consola
-    console.log('📦 Pedido guardado:', order);
-    
-    // Aquí va la integración real con Google Sheets
-    // await GoogleSheets.saveOrder(order);
-    
-    // Simulación
-    return new Promise((resolve) => {
-        setTimeout(resolve, 1000);
-    });
-}
 
 // ===== NOTIFICACIONES =====
 function showNotification(message, type = 'info') {
@@ -377,4 +446,6 @@ function setupEventListeners() {
     document.getElementById('checkoutModal')?.addEventListener('click', function(e) {
         if (e.target === this) closeCheckout();
     });
+    
+    console.log('✅ Event listeners configurados');
 }

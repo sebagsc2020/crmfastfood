@@ -35,7 +35,7 @@ class GoogleSheetsManager {
             console.log('🔴 Modo offline activado. Los pedidos se guardarán localmente.');
         });
 
-        console.log(`📡 Modo: ${this.isOnline ? 'ONLINE' : 'OFFLINE'}`);
+        console.log(`📡 Modo: ${this.isOnline ? 'ONLINE 🌐' : 'OFFLINE 💾'}`);
         this.initializeLocalStorage();
     }
 
@@ -47,6 +47,93 @@ class GoogleSheetsManager {
             }
         });
     }
+
+    // ============================================
+    // MÉTODOS PARA PRODUCTOS
+    // ============================================
+    
+    // ===== OBTENER PRODUCTOS DE SHEETS =====
+    async getProductsFromSheets() {
+        try {
+            console.log('📦 Obteniendo productos de Google Sheets...');
+            
+            const response = await fetch(`${this.baseUrl}/Productos?key=${this.apiKey}`);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+
+            const data = await response.json();
+            
+            if (!data.values || data.values.length < 2) {
+                console.log('⚠️ No hay productos en la planilla');
+                return [];
+            }
+
+            const headers = data.values[0];
+            const rows = data.values.slice(1);
+
+            const productos = rows.map(row => {
+                const product = {};
+                headers.forEach((header, index) => {
+                    const key = header.toLowerCase().trim();
+                    product[key] = row[index] || '';
+                });
+                product.precio = parseFloat(product.precio) || 0;
+                product.id = parseInt(product.id) || Date.now();
+                return product;
+            });
+
+            console.log(`✅ ${productos.length} productos cargados desde Sheets`);
+            return productos;
+
+        } catch (error) {
+            console.error('❌ Error al obtener productos de Sheets:', error);
+            return [];
+        }
+    }
+
+    // ===== GUARDAR PRODUCTO EN SHEETS =====
+    async saveProductToSheets(product) {
+        try {
+            const values = [[
+                product.id || Date.now(),
+                product.nombre || '',
+                product.descripcion || '',
+                product.precio || 0,
+                product.imagen || '',
+                product.categoria || ''
+            ]];
+            
+            const response = await fetch(`${this.baseUrl}/Productos:append?valueInputOption=USER_ENTERED&key=${this.apiKey}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    range: 'Productos',
+                    majorDimension: 'ROWS',
+                    values: values
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log('✅ Producto guardado en Google Sheets:', data);
+            return data;
+
+        } catch (error) {
+            console.error('❌ Error al guardar producto:', error);
+            throw error;
+        }
+    }
+
+    // ============================================
+    // MÉTODOS PARA PEDIDOS
+    // ============================================
 
     // ===== GUARDAR PEDIDO (CON FALLBACK OFFLINE) =====
     async saveOrder(order) {
@@ -220,7 +307,86 @@ class GoogleSheetsManager {
         return await response.json();
     }
 
-    // ===== SISTEMA DE PENDIENTES DE SINCRONIZACIÓN =====
+    // ============================================
+    // MÉTODOS PARA ENTREGADORES
+    // ============================================
+
+    // ===== OBTENER ENTREGADORES DE SHEETS =====
+    async getDeliverersFromSheets() {
+        try {
+            const response = await fetch(`${this.baseUrl}/Entregadores?key=${this.apiKey}`);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+
+            const data = await response.json();
+            
+            if (!data.values || data.values.length < 2) {
+                return [];
+            }
+
+            const headers = data.values[0];
+            const rows = data.values.slice(1);
+
+            return rows.map(row => {
+                const deliverer = {};
+                headers.forEach((header, index) => {
+                    const key = header.toLowerCase().trim();
+                    deliverer[key] = row[index] || '';
+                });
+                deliverer.disponible = deliverer.disponible === 'Sí' || deliverer.disponible === 'true';
+                deliverer.id = deliverer.id || Date.now().toString();
+                return deliverer;
+            });
+
+        } catch (error) {
+            console.error('❌ Error al obtener entregadores:', error);
+            return [];
+        }
+    }
+
+    // ===== GUARDAR ENTREGADOR EN SHEETS =====
+    async saveDelivererToSheets(deliverer) {
+        try {
+            const values = [[
+                deliverer.id || Date.now().toString(),
+                deliverer.nombre || '',
+                deliverer.telefono || '',
+                deliverer.vehiculo || '',
+                deliverer.disponible ? 'Sí' : 'No'
+            ]];
+            
+            const response = await fetch(`${this.baseUrl}/Entregadores:append?valueInputOption=USER_ENTERED&key=${this.apiKey}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    range: 'Entregadores',
+                    majorDimension: 'ROWS',
+                    values: values
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log('✅ Entregador guardado en Google Sheets:', data);
+            return data;
+
+        } catch (error) {
+            console.error('❌ Error al guardar entregador:', error);
+            throw error;
+        }
+    }
+
+    // ============================================
+    // SISTEMA DE PENDIENTES DE SINCRONIZACIÓN
+    // ============================================
+
     addToPendingSync(data) {
         const pending = JSON.parse(localStorage.getItem('pending_sync') || '[]');
         pending.push({
@@ -266,7 +432,10 @@ class GoogleSheetsManager {
         console.log(`✅ Sincronización completada. ${remaining.length} pendientes restantes.`);
     }
 
-    // ===== LOCAL STORAGE =====
+    // ============================================
+    // LOCAL STORAGE
+    // ============================================
+
     saveToLocalStorage(key, data) {
         try {
             const existing = JSON.parse(localStorage.getItem(key) || '[]');
@@ -303,6 +472,10 @@ window.GoogleSheets = GoogleSheets;
 window.saveOrderToSheets = async (order) => await GoogleSheets.saveOrder(order);
 window.getOrdersFromSheets = async () => await GoogleSheets.getOrders();
 window.updateOrderStatusInSheets = async (id, status) => await GoogleSheets.updateOrderStatus(id, status);
+window.getProductsFromSheets = async () => await GoogleSheets.getProductsFromSheets();
+window.saveProductToSheets = async (product) => await GoogleSheets.saveProductToSheets(product);
+window.getDeliverersFromSheets = async () => await GoogleSheets.getDeliverersFromSheets();
+window.saveDelivererToSheets = async (deliverer) => await GoogleSheets.saveDelivererToSheets(deliverer);
 
 console.log('✅ GoogleSheets listo!');
 console.log(`📡 Estado: ${GoogleSheets.isOnline ? 'ONLINE 🌐' : 'OFFLINE 💾'}`);
