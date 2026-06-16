@@ -8,10 +8,12 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
-        body { font-family: 'Poppins', sans-serif; background-color: #f8fafc; }
-        .card-hover:hover { transform: translateY(-5px); transition: all 0.3s ease; }
-        .fade-in { animation: fadeIn 0.5s ease-in; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        body { font-family: 'Poppins', sans-serif; background-color: #f1f5f9; }
+        .card-hover:hover { transform: translateY(-5px); transition: all 0.3s ease; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); }
+        .fade-in { animation: fadeIn 0.4s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* Formato de moneda ARS */
+        .ars { font-feature-settings: "tnum"; font-variant-numeric: tabular-nums; }
     </style>
 </head>
 <body class="text-gray-800">
@@ -20,14 +22,14 @@
     <nav class="bg-orange-600 text-white shadow-lg sticky top-0 z-50">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center space-x-3">
-                <div class="bg-white text-orange-600 p-2 rounded-full font-bold text-xl">FF</div>
-                <h1 class="text-2xl font-bold tracking-wide">FastFood Express</h1>
+                <div class="bg-white text-orange-600 p-2 rounded-full font-bold text-xl w-10 h-10 flex items-center justify-center">FF</div>
+                <h1 class="text-2xl font-bold tracking-wide hidden sm:block">FastFood Express</h1>
             </div>
-            <div class="space-x-4">
-                <button onclick="showView('cliente')" class="hover:text-orange-200 font-semibold"><i class="fas fa-utensils"></i> Menú</button>
-                <button onclick="showView('admin')" class="hover:text-orange-200 font-semibold"><i class="fas fa-cog"></i> CRM Admin</button>
-                <button onclick="toggleCart()" class="bg-white text-orange-600 px-4 py-2 rounded-full font-bold relative">
-                    <i class="fas fa-shopping-cart"></i> <span id="cart-count" class="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
+            <div class="flex items-center space-x-4">
+                <button onclick="showView('cliente')" class="hover:text-orange-200 font-semibold transition"><i class="fas fa-utensils"></i> <span class="hidden sm:inline">Menú</span></button>
+                <button onclick="showView('admin')" class="hover:text-orange-200 font-semibold transition"><i class="fas fa-cog"></i> <span class="hidden sm:inline">CRM</span></button>
+                <button onclick="toggleCart()" class="bg-white text-orange-600 px-4 py-2 rounded-full font-bold relative hover:bg-gray-100 transition">
+                    <i class="fas fa-shopping-cart"></i> <span id="cart-count" class="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center border-2 border-orange-600">0</span>
                 </button>
             </div>
         </div>
@@ -37,51 +39,51 @@
     <div id="view-cliente" class="container mx-auto px-4 py-8 fade-in">
         <div class="text-center mb-10">
             <h2 class="text-4xl font-bold text-gray-800 mb-2">Nuestro Menú</h2>
-            <p class="text-gray-600">Empanadas, Pizzas, Lomitos y más. ¡Elige tu favorito!</p>
+            <p class="text-gray-600">Selecciona cantidad y personaliza tu pedido</p>
         </div>
 
         <!-- Categorías -->
-        <div class="flex justify-center space-x-2 mb-8 overflow-x-auto pb-2">
-            <button onclick="filterMenu('all')" class="px-6 py-2 bg-orange-600 text-white rounded-full shadow-md hover:bg-orange-700">Todos</button>
-            <button onclick="filterMenu('empanadas')" class="px-6 py-2 bg-white text-gray-700 rounded-full shadow-md hover:bg-gray-100">Empanadas</button>
-            <button onclick="filterMenu('pizzas')" class="px-6 py-2 bg-white text-gray-700 rounded-full shadow-md hover:bg-gray-100">Pizzas</button>
-            <button onclick="filterMenu('lomitos')" class="px-6 py-2 bg-white text-gray-700 rounded-full shadow-md hover:bg-gray-100">Lomitos</button>
-            <button onclick="filterMenu('bebidas')" class="px-6 py-2 bg-white text-gray-700 rounded-full shadow-md hover:bg-gray-100">Bebidas</button>
+        <div class="flex justify-center space-x-2 mb-8 overflow-x-auto pb-2 no-scrollbar">
+            <button onclick="filterMenu('all')" class="px-6 py-2 bg-orange-600 text-white rounded-full shadow-md hover:bg-orange-700 transition whitespace-nowrap">Todos</button>
+            <button onclick="filterMenu('empanadas')" class="px-6 py-2 bg-white text-gray-700 rounded-full shadow-md hover:bg-gray-100 transition whitespace-nowrap">Empanadas</button>
+            <button onclick="filterMenu('pizzas')" class="px-6 py-2 bg-white text-gray-700 rounded-full shadow-md hover:bg-gray-100 transition whitespace-nowrap">Pizzas</button>
+            <button onclick="filterMenu('lomitos')" class="px-6 py-2 bg-white text-gray-700 rounded-full shadow-md hover:bg-gray-100 transition whitespace-nowrap">Lomitos</button>
+            <button onclick="filterMenu('aderezos')" class="px-6 py-2 bg-white text-gray-700 rounded-full shadow-md hover:bg-gray-100 transition whitespace-nowrap">Aderezos</button>
+            <button onclick="filterMenu('bebidas')" class="px-6 py-2 bg-white text-gray-700 rounded-full shadow-md hover:bg-gray-100 transition whitespace-nowrap">Bebidas</button>
         </div>
 
         <!-- Grid de Productos -->
-        <div id="menu-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div id="menu-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             <!-- Se llena con JS -->
         </div>
     </div>
 
     <!-- VISTA ADMIN: CRM -->
     <div id="view-admin" class="container mx-auto px-4 py-8 hidden fade-in">
-        <div class="flex justify-between items-center mb-6">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
             <h2 class="text-3xl font-bold text-gray-800"><i class="fas fa-chart-line text-orange-600"></i> Panel de Pedidos</h2>
-            <button onclick="loadPedidos()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"><i class="fas fa-sync"></i> Actualizar</button>
+            <button onclick="loadPedidos()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition shadow"><i class="fas fa-sync"></i> Actualizar Pedidos</button>
         </div>
 
         <!-- Pestañas Admin -->
-        <div class="flex space-x-4 mb-6 border-b">
-            <button onclick="showAdminTab('pedidos')" class="pb-2 border-b-2 border-orange-600 font-bold text-orange-600">Pedidos Activos</button>
-            <button onclick="showAdminTab('repartidores')" class="pb-2 border-b-2 border-transparent hover:border-gray-300 text-gray-600">Gestión Repartidores</button>
+        <div class="flex space-x-6 mb-6 border-b border-gray-300">
+            <button onclick="showAdminTab('pedidos')" id="tab-pedidos" class="pb-2 border-b-2 border-orange-600 font-bold text-orange-600 transition">Pedidos Activos</button>
+            <button onclick="showAdminTab('repartidores')" id="tab-repartidores" class="pb-2 border-b-2 border-transparent hover:border-gray-400 text-gray-600 transition">Gestión Repartidores</button>
         </div>
 
         <!-- Lista de Pedidos -->
         <div id="admin-pedidos" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Se llena con JS -->
-            <div class="col-span-full text-center py-10 text-gray-500">Cargando pedidos...</div>
+            <div class="col-span-full text-center py-10 text-gray-500 bg-white rounded-xl shadow">Cargando pedidos...</div>
         </div>
 
         <!-- Gestión Repartidores -->
         <div id="admin-repartidores" class="hidden">
-            <div class="bg-white p-6 rounded-xl shadow-md mb-6">
-                <h3 class="text-xl font-bold mb-4">Registrar Nuevo Repartidor</h3>
+            <div class="bg-white p-6 rounded-xl shadow-md mb-6 border-l-4 border-green-500">
+                <h3 class="text-xl font-bold mb-4 text-gray-800">Registrar Nuevo Repartidor</h3>
                 <form onsubmit="addRepartidor(event)" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <input type="text" id="rep-nombre" placeholder="Nombre Completo" class="border p-2 rounded-lg" required>
-                    <input type="tel" id="rep-telefono" placeholder="Teléfono (con código país)" class="border p-2 rounded-lg" required>
-                    <button type="submit" class="bg-green-600 text-white p-2 rounded-lg hover:bg-green-700 font-bold">Guardar Repartidor</button>
+                    <input type="text" id="rep-nombre" placeholder="Nombre Completo" class="border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-green-500 outline-none" required>
+                    <input type="tel" id="rep-telefono" placeholder="Teléfono (Ej: 54911...)" class="border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-green-500 outline-none" required>
+                    <button type="submit" class="bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 font-bold transition shadow">Guardar Repartidor</button>
                 </form>
             </div>
             <div id="lista-repartidores" class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -91,46 +93,46 @@
     </div>
 
     <!-- MODAL CARRITO / CHECKOUT -->
-    <div id="cart-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex justify-end">
-        <div class="bg-white w-full max-w-md h-full overflow-y-auto p-6 shadow-2xl fade-in">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-bold">Tu Pedido</h3>
-                <button onclick="toggleCart()" class="text-gray-500 hover:text-red-600 text-2xl">&times;</button>
+    <div id="cart-modal" class="fixed inset-0 bg-black bg-opacity-60 hidden z-50 flex justify-end backdrop-blur-sm">
+        <div class="bg-white w-full max-w-md h-full overflow-y-auto p-6 shadow-2xl fade-in flex flex-col">
+            <div class="flex justify-between items-center mb-6 border-b pb-4">
+                <h3 class="text-2xl font-bold text-gray-800">Tu Pedido</h3>
+                <button onclick="toggleCart()" class="text-gray-400 hover:text-red-600 text-3xl transition">&times;</button>
             </div>
             
-            <div id="cart-items" class="space-y-4 mb-6">
-                <p class="text-gray-500 text-center">El carrito está vacío</p>
+            <div id="cart-items" class="space-y-4 mb-6 flex-grow">
+                <p class="text-gray-500 text-center py-10">El carrito está vacío</p>
             </div>
 
-            <div class="border-t pt-4 mb-6">
-                <div class="flex justify-between text-xl font-bold">
-                    <span>Total:</span>
-                    <span id="cart-total">$0</span>
+            <div class="border-t pt-4 mb-6 bg-gray-50 p-4 rounded-xl">
+                <div class="flex justify-between text-2xl font-bold text-gray-800">
+                    <span>Total a Pagar:</span>
+                    <span id="cart-total" class="ars text-orange-600">$0</span>
                 </div>
             </div>
 
             <form onsubmit="processOrder(event)" class="space-y-4">
-                <h4 class="font-bold text-gray-700">Datos de Entrega</h4>
-                <input type="text" id="cliente-nombre" placeholder="Tu Nombre" class="w-full border p-3 rounded-lg" required>
-                <input type="tel" id="cliente-telefono" placeholder="Tu Teléfono (Ej: 54911...)" class="w-full border p-3 rounded-lg" required>
+                <h4 class="font-bold text-gray-700 border-b pb-2">Datos de Entrega</h4>
+                <input type="text" id="cliente-nombre" placeholder="Tu Nombre y Apellido" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" required>
+                <input type="tel" id="cliente-telefono" placeholder="Tu Teléfono (Ej: 54911...)" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" required>
                 
-                <div class="flex space-x-4">
-                    <label class="flex items-center space-x-2 cursor-pointer">
-                        <input type="radio" name="tipoEntrega" value="Envio" checked onchange="toggleDireccion(true)" class="text-orange-600">
-                        <span>Envío a Domicilio</span>
+                <div class="flex space-x-4 bg-gray-50 p-3 rounded-lg">
+                    <label class="flex items-center space-x-2 cursor-pointer flex-1">
+                        <input type="radio" name="tipoEntrega" value="Envio" checked onchange="toggleDireccion(true)" class="text-orange-600 focus:ring-orange-500 w-4 h-4">
+                        <span class="font-semibold">Envío a Domicilio</span>
                     </label>
-                    <label class="flex items-center space-x-2 cursor-pointer">
-                        <input type="radio" name="tipoEntrega" value="Retiro" onchange="toggleDireccion(false)" class="text-orange-600">
-                        <span>Retiro en Local</span>
+                    <label class="flex items-center space-x-2 cursor-pointer flex-1">
+                        <input type="radio" name="tipoEntrega" value="Retiro" onchange="toggleDireccion(false)" class="text-orange-600 focus:ring-orange-500 w-4 h-4">
+                        <span class="font-semibold">Retiro en Local</span>
                     </label>
                 </div>
 
-                <div id="campo-direccion">
-                    <input type="text" id="cliente-direccion" placeholder="Dirección completa (Calle, número, piso)" class="w-full border p-3 rounded-lg">
+                <div id="campo-direccion" class="transition-all duration-300">
+                    <input type="text" id="cliente-direccion" placeholder="Dirección completa (Calle, número, piso, depto)" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none">
                 </div>
 
-                <button type="submit" class="w-full bg-green-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-green-700 shadow-lg transition">
-                    <i class="fab fa-whatsapp"></i> Enviar Pedido
+                <button type="submit" class="w-full bg-green-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-green-700 shadow-lg transition transform active:scale-95 flex items-center justify-center gap-2">
+                    <i class="fab fa-whatsapp text-xl"></i> Confirmar y Enviar Pedido
                 </button>
             </form>
         </div>
@@ -139,16 +141,18 @@
     <script>
         // ================= CONFIGURACIÓN =================
         const API_URL = 'https://script.google.com/macros/s/AKfycbxx7e6ShD0Xistz7zEtjf2DCeeK_dpnr3p8R7QwCoIczqQkHSGBWU2ZM8N4FYovbCnsiw/exec'; // <-- PEGA LA URL AQUÍ
-        const PHONE_NEGOCIO = '5491112345678'; // Tu número de WhatsApp para recibir alertas (opcional)
 
         // ================= DATOS DEL MENÚ =================
         const productos = [
-            { id: 1, nombre: 'Empanada Carne', categoria: 'empanadas', precio: 1500, img: 'https://images.unsplash.com/photo-1626700051175-6818013e1d4f?w=500', opciones: ['Carne Suave', 'Carne Picante', 'Carne con Aceitunas'] },
-            { id: 2, nombre: 'Empanada Jamón y Queso', categoria: 'empanadas', precio: 1500, img: 'https://images.unsplash.com/photo-1626700051175-6818013e1d4f?w=500', opciones: ['Jamón y Queso', 'Jamón, Queso y Morrón'] },
-            { id: 3, nombre: 'Pizza Muzzarella', categoria: 'pizzas', precio: 8500, img: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500', opciones: ['Media', 'Entera'] },
-            { id: 4, nombre: 'Pizza Especial', categoria: 'pizzas', precio: 10500, img: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?w=500', opciones: ['Media', 'Entera'] },
-            { id: 5, nombre: 'Lomito Completo', categoria: 'lomitos', precio: 12000, img: 'https://images.unsplash.com/photo-1550507992-eb63ffee0847?w=500', opciones: ['Carne', 'Pollo', 'Milanesa'] },
-            { id: 6, nombre: 'Coca Cola 1.5L', categoria: 'bebidas', precio: 3000, img: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=500', opciones: ['Original', 'Zero'] }
+            { id: 1, nombre: 'Empanada Carne', categoria: 'empanadas', precio: 1500, img: 'https://images.unsplash.com/photo-1626700051175-6818013e1d4f?w=500', opciones: ['Carne Suave', 'Carne Picante', 'Carne con Aceitunas'], tieneAderezos: false },
+            { id: 2, nombre: 'Empanada Jamón y Queso', categoria: 'empanadas', precio: 1500, img: 'https://images.unsplash.com/photo-1626700051175-6818013e1d4f?w=500', opciones: ['Jamón y Queso', 'Jamón, Queso y Morrón'], tieneAderezos: false },
+            { id: 3, nombre: 'Pizza Muzzarella', categoria: 'pizzas', precio: 8500, img: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500', opciones: ['Media', 'Entera'], tieneAderezos: true },
+            { id: 4, nombre: 'Pizza Especial', categoria: 'pizzas', precio: 10500, img: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?w=500', opciones: ['Media', 'Entera'], tieneAderezos: true },
+            { id: 5, nombre: 'Lomito Completo', categoria: 'lomitos', precio: 12000, img: 'https://images.unsplash.com/photo-1550507992-eb63ffee0847?w=500', opciones: ['Carne', 'Pollo', 'Milanesa'], tieneAderezos: true },
+            { id: 6, nombre: 'Coca Cola 1.5L', categoria: 'bebidas', precio: 3000, img: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=500', opciones: ['Original', 'Zero'], tieneAderezos: false },
+            { id: 7, nombre: 'Mayonesa', categoria: 'aderezos', precio: 500, img: 'https://images.unsplash.com/photo-1585664811087-47f65be1bac9?w=500', opciones: ['Pote Chico', 'Pote Grande'], tieneAderezos: false },
+            { id: 8, nombre: 'Salsa Golf', categoria: 'aderezos', precio: 600, img: 'https://images.unsplash.com/photo-1472476443507-c7a392dd6182?w=500', opciones: ['Pote Chico', 'Pote Grande'], tieneAderezos: false },
+            { id: 9, nombre: 'Ketchup', categoria: 'aderezos', precio: 500, img: 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?w=500', opciones: ['Pote Chico', 'Pote Grande'], tieneAderezos: false }
         ];
 
         let cart = [];
@@ -165,6 +169,11 @@
             document.getElementById('admin-pedidos').classList.add('hidden');
             document.getElementById('admin-repartidores').classList.add('hidden');
             document.getElementById(`admin-${tab}`).classList.remove('hidden');
+            
+            // Actualizar estilos de pestañas
+            document.getElementById('tab-pedidos').className = tab === 'pedidos' ? "pb-2 border-b-2 border-orange-600 font-bold text-orange-600 transition" : "pb-2 border-b-2 border-transparent hover:border-gray-400 text-gray-600 transition";
+            document.getElementById('tab-repartidores').className = tab === 'repartidores' ? "pb-2 border-b-2 border-orange-600 font-bold text-orange-600 transition" : "pb-2 border-b-2 border-transparent hover:border-gray-400 text-gray-600 transition";
+
             if(tab === 'repartidores') loadRepartidores();
         }
 
@@ -176,24 +185,64 @@
             
             items.forEach(p => {
                 const opcionesHTML = p.opciones.map(op => `<option value="${op}">${op}</option>`).join('');
+                
+                let aderezoHTML = '';
+                if (p.tieneAderezos) {
+                    aderezoHTML = `
+                        <div class="mb-3">
+                            <label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Aderezo:</label>
+                            <select id="adz-${p.id}" class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-orange-500 outline-none bg-gray-50">
+                                <option value="Sin aderezo">Sin aderezo</option>
+                                <option value="Con Mayonesa">Con Mayonesa</option>
+                                <option value="Con Ketchup">Con Ketchup</option>
+                                <option value="Con Salsa Golf">Con Salsa Golf</option>
+                                <option value="Con Mostaza">Con Mostaza</option>
+                            </select>
+                        </div>
+                    `;
+                }
+
                 grid.innerHTML += `
-                    <div class="bg-white rounded-2xl shadow-lg overflow-hidden card-hover border border-gray-100">
-                        <img src="${p.img}" alt="${p.nombre}" class="w-full h-48 object-cover">
-                        <div class="p-5">
+                    <div class="bg-white rounded-2xl shadow-md overflow-hidden card-hover border border-gray-100 flex flex-col">
+                        <div class="relative">
+                            <img src="${p.img}" alt="${p.nombre}" class="w-full h-48 object-cover">
+                            <span class="absolute top-3 right-3 bg-white text-gray-800 px-3 py-1 rounded-full font-bold shadow-md text-sm uppercase tracking-wide">${p.categoria}</span>
+                        </div>
+                        <div class="p-5 flex flex-col flex-grow">
                             <div class="flex justify-between items-start mb-2">
-                                <h3 class="text-xl font-bold text-gray-800">${p.nombre}</h3>
-                                <span class="bg-orange-100 text-orange-800 px-3 py-1 rounded-full font-bold">$${p.precio}</span>
+                                <h3 class="text-lg font-bold text-gray-800 leading-tight">${p.nombre}</h3>
                             </div>
-                            <select id="opt-${p.id}" class="w-full border border-gray-300 rounded-lg p-2 mb-4 text-sm focus:ring-2 focus:ring-orange-500 outline-none">
+                            
+                            <select id="opt-${p.id}" class="w-full border border-gray-300 rounded-lg p-2 mb-3 text-sm focus:ring-2 focus:ring-orange-500 outline-none bg-gray-50">
                                 ${opcionesHTML}
                             </select>
-                            <button onclick="addToCart(${p.id})" class="w-full bg-orange-600 text-white py-3 rounded-xl font-bold hover:bg-orange-700 transition flex items-center justify-center gap-2">
-                                <i class="fas fa-plus"></i> Agregar al Pedido
-                            </button>
+
+                            ${aderezoHTML}
+
+                            <div class="mt-auto pt-4 border-t border-gray-100 flex items-center justify-between gap-3">
+                                <div class="flex items-center border border-gray-300 rounded-lg overflow-hidden">
+                                    <button type="button" onclick="adjustQty(${p.id}, -1)" class="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold">-</button>
+                                    <input type="number" id="qty-${p.id}" value="1" min="1" class="w-12 text-center border-none outline-none text-gray-800 font-bold" readonly>
+                                    <button type="button" onclick="adjustQty(${p.id}, 1)" class="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold">+</button>
+                                </div>
+                                <div class="text-right">
+                                    <span class="block text-xl font-bold text-orange-600 ars">$${p.precio.toLocaleString('es-AR')}</span>
+                                    <button onclick="addToCart(${p.id})" class="text-sm bg-orange-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-orange-700 transition mt-1 w-full">
+                                        Agregar
+                                    </button>
+                                </div
+                                </div>
                         </div>
                     </div>
                 `;
             });
+        }
+
+        function adjustQty(id, change) {
+            const input = document.getElementById(`qty-${id}`);
+            let val = parseInt(input.value) + change;
+            if (val < 1) val = 1;
+            input.value = val;
         }
 
         function filterMenu(cat) { renderMenu(cat); }
@@ -201,47 +250,66 @@
         // ================= LÓGICA DEL CARRITO =================
         function addToCart(id) {
             const prod = productos.find(p => p.id === id);
+            const qty = parseInt(document.getElementById(`qty-${id}`).value) || 1;
             const opcion = document.getElementById(`opt-${id}`).value;
-            cart.push({ ...prod, opcionSeleccionada: opcion });
+            const aderezo = prod.tieneAderezos ? document.getElementById(`adz-${id}`).value : null;
+            
+            // Buscar si ya existe para sumar cantidad
+            const existingIndex = cart.findIndex(item => item.id === id && item.opcionSeleccionada === opcion && item.aderezo === aderezo);
+            
+            if (existingIndex > -1) {
+                cart[existingIndex].cantidad += qty;
+            } else {
+                cart.push({ ...prod, opcionSeleccionada: opcion, aderezo: aderezo, cantidad: qty });
+            }
+            
             updateCartUI();
             
-            // Animación simple de feedback
+            // Feedback visual
             const btn = event.target;
             const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-check"></i> Agregado';
+            btn.innerHTML = '<i class="fas fa-check"></i> Listo';
             btn.classList.replace('bg-orange-600', 'bg-green-600');
             setTimeout(() => {
                 btn.innerHTML = originalText;
                 btn.classList.replace('bg-green-600', 'bg-orange-600');
-            }, 1000);
+            }, 800);
         }
 
         function updateCartUI() {
-            document.getElementById('cart-count').innerText = cart.length;
+            document.getElementById('cart-count').innerText = cart.reduce((sum, item) => sum + item.cantidad, 0);
             const container = document.getElementById('cart-items');
+            
             if (cart.length === 0) {
-                container.innerHTML = '<p class="text-gray-500 text-center">El carrito está vacío</p>';
+                container.innerHTML = '<p class="text-gray-500 text-center py-10">El carrito está vacío</p>';
                 document.getElementById('cart-total').innerText = '$0';
                 return;
             }
 
             let total = 0;
             container.innerHTML = cart.map((item, index) => {
-                total += item.precio;
+                const subtotal = item.precio * item.cantidad;
+                total += subtotal;
+                const aderezoText = item.aderezo && item.aderezo !== 'Sin aderezo' ? `<br><span class="text-xs text-orange-600 font-semibold">${item.aderezo}</span>` : '';
+                
                 return `
-                    <div class="flex justify-between items-center bg-gray-50 p-3 rounded-lg">
-                        <div>
-                            <p class="font-bold text-sm">${item.nombre}</p>
+                    <div class="flex justify-between items-start bg-gray-50 p-3 rounded-lg border border-gray-100">
+                        <div class="flex-grow">
+                            <p class="font-bold text-sm text-gray-800">${item.cantidad}x ${item.nombre}</p>
                             <p class="text-xs text-gray-500">${item.opcionSeleccionada}</p>
+                            ${aderezoText}
                         </div>
-                        <div class="flex items-center gap-3">
-                            <span class="font-bold">$${item.precio}</span>
-                            <button onclick="removeFromCart(${index})" class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button>
+                        <div class="flex flex-col items-end gap-2">
+                            <span class="font-bold text-gray-800 ars">$${subtotal.toLocaleString('es-AR')}</span>
+                            <button onclick="removeFromCart(${index})" class="text-red-400 hover:text-red-600 text-xs flex items-center gap-1 transition">
+                                <i class="fas fa-trash"></i> Quitar
+                            </button>
                         </div>
                     </div>
                 `;
             }).join('');
-            document.getElementById('cart-total').innerText = `$${total}`;
+            
+            document.getElementById('cart-total').innerText = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(total);
         }
 
         function removeFromCart(index) {
@@ -255,8 +323,16 @@
         }
 
         function toggleDireccion(mostrar) {
-            document.getElementById('campo-direccion').style.display = mostrar ? 'block' : 'none';
-            document.getElementById('cliente-direccion').required = mostrar;
+            const campo = document.getElementById('campo-direccion');
+            const input = document.getElementById('cliente-direccion');
+            if (mostrar) {
+                campo.classList.remove('hidden');
+                input.required = true;
+            } else {
+                campo.classList.add('hidden');
+                input.required = false;
+                input.value = '';
+            }
         }
 
         // ================= PROCESAR PEDIDO =================
@@ -269,8 +345,13 @@
             const tipo = document.querySelector('input[name="tipoEntrega"]:checked').value;
             const direccion = tipo === 'Envio' ? document.getElementById('cliente-direccion').value : 'Retiro en Local';
             
-            const detalle = cart.map(i => `${i.nombre} (${i.opcionSeleccionada})`).join(' | ');
-            const total = cart.reduce((sum, i) => sum + i.precio, 0);
+            const detalle = cart.map(i => {
+                let desc = `${i.cantidad}x ${i.nombre} (${i.opcionSeleccionada})`;
+                if (i.aderezo && i.aderezo !== 'Sin aderezo') desc += ` [${i.aderezo}]`;
+                return desc;
+            }).join(' | ');
+            
+            const total = cart.reduce((sum, i) => sum + (i.precio * i.cantidad), 0);
 
             const pedidoData = {
                 action: 'nuevoPedido',
@@ -282,7 +363,6 @@
                 total: total
             };
 
-            // Mostrar carga
             const btn = e.target.querySelector('button[type="submit"]');
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
             btn.disabled = true;
@@ -299,14 +379,15 @@
                     updateCartUI();
                     toggleCart();
                     e.target.reset();
+                    toggleDireccion(false); // Resetear vista de dirección
                 }
             })
             .catch(err => {
                 console.error(err);
-                alert('Error al enviar. Intenta de nuevo.');
+                alert('Error de conexión. Intenta de nuevo.');
             })
             .finally(() => {
-                btn.innerHTML = '<i class="fab fa-whatsapp"></i> Enviar Pedido';
+                btn.innerHTML = '<i class="fab fa-whatsapp text-xl"></i> Confirmar y Enviar Pedido';
                 btn.disabled = false;
             });
         }
@@ -314,72 +395,95 @@
         // ================= LÓGICA DEL ADMIN CRM =================
         function loadPedidos() {
             const container = document.getElementById('admin-pedidos');
-            container.innerHTML = '<div class="col-span-full text-center py-10"><i class="fas fa-spinner fa-spin text-3xl text-orange-600"></i><p>Cargando...</p></div>';
+            container.innerHTML = '<div class="col-span-full text-center py-10"><i class="fas fa-spinner fa-spin text-3xl text-orange-600"></i><p class="mt-2 text-gray-500">Cargando pedidos...</p></div>';
 
             fetch(`${API_URL}?action=getPedidos`)
                 .then(res => res.json())
                 .then(pedidos => {
                     container.innerHTML = '';
                     if(pedidos.length === 0) {
-                        container.innerHTML = '<div class="col-span-full text-center text-gray-500">No hay pedidos registrados.</div>';
+                        container.innerHTML = '<div class="col-span-full text-center text-gray-500 bg-white p-10 rounded-xl shadow">No hay pedidos registrados.</div>';
                         return;
                     }
 
                     pedidos.forEach(p => {
-                        // Determinar color según estado
-                        let statusColor = 'bg-yellow-100 text-yellow-800';
-                        if(p.Estado === 'En Preparación') statusColor = 'bg-blue-100 text-blue-800';
-                        if(p.Estado === 'En Camino') statusColor = 'bg-purple-100 text-purple-800';
-                        if(p.Estado === 'Entregado') statusColor = 'bg-green-100 text-green-800';
+                        let statusColor = 'bg-yellow-100 text-yellow-800 border-yellow-300';
+                        if(p.Estado === 'En Preparación') statusColor = 'bg-blue-100 text-blue-800 border-blue-300';
+                        if(p.Estado === 'En Camino') statusColor = 'bg-purple-100 text-purple-800 border-purple-300';
+                        if(p.Estado === 'Entregado') statusColor = 'bg-green-100 text-green-800 border-green-300';
 
-                        // Generar mensaje de WhatsApp
-                        const msg = `Hola ${p.Cliente}, tu pedido *${p.ID}* está *${p.Estado}*. ${p.Repartidor ? 'Repartidor: ' + p.Repartidor : ''}`;
+                        const totalARS = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(p.Total);
+                        const msg = `Hola ${p.Cliente}, te escribimos de FastFood Express. Tu pedido *${p.ID}* por un total de *${totalARS}* está *${p.Estado}*. ${p.Repartidor ? 'Te lo lleva: ' + p.Repartidor : ''}`;
                         const waLink = `https://wa.me/${p.Telefono}?text=${encodeURIComponent(msg)}`;
 
+                        const direccionDisplay = p.TipoEntrega === 'Retiro' 
+                            ? `<span class="text-gray-500"><i class="fas fa-store mr-2"></i>Retiro en Local</span>` 
+                            : `<span class="font-semibold text-gray-800"><i class="fas fa-map-marker-alt text-red-500 mr-2"></i>${p.Direccion}</span>`;
+
                         container.innerHTML += `
-                            <div class="bg-white rounded-xl shadow-md p-5 border-l-4 ${p.Estado === 'Entregado' ? 'border-green-500' : 'border-orange-500'}">
-                                <div class="flex justify-between items-start mb-3">
+                            <div class="bg-white rounded-xl shadow-md p-5 border-t-4 ${p.Estado === 'Entregado' ? 'border-green-500' : 'border-orange-500'} fade-in">
+                                <div class="flex justify-between items-start mb-4">
                                     <div>
-                                        <span class="text-xs font-bold text-gray-500">${p.Fecha}</span>
-                                        <h4 class="text-lg font-bold text-gray-800">${p.ID}</h4>
+                                        <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">${p.Fecha}</span>
+                                        <h4 class="text-xl font-bold text-gray-800">${p.ID}</h4>
                                     </div>
-                                    <span class="px-3 py-1 rounded-full text-xs font-bold ${statusColor}">${p.Estado}</span>
+                                    <span class="px-3 py-1 rounded-full text-xs font-bold border ${statusColor}">${p.Estado}</span>
                                 </div>
                                 
-                                <div class="space-y-2 mb-4 text-sm">
-                                    <p><i class="fas fa-user text-gray-400 w-5"></i> <strong>${p.Cliente}</strong></p>
-                                    <p><i class="fas fa-phone text-gray-400 w-5"></i> ${p.Telefono}</p>
-                                    <p><i class="fas fa-map-marker-alt text-gray-400 w-5"></i> ${p.TipoEntrega} - ${p.Direccion}</p>
-                                    <div class="bg-gray-50 p-3 rounded-lg mt-2">
-                                        <p class="font-semibold text-gray-700">Pedido:</p>
-                                        <p class="text-gray-600">${p.Detalle}</p>
-                                        <p class="font-bold text-orange-600 mt-1">Total: $${p.Total}</p>
+                                <div class="space-y-3 mb-4 text-sm">
+                                    <div class="flex items-center text-gray-700">
+                                        <i class="fas fa-user text-gray-400 w-6"></i> <strong>${p.Cliente}</strong>
+                                    </div>
+                                    <div class="flex items-center text-gray-700">
+                                        <i class="fas fa-phone text-gray-400 w-6"></i> ${p.Telefono}
+                                    </div>
+                                    <div class="flex items-start text-gray-700">
+                                        <i class="fas fa-truck text-gray-400 w-6 mt-1"></i> 
+                                        <div>
+                                            <span class="text-xs text-gray-500 uppercase block">Entrega:</span>
+                                            ${direccionDisplay}
+                                        </div9>
+                                    </div>
+                                    
+                                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-100 mt-3">
+                                        <p class="text-xs font-bold text-gray-500 uppercase mb-1">Detalle del Pedido:</p>
+                                        <p class="text-gray-700 leading-relaxed">${p.Detalle}</p>
+                                        <div class="mt-3 pt-3 border-t border-gray-200 flex justify-between items-center">
+                                            <span class="font-semibold text-gray-600">Total a Pagar:</span>
+                                            <span class="text-xl font-bold text-orange-600 ars">${totalARS}</span>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div class="grid grid-cols-2 gap-2">
-                                    <a href="${waLink}" target="_blank" class="bg-green-500 text-white text-center py-2 rounded-lg hover:bg-green-600 font-semibold text-sm">
-                                        <i class="fab fa-whatsapp"></i> Notificar
+                                <div class="grid grid-cols-2 gap-3 mb-3">
+                                    <a href="${waLink}" target="_blank" class="bg-green-500 text-white text-center py-3 rounded-lg hover:bg-green-600 font-semibold text-sm transition flex items-center justify-center gap-2">
+                                        <i class="fab fa-whatsapp text-lg"></i> Notificar
                                     </a>
-                                    <select onchange="updateStatus('${p.ID}', this.value)" class="border border-gray-300 rounded-lg p-2 text-sm">
-                                        <option value="">Cambiar Estado...</option>
+                                    <select onchange="updateStatus('${p.ID}', this.value)" class="border border-gray-300 rounded-lg p-3 text-sm font-semibold text-gray-700 focus:ring-2 focus:ring-orange-500 outline-none cursor-pointer">
+                                        <option value="" disabled selected>Cambiar Estado...</option>
+                                        <option value="Pendiente">Pendiente</option>
                                         <option value="En Preparación">En Preparación</option>
                                         <option value="En Camino">En Camino</option>
                                         <option value="Entregado">Entregado</option>
                                     </select>
                                 </div>
-                                ${p.TipoEntrega === 'Envio' ? `
-                                <div class="mt-3 pt-3 border-t">
-                                    <select id="rep-${p.ID}" class="w-full border border-gray-300 rounded-lg p-2 text-sm mb-2">
-                                        <option value="">Asignar Repartidor...</option>
-                                        <!-- Se llena dinámicamente -->
-                                    </select>
-                                    <button onclick="assignDriver('${p.ID}')" class="w-full bg-blue-600 text-white py-2 rounded-lg text-sm hover:bg-blue-700">Asignar y Notificar</button>
+
+                                ${p.TipoEntrega === 'Envio' && p.Estado !== 'Entregado' ? `
+                                <div class="mt-4 pt-4 border-t border-gray-200 bg-blue-50 p-4 rounded-lg">
+                                    <p class="text-xs font-bold text-blue-800 uppercase mb-2">Asignar Repartidor</p>
+                                    <div class="flex gap-2">
+                                        <select id="rep-${p.ID}" class="flex-grow border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                                            <option value="">Seleccionar repartidor...</option>
+                                        </select>
+                                        <button onclick="assignDriver('${p.ID}')" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-700 transition whitespace-nowrap">
+                                            Asignar
+                                        </button>
+                                    </div>
                                 </div>` : ''}
                             </div>
                         `;
                     });
-                    loadRepartidoresForSelect(); // Cargar repartidores en los selects
+                    loadRepartidoresForSelect();
                 });
         }
 
@@ -393,12 +497,15 @@
 
         function assignDriver(idPedido) {
             const repartidor = document.getElementById(`rep-${idPedido}`).value;
-            if(!repartidor) return alert('Selecciona un repartidor');
+            if(!repartidor) return alert('Por favor, selecciona un repartidor de la lista');
             
             fetch(API_URL, {
                 method: 'POST',
                 body: JSON.stringify({ action: 'actualizarEstado', idPedido: idPedido, estado: 'En Camino', repartidor: repartidor })
-            }).then(() => loadPedidos());
+            }).then(() => {
+                alert(`Repartidor ${repartidor} asignado correctamente.`);
+                loadPedidos();
+            });
         }
 
         function loadRepartidoresForSelect() {
@@ -406,11 +513,15 @@
                 .then(res => res.json())
                 .then(reps => {
                     document.querySelectorAll('select[id^="rep-"]').forEach(select => {
+                        // Guardar selección actual si existe
+                        const currentVal = select.value;
+                        select.innerHTML = '<option value="">Seleccionar repartidor...</option>';
                         reps.forEach(r => {
                             if(r.Estado === 'Disponible') {
                                 select.innerHTML += `<option value="${r.Nombre}">${r.Nombre}</option>`;
                             }
                         });
+                        select.value = currentVal;
                     });
                 });
         }
@@ -418,18 +529,26 @@
         // ================= GESTIÓN REPARTIDORES =================
         function loadRepartidores() {
             const container = document.getElementById('lista-repartidores');
-            container.innerHTML = '<p class="col-span-full text-center">Cargando...</p>';
+            container.innerHTML = '<p class="col-span-full text-center text-gray-500 py-4">Cargando repartidores...</p>';
             
             fetch(`${API_URL}?action=getRepartidores`)
                 .then(res => res.json())
                 .then(reps => {
                     container.innerHTML = '';
+                    if(reps.length === 0) {
+                        container.innerHTML = '<p class="col-span-full text-center text-gray-500 py-4">No hay repartidores registrados.</p>';
+                        return;
+                    }
                     reps.forEach(r => {
                         container.innerHTML += `
-                            <div class="bg-white p-4 rounded-lg shadow border-l-4 ${r.Estado === 'Disponible' ? 'border-green-500' : 'border-red-500'}">
-                                <h4 class="font-bold">${r.Nombre}</h4>
-                                <p class="text-sm text-gray-600"><i class="fas fa-phone"></i> ${r.Telefono}</p>
-                                <span class="inline-block mt-2 px-2 py-1 text-xs rounded ${r.Estado === 'Disponible' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${r.Estado}</span>
+                            <div class="bg-white p-4 rounded-lg shadow border-l-4 ${r.Estado === 'Disponible' ? 'border-green-500' : 'border-red-500'} flex justify-between items-center">
+                                <div>
+                                    <h4 class="font-bold text-gray-800">${r.Nombre}</h4>
+                                    <p class="text-sm text-gray-600"><i class="fas fa-phone text-xs mr-1"></i> ${r.Telefono}</p>
+                                </div>
+                                <span class="px-3 py-1 text-xs rounded-full font-bold ${r.Estado === 'Disponible' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                                    ${r.Estado}
+                                </span>
                             </div>
                         `;
                     });
@@ -447,7 +566,7 @@
             fetch(API_URL, { method: 'POST', body: JSON.stringify(data) })
                 .then(res => res.json())
                 .then(() => {
-                    alert('Repartidor registrado');
+                    alert('Repartidor registrado exitosamente');
                     e.target.reset();
                     loadRepartidores();
                 });
