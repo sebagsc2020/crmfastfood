@@ -1224,4 +1224,161 @@
                 <!-- Forma de Retiro -->
                 <div class="form-section">
                     <h3>📍 ¿Cómo querés recibir tu pedido?</h3>
-                    <div class="radio
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="deliveryType" value="delivery" checked>
+                            <i class="fas fa-truck"></i>
+                            <span>Envío a domicilio</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="deliveryType" value="pickup">
+                            <i class="fas fa-store"></i>
+                            <span>Retiro en el local</span>
+                        </label>
+                    </div>
+                    <div id="addressField" class="form-group">
+                        <label>Dirección de entrega *</label>
+                        <input type="text" id="deliveryAddress" placeholder="Calle y número">
+                    </div>
+                </div>
+
+                <!-- Formas de Pago -->
+                <div class="form-section">
+                    <h3>💳 Forma de Pago</h3>
+                    <div class="payment-options">
+                        <label class="payment-option">
+                            <input type="radio" name="payment" value="efectivo">
+                            <i class="fas fa-money-bill"></i>
+                            <span>Efectivo</span>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment" value="debito">
+                            <i class="fas fa-credit-card"></i>
+                            <span>Débito</span>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment" value="credito">
+                            <i class="fas fa-credit-card"></i>
+                            <span>Crédito</span>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment" value="transferencia" checked>
+                            <i class="fas fa-university"></i>
+                            <span>Transferencia</span>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment" value="mercadoPago">
+                            <i class="fas fa-qrcode"></i>
+                            <span>Mercado Pago</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Observaciones -->
+                <div class="form-section">
+                    <h3>📝 Observaciones</h3>
+                    <textarea id="orderNotes" placeholder="Ej: Sin cebolla, extra salsa, etc." rows="2"></textarea>
+                </div>
+
+                <button type="submit" class="btn-primary btn-large">
+                    <i class="fas fa-check-circle"></i> Confirmar Pedido
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== CÓMO PEDIR ===== -->
+    <section id="como-pedir" class="how-to-order">
+        <h2>📱 ¿Cómo pedir?</h2>
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <h3>Elegí tus productos</h3>
+                <p>Seleccioná las cantidades que querés de cada item</p>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <h3>Confirmá tu pedido</h3>
+                <p>Completá tus datos y elegí cómo retirar</p>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <h3>¡Disfrutá!</h3>
+                <p>Recibí tu pedido caliente y fresco</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== CONTACTO / FOOTER ===== -->
+    <footer id="contacto">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>🍕 Delicias</h4>
+                <p>Sabores que enamoran desde 2020</p>
+            </div>
+            <div class="footer-section">
+                <h4>Contacto</h4>
+                <p><i class="fas fa-phone"></i> 11 1234-5678</p>
+                <p><i class="fab fa-whatsapp"></i> 11 9876-5432</p>
+            </div>
+            <div class="footer-section">
+                <h4>Horarios</h4>
+                <p>Lun - Dom: 18:00 - 00:00</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Delicias Rotisería - Todos los derechos reservados</p>
+        </div>
+    </footer>
+
+    <!-- ===== INDICADOR DE CONEXIÓN ===== -->
+    <div id="connectionStatus">
+        <span id="statusDot"></span>
+        <span id="statusText">Conectando...</span>
+    </div>
+
+    <!-- ===== SCRIPTS ===== -->
+    <!-- Primero Google Sheets (dependencia) -->
+    <script src="js/google-sheets.js"></script>
+    <!-- Luego la lógica principal -->
+    <script src="js/main.js"></script>
+
+    <script>
+        // ===== HEADER SCROLL EFFECT =====
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // ===== CONNECTION STATUS =====
+        function updateConnectionStatus() {
+            const dot = document.getElementById('statusDot');
+            const text = document.getElementById('statusText');
+            const container = document.getElementById('connectionStatus');
+            
+            if (navigator.onLine) {
+                container.style.background = 'rgba(46, 125, 50, 0.95)';
+                container.style.color = 'white';
+                dot.style.background = '#4caf50';
+                text.textContent = 'Online';
+            } else {
+                container.style.background = 'rgba(198, 40, 40, 0.95)';
+                container.style.color = 'white';
+                dot.style.background = '#ff5252';
+                text.textContent = 'Offline - Datos locales';
+            }
+        }
+
+        window.addEventListener('online', updateConnectionStatus);
+        window.addEventListener('offline', updateConnectionStatus);
+        updateConnectionStatus();
+
+        console.log('🚀 Página cargada correctamente');
+    </script>
+
+</body>
+</html>
