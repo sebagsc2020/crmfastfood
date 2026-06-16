@@ -361,7 +361,7 @@
             }
         }
 
-        // ================= PROCESAR PEDIDO (CON FORMATO DE LISTA VERTICAL) =================
+        // ================= PROCESAR PEDIDO =================
         function processOrder(e) {
             e.preventDefault();
             if (cart.length === 0) return alert('El carrito está vacío');
@@ -374,7 +374,6 @@
             const mainItems = cart.filter(i => i.categoria !== 'aderezos');
             const aderezosItems = cart.filter(i => i.categoria === 'aderezos');
 
-            // Generamos el detalle con saltos de línea (\n) y viñetas (•) para que se vea vertical
             let detalleComida = mainItems.map(i => {
                 let desc = `• ${i.cantidad}x ${i.nombre} (${i.opcionSeleccionada})`;
                 if (i.aderezo && i.aderezo !== 'Sin aderezo') desc += ` [${i.aderezo}]`;
@@ -431,7 +430,6 @@
 
         // ================= LÓGICA DEL ADMIN CRM =================
         
-        // Función auxiliar para convertir el texto con saltos de línea en una lista HTML vertical
         function formatDetalleToHTML(detalleString) {
             if (!detalleString) return '';
             const lines = detalleString.split('\n').filter(line => line.trim() !== '');
@@ -453,6 +451,29 @@
                         return;
                     }
 
+                    // ==========================================
+                    // LÓGICA DE ORDENAMIENTO POR ESTADO
+                    // ==========================================
+                    const estadoPrioridad = {
+                        'Pendiente': 1,
+                        'En Preparación': 2,
+                        'En Camino': 3,
+                        'Entregado': 4
+                    };
+
+                    pedidos.sort((a, b) => {
+                        const prioA = estadoPrioridad[a.Estado] || 5;
+                        const prioB = estadoPrioridad[b.Estado] || 5;
+                        
+                        // Primero ordena por prioridad de estado (Pendiente arriba, Entregado abajo)
+                        if (prioA !== prioB) {
+                            return prioA - prioB; 
+                        }
+                        // Si tienen el mismo estado, ordena por fecha (el más reciente primero)
+                        return new Date(b.Fecha) - new Date(a.Fecha);
+                    });
+                    // ==========================================
+
                     pedidos.forEach(p => {
                         let statusColor = 'bg-yellow-100 text-yellow-800 border-yellow-300';
                         if(p.Estado === 'En Preparación') statusColor = 'bg-blue-100 text-blue-800 border-blue-300';
@@ -461,7 +482,6 @@
 
                         const totalARS = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(p.Total);
                         
-                        // Mensaje de WhatsApp limpio y con saltos de línea
                         const msg = `Hola ${p.Cliente}, te escribimos de FastFood Express.%0A%0A📦 *Tu Pedido ${p.ID}*%0A💰 Total: *${totalARS}*%0A📍 Estado: *${p.Estado}*%0A${p.Repartidor ? '🛵 Repartidor: ' + p.Repartidor : ''}`;
                         const waLink = `https://wa.me/${p.Telefono}?text=${msg}`;
 
@@ -499,7 +519,6 @@
                                     
                                     <div class="bg-gray-50 p-4 rounded-lg border border-gray-100 mt-3">
                                         <p class="text-xs font-bold text-gray-500 uppercase mb-2">Detalle del Pedido:</p>
-                                        <!-- AQUÍ SE APLICA EL FORMATO DE LISTA VERTICAL -->
                                         ${formatDetalleToHTML(p.Detalle)}
                                         <div class="mt-4 pt-3 border-t border-gray-200 flex justify-between items-center">
                                             <span class="font-semibold text-gray-600">Total a Pagar:</span>
@@ -521,7 +540,8 @@
                                     </select>
                                 </div>
 
-                                ${p.TipoEntrega === 'Envio' && p.Estado !== 'Entregado' ? `
+                                <!-- OPCION DE ASIGNAR REPARTIDOR EN TODOS LOS PEDIDOS ACTIVOS -->
+                                ${p.Estado !== 'Entregado' ? `
                                 <div class="mt-4 pt-4 border-t border-gray-200 bg-blue-50 p-4 rounded-lg">
                                     <div class="flex justify-between items-center mb-2">
                                         <p class="text-xs font-bold text-blue-800 uppercase">Asignar Repartidor</p>
@@ -555,7 +575,7 @@
             fetch(API_URL, {
                 method: 'POST',
                 body: JSON.stringify({ action: 'actualizarEstado', idPedido: id, estado: nuevoEstado })
-            }).then(() => loadPedidos());
+            }).then(() => loadPedidos()); // Al recargar, el ordenamiento lo moverá automáticamente
         }
 
         function assignDriver(idPedido) {
@@ -573,8 +593,8 @@
                 method: 'POST',
                 body: JSON.stringify({ action: 'actualizarEstado', idPedido: idPedido, estado: 'En Camino', repartidor: repartidor })
             }).then(() => {
-                alert(`✅ Repartidor "${repartidor}" asignado correctamente al pedido.`);
-                loadPedidos();
+                alert(`✅ Repartidor "${repartidor}" asignado correctamente.`);
+                loadPedidos(); // Al recargar, el pedido bajará al final de la fila por ser "En Camino"
             }).catch(() => {
                 alert('Error al asignar. Intenta de nuevo.');
                 btn.innerHTML = originalText;
