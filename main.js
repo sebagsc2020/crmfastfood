@@ -102,8 +102,16 @@ async function loadProductsFromSheets() {
     try {
         console.log('📦 Cargando productos desde Google Sheets...');
         
-        // Intentar obtener productos de Google Sheets
-        if (window.GoogleSheets) {
+        // Esperar a que GoogleSheets esté disponible
+        let attempts = 0;
+        while (typeof window.GoogleSheets === 'undefined' && attempts < 10) {
+            await new Promise(resolve => setTimeout(resolve, 300));
+            attempts++;
+            console.log(`⏳ Esperando GoogleSheets... (${attempts}/10)`);
+        }
+        
+        if (typeof window.GoogleSheets !== 'undefined') {
+            console.log('✅ GoogleSheets disponible, obteniendo productos...');
             const sheetProducts = await window.GoogleSheets.getProductsFromSheets();
             
             if (sheetProducts && sheetProducts.length > 0) {
@@ -113,15 +121,13 @@ async function loadProductsFromSheets() {
                 console.log('⚠️ No hay productos en Sheets, usando datos locales');
             }
         } else {
-            console.warn('⚠️ GoogleSheets no disponible, usando datos locales');
+            console.warn('⚠️ GoogleSheets no disponible después de esperar, usando datos locales');
         }
         
-        // Si no hay datos en Sheets, usar los datos locales
         return PRODUCTOS;
         
     } catch (error) {
         console.error('❌ Error al cargar productos:', error);
-        // Fallback a datos locales
         return PRODUCTOS;
     }
 }
@@ -146,7 +152,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Cargar productos desde Google Sheets
     productosActuales = await loadProductsFromSheets();
     
-    // Guardar en variable global para usar en otras funciones
+    // Guardar en variable global
     window.PRODUCTOS_ACTUALES = productosActuales;
     
     // Renderizar menú
@@ -224,7 +230,6 @@ function addToCart(productId) {
         return;
     }
     
-    // Usar productos actuales (de Sheets o locales)
     const products = window.PRODUCTOS_ACTUALES || PRODUCTOS;
     const product = products.find(p => parseInt(p.id) === parseInt(productId));
     
@@ -233,7 +238,6 @@ function addToCart(productId) {
         return;
     }
     
-    // Buscar si ya existe en el carrito
     const existing = cart.find(item => parseInt(item.id) === parseInt(productId));
     if (existing) {
         existing.quantity += quantity;
@@ -265,7 +269,7 @@ function updateCartUI() {
     total.textContent = `$${totalPrice.toLocaleString()}`;
     
     if (cart.length === 0) {
-        itemsContainer.innerHTML = '<p class="empty-cart">Tu carrito está vacío</p>';
+        itemsContainer.innerHTML = '<p class="empty-cart" style="color: #999; text-align: center; padding: 2rem 0;">Tu carrito está vacío</p>';
         return;
     }
     
@@ -312,7 +316,6 @@ function openCheckout() {
     const modal = document.getElementById('checkoutModal');
     if (!modal) return;
     
-    // Cargar resumen del pedido
     const summary = document.getElementById('orderSummary');
     if (summary) {
         summary.innerHTML = cart.map(item => `
@@ -348,7 +351,6 @@ document.getElementById('orderForm')?.addEventListener('submit', async (e) => {
     const payment = document.querySelector('input[name="payment"]:checked')?.value;
     const notas = document.getElementById('orderNotes')?.value;
     
-    // Validar
     if (!nombre || !telefono) {
         showNotification('⚠️ Completá tus datos de contacto', 'warning');
         return;
@@ -359,7 +361,6 @@ document.getElementById('orderForm')?.addEventListener('submit', async (e) => {
         return;
     }
     
-    // Construir pedido
     const order = {
         id: Date.now().toString(),
         fecha: new Date().toISOString(),
@@ -376,22 +377,17 @@ document.getElementById('orderForm')?.addEventListener('submit', async (e) => {
     };
     
     try {
-        // Guardar en Google Sheets
         if (window.GoogleSheets) {
             await window.GoogleSheets.saveOrder(order);
             showNotification('🎉 Pedido confirmado! Se guardó en Google Sheets', 'success');
         } else {
-            // Fallback: guardar localmente
             console.log('📦 Pedido guardado localmente:', order);
             showNotification('🎉 Pedido confirmado! (guardado localmente)', 'success');
         }
         
-        // Limpiar carrito
         cart = [];
         updateCartUI();
         closeCheckout();
-        
-        // Resetear formulario
         e.target.reset();
         
     } catch (error) {
@@ -432,7 +428,6 @@ function showNotification(message, type = 'info') {
 
 // ===== EVENT LISTENERS =====
 function setupEventListeners() {
-    // Cambio entre envío y retiro
     document.querySelectorAll('input[name="deliveryType"]').forEach(input => {
         input.addEventListener('change', function() {
             const addressField = document.getElementById('addressField');
@@ -442,7 +437,6 @@ function setupEventListeners() {
         });
     });
     
-    // Cerrar modal al hacer clic fuera
     document.getElementById('checkoutModal')?.addEventListener('click', function(e) {
         if (e.target === this) closeCheckout();
     });
