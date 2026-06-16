@@ -1,1231 +1,527 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - Rotisería Delicias</title>
+// ===== ESTADO ADMIN =====
+let orders = [];
+let deliverers = [];
+let menuItems = [];
+let currentTab = 'orders';
+let isLoggedIn = false;
+
+// ===== CREDENCIALES (hardcodeadas para demo) =====
+const ADMIN_CREDENTIALS = {
+    username: 'admin',
+    password: 'admin123'
+};
+
+// ===== LOGIN =====
+document.getElementById('loginForm')?.addEventListener('submit', (e) => {
+    e.preventDefault();
     
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    const user = document.getElementById('loginUser')?.value;
+    const pass = document.getElementById('loginPass')?.value;
     
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root {
-            --primary: #e63946;
-            --primary-dark: #c62828;
-            --secondary: #1a1a2e;
-            --dark: #0f0f1a;
-            --gray-50: #f8f9fa;
-            --gray-100: #f0f2f5;
-            --gray-200: #e4e7ec;
-            --gray-500: #6b7280;
-            --gray-700: #374151;
-            --gray-900: #111827;
-            --white: #ffffff;
-            --shadow: 0 4px 20px rgba(0,0,0,0.08);
-            --shadow-lg: 0 10px 40px rgba(0,0,0,0.12);
-            --shadow-xl: 0 20px 60px rgba(0,0,0,0.15);
-            --radius: 16px;
-            --radius-sm: 10px;
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        body { font-family: 'Inter', sans-serif; background: var(--gray-50); color: var(--gray-900); min-height: 100vh; }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: var(--gray-100); }
-        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
+    if (user === ADMIN_CREDENTIALS.username && pass === ADMIN_CREDENTIALS.password) {
+        isLoggedIn = true;
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('dashboardScreen').style.display = 'block';
+        loadDashboardData();
+        showNotification('✅ Bienvenido al panel de administración', 'success');
+    } else {
+        showNotification('❌ Usuario o contraseña incorrectos', 'error');
+    }
+});
 
-        /* ===== LOGIN ===== */
-        .login-container {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, var(--secondary) 0%, var(--dark) 100%);
-            padding: 2rem;
-            position: relative;
-            overflow: hidden;
-        }
-        .login-container::before {
-            content: '🍕';
-            position: absolute;
-            font-size: 20rem;
-            opacity: 0.05;
-            bottom: -5%;
-            right: -5%;
-            transform: rotate(-20deg);
-        }
-        .login-box {
-            background: var(--white);
-            border-radius: var(--radius);
-            padding: 3rem;
-            width: 100%;
-            max-width: 420px;
-            box-shadow: var(--shadow-xl);
-            position: relative;
-            z-index: 1;
-        }
-        .login-header {
-            text-align: center;
-            margin-bottom: 2.5rem;
-        }
-        .login-header .icon-wrapper {
-            width: 72px;
-            height: 72px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1rem;
-            font-size: 2rem;
-            color: white;
-            box-shadow: 0 8px 30px rgba(230, 57, 70, 0.3);
-        }
-        .login-header h2 { font-size: 1.8rem; font-weight: 800; color: var(--gray-900); }
-        .login-header p { color: var(--gray-500); font-size: 0.95rem; margin-top: 0.3rem; }
-        .login-box .form-group { margin-bottom: 1.2rem; }
-        .login-box .form-group label { display: block; font-weight: 600; font-size: 0.85rem; color: var(--gray-700); margin-bottom: 0.4rem; }
-        .login-box .form-group input {
-            width: 100%;
-            padding: 12px 16px;
-            border: 2px solid var(--gray-200);
-            border-radius: var(--radius-sm);
-            font-size: 1rem;
-            transition: var(--transition);
-            background: var(--gray-50);
-        }
-        .login-box .form-group input:focus {
-            outline: none;
-            border-color: var(--primary);
-            background: var(--white);
-            box-shadow: 0 0 0 4px rgba(230, 57, 70, 0.1);
-        }
-        .login-box .btn-primary {
-            width: 100%;
-            padding: 14px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: var(--radius-sm);
-            font-size: 1rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        .login-box .btn-primary:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(230, 57, 70, 0.3);
-        }
+// ===== LOGOUT =====
+document.getElementById('logoutBtn')?.addEventListener('click', () => {
+    isLoggedIn = false;
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('dashboardScreen').style.display = 'none';
+    showNotification('Sesión cerrada', 'info');
+});
 
-        /* ===== ADMIN LAYOUT ===== */
-        .admin-wrapper { display: none; min-height: 100vh; }
+// ===== NAVEGACIÓN ENTRE TABS =====
+document.querySelectorAll('.nav-btn[data-tab]').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const tab = this.dataset.tab;
+        switchTab(tab);
+    });
+});
 
-        /* ===== SIDEBAR ===== */
-        .sidebar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 260px;
-            height: 100vh;
-            background: var(--secondary);
-            color: white;
-            padding: 1.5rem 1rem;
-            overflow-y: auto;
-            z-index: 100;
-            transition: var(--transition);
-        }
-        .sidebar .brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 0 0.5rem 2rem;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-            margin-bottom: 1.5rem;
-        }
-        .sidebar .brand i { font-size: 1.8rem; background: var(--primary); padding: 10px; border-radius: 12px; }
-        .sidebar .brand span { font-size: 1.2rem; font-weight: 700; }
-        .sidebar .brand small { display: block; font-size: 0.7rem; opacity: 0.5; font-weight: 400; }
-        .sidebar .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            transition: var(--transition);
-            color: rgba(255,255,255,0.6);
-            font-weight: 500;
-            font-size: 0.9rem;
-            margin-bottom: 4px;
-            border: none;
-            background: transparent;
-            width: 100%;
-            text-align: left;
-        }
-        .sidebar .nav-item:hover { background: rgba(255,255,255,0.06); color: white; }
-        .sidebar .nav-item.active { background: var(--primary); color: white; box-shadow: 0 4px 15px rgba(230, 57, 70, 0.3); }
-        .sidebar .nav-item i { width: 20px; font-size: 1.1rem; }
-        .sidebar .nav-item .badge {
-            margin-left: auto;
-            background: rgba(255,255,255,0.1);
-            padding: 2px 10px;
-            border-radius: 50px;
-            font-size: 0.7rem;
-            font-weight: 600;
-        }
-        .sidebar .nav-item.active .badge { background: rgba(255,255,255,0.2); }
-        .sidebar .logout-section { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.06); }
-        .sidebar .logout-btn { color: rgba(255,255,255,0.5); }
-        .sidebar .logout-btn:hover { color: #ff6b6b; background: rgba(255, 107, 107, 0.1); }
+function switchTab(tab) {
+    currentTab = tab;
+    
+    // Actualizar botones
+    document.querySelectorAll('.nav-btn[data-tab]').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === tab);
+    });
+    
+    // Actualizar contenido
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.toggle('active', content.id === `${tab}Tab`);
+    });
+    
+    // Cargar datos según tab
+    if (tab === 'orders') renderOrders();
+    if (tab === 'deliverers') renderDeliverers();
+    if (tab === 'menu') renderMenuAdmin();
+    if (tab === 'stats') updateStats();
+}
 
-        /* ===== MAIN CONTENT ===== */
-        .main-content { margin-left: 260px; padding: 2rem; min-height: 100vh; }
+// ===== CARGAR DATOS =====
+function loadDashboardData() {
+    loadOrders();
+    loadDeliverers();
+    loadMenuItems();
+}
 
-        /* ===== TOP BAR ===== */
-        .topbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 1.5rem;
-            border-bottom: 1px solid var(--gray-200);
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-        .topbar .page-title { font-size: 1.8rem; font-weight: 800; }
-        .topbar .page-title span { color: var(--primary); }
-        .topbar .user-info { display: flex; align-items: center; gap: 1rem; }
-        .topbar .user-info .avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: var(--primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 700;
-        }
-        .topbar .user-info .name { font-weight: 600; font-size: 0.95rem; }
-        .topbar .user-info .role { font-size: 0.8rem; color: var(--gray-500); }
+function loadOrders() {
+    // Cargar desde Google Sheets o localStorage
+    const saved = localStorage.getItem('orders');
+    orders = saved ? JSON.parse(saved) : generateMockOrders();
+    renderOrders();
+}
 
-        /* ===== STATS ===== */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        .stat-card {
-            background: var(--white);
-            border-radius: var(--radius);
-            padding: 1.5rem;
-            box-shadow: var(--shadow);
-            transition: var(--transition);
-            border: 1px solid var(--gray-100);
-        }
-        .stat-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
-        .stat-card .stat-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.4rem;
-            margin-bottom: 0.8rem;
-        }
-        .stat-card .stat-icon.orange { background: #fff3e0; color: #e65100; }
-        .stat-card .stat-icon.green { background: #e8f5e9; color: #2e7d32; }
-        .stat-card .stat-icon.blue { background: #e3f2fd; color: #1565c0; }
-        .stat-card .stat-icon.purple { background: #f3e5f5; color: #6a1b9a; }
-        .stat-card .stat-number { font-size: 2rem; font-weight: 800; color: var(--gray-900); }
-        .stat-card .stat-label { font-size: 0.85rem; color: var(--gray-500); font-weight: 500; }
+function loadDeliverers() {
+    const saved = localStorage.getItem('deliverers');
+    deliverers = saved ? JSON.parse(saved) : [
+        { id: '1', nombre: 'Carlos Gómez', telefono: '11 2222-3333', vehiculo: 'Moto', disponible: true },
+        { id: '2', nombre: 'María López', telefono: '11 4444-5555', vehiculo: 'Bicicleta', disponible: true }
+    ];
+    renderDeliverers();
+}
 
-        /* ===== TABS ===== */
-        .tab-content { display: none; animation: fadeIn 0.4s ease; }
-        .tab-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+function loadMenuItems() {
+    const saved = localStorage.getItem('menuItems');
+    menuItems = saved ? JSON.parse(saved) : PRODUCTOS;
+    renderMenuAdmin();
+}
 
-        .tab-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-            gap: 1rem;
+// ===== GENERAR PEDIDOS DE EJEMPLO =====
+function generateMockOrders() {
+    return [
+        {
+            id: '1',
+            fecha: new Date(Date.now() - 3600000 * 2).toISOString(),
+            cliente: 'Juan Pérez',
+            telefono: '11 1234-5678',
+            tipo_entrega: 'Envío a domicilio',
+            direccion: 'Av. Siempreviva 123',
+            items: '2x Pizza Muzzarella, 1x Papas Fritas',
+            total: 11000,
+            pago: 'transferencia',
+            notas: 'Sin cebolla',
+            estado: 'pendiente',
+            entregador: 'Sin asignar'
+        },
+        {
+            id: '2',
+            fecha: new Date(Date.now() - 3600000).toISOString(),
+            cliente: 'Ana Martínez',
+            telefono: '11 8765-4321',
+            tipo_entrega: 'Retiro en local',
+            direccion: 'Retira en local',
+            items: '1x Hamburgesa Completa, 1x Salsa Barbacoa',
+            total: 5300,
+            pago: 'efectivo',
+            notas: '',
+            estado: 'en-preparacion',
+            entregador: 'Sin asignar'
+        },
+        {
+            id: '3',
+            fecha: new Date(Date.now() - 1800000).toISOString(),
+            cliente: 'Roberto Sánchez',
+            telefono: '11 5555-6666',
+            tipo_entrega: 'Envío a domicilio',
+            direccion: 'Calle Falsa 456',
+            items: '3x Empanadas de Carne, 1x Empanada de Jamón',
+            total: 4800,
+            pago: 'mercadoPago',
+            notas: 'Con mucha salsa',
+            estado: 'en-camino',
+            entregador: 'Carlos Gómez'
         }
-        .tab-header h2 { font-size: 1.4rem; font-weight: 700; }
-        .tab-header .actions { display: flex; gap: 0.8rem; flex-wrap: wrap; }
+    ];
+}
 
-        .btn-primary-sm {
-            padding: 10px 20px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: var(--radius-sm);
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.9rem;
-        }
-        .btn-primary-sm:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(230, 57, 70, 0.3);
-        }
-
-        .btn-secondary-sm {
-            padding: 10px 20px;
-            background: var(--gray-100);
-            color: var(--gray-700);
-            border: none;
-            border-radius: var(--radius-sm);
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.9rem;
-        }
-        .btn-secondary-sm:hover { background: var(--gray-200); }
-
-        .filters { display: flex; gap: 0.8rem; flex-wrap: wrap; align-items: center; }
-        .filters select, .filters input {
-            padding: 8px 14px;
-            border: 2px solid var(--gray-200);
-            border-radius: var(--radius-sm);
-            font-size: 0.9rem;
-            background: white;
-            transition: var(--transition);
-        }
-        .filters select:focus, .filters input:focus { outline: none; border-color: var(--primary); }
-
-        /* ===== KANBAN ===== */
-        .board-columns {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1.5rem;
-            overflow-x: auto;
-            padding-bottom: 0.5rem;
-        }
-        .column {
-            background: var(--gray-50);
-            border-radius: var(--radius);
-            min-height: 400px;
-            display: flex;
-            flex-direction: column;
-            border: 1px solid var(--gray-200);
-        }
-        .column-header {
-            padding: 1rem 1.2rem;
-            border-bottom: 2px solid var(--gray-200);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: white;
-            border-radius: var(--radius) var(--radius) 0 0;
-        }
-        .column-header h3 { font-size: 0.9rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
-        .column-header .count {
-            background: var(--gray-200);
-            padding: 2px 12px;
-            border-radius: 50px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: var(--gray-600);
-        }
-        .column-body { flex: 1; padding: 1rem; overflow-y: auto; max-height: 500px; }
-
-        /* ===== ORDER CARD ===== */
-        .order-card {
-            background: white;
-            border-radius: var(--radius-sm);
-            padding: 1rem;
-            margin-bottom: 0.8rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-            border: 1px solid var(--gray-100);
-            transition: var(--transition);
-            cursor: pointer;
-        }
-        .order-card:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
-        .order-card .order-time { font-size: 0.7rem; color: var(--gray-400); margin-bottom: 0.3rem; }
-        .order-card .order-customer { font-weight: 700; font-size: 0.95rem; }
-        .order-card .order-detail { font-size: 0.85rem; color: var(--gray-600); margin: 0.2rem 0; }
-        .order-card .order-address { font-size: 0.8rem; color: var(--gray-400); margin-bottom: 0.5rem; }
-        .order-card .order-total { font-weight: 800; color: var(--primary); font-size: 1.1rem; }
-        .order-card .order-deliverer { font-size: 0.8rem; color: var(--gray-500); margin: 0.3rem 0; }
-        .order-card .order-actions { display: flex; gap: 0.4rem; margin-top: 0.6rem; flex-wrap: wrap; }
-        .order-card .order-actions button {
-            padding: 4px 12px;
-            border: none;
-            border-radius: 50px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-        .btn-status { background: #e3f2fd; color: #1565c0; }
-        .btn-status:hover { background: #1565c0; color: white; }
-        .btn-assign { background: #e8f5e9; color: #2e7d32; }
-        .btn-assign:hover { background: #2e7d32; color: white; }
-        .btn-cancel { background: #ffebee; color: #c62828; }
-        .btn-cancel:hover { background: #c62828; color: white; }
-        .btn-whatsapp { background: #e8f5e9; color: #25d366; }
-        .btn-whatsapp:hover { background: #25d366; color: white; }
-
-        /* ===== DELIVERERS ===== */
-        .deliverers-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1.5rem;
-        }
-        .deliverer-card {
-            background: white;
-            border-radius: var(--radius);
-            padding: 1.5rem;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--gray-100);
-            transition: var(--transition);
-        }
-        .deliverer-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-4px); }
-        .deliverer-card .header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem; }
-        .deliverer-card .header h4 { font-size: 1.1rem; font-weight: 700; }
-        .deliverer-card .status-badge {
-            padding: 3px 14px;
-            border-radius: 50px;
-            font-size: 0.7rem;
-            font-weight: 600;
-        }
-        .status-badge.available { background: #c8e6c9; color: #2e7d32; }
-        .status-badge.unavailable { background: #ffcdd2; color: #c62828; }
-        .deliverer-card .info { color: var(--gray-600); font-size: 0.9rem; margin: 0.3rem 0; }
-        .deliverer-card .info i { width: 20px; color: var(--gray-400); }
-        .deliverer-card .actions { display: flex; gap: 0.5rem; margin-top: 1rem; }
-        .deliverer-card .actions button {
-            padding: 6px 14px;
-            border: none;
-            border-radius: var(--radius-sm);
-            font-weight: 600;
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-        .btn-edit { background: #e3f2fd; color: #1565c0; }
-        .btn-edit:hover { background: #1565c0; color: white; }
-        .btn-delete { background: #ffebee; color: #c62828; }
-        .btn-delete:hover { background: #c62828; color: white; }
-        .btn-toggle { background: #fff3e0; color: #e65100; }
-        .btn-toggle:hover { background: #e65100; color: white; }
-
-        /* ===== MENU ADMIN ===== */
-        .menu-admin-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 1.5rem;
-        }
-        .menu-admin-item {
-            background: white;
-            border-radius: var(--radius);
-            overflow: hidden;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--gray-100);
-            transition: var(--transition);
-        }
-        .menu-admin-item:hover { box-shadow: var(--shadow-lg); transform: translateY(-4px); }
-        .menu-admin-item img { width: 100%; height: 160px; object-fit: cover; }
-        .menu-admin-item .info { padding: 1rem; }
-        .menu-admin-item .info h4 { font-weight: 700; font-size: 1rem; }
-        .menu-admin-item .info .desc { font-size: 0.8rem; color: var(--gray-500); margin: 0.2rem 0; }
-        .menu-admin-item .info .price { font-weight: 800; color: var(--primary); font-size: 1.1rem; }
-        .menu-admin-item .actions { padding: 0.5rem 1rem 1rem; display: flex; gap: 0.5rem; }
-
-        /* ===== MODAL ===== */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(4px);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
-        }
-        .modal-overlay.active { display: flex; }
-        .modal {
-            background: white;
-            border-radius: var(--radius);
-            max-width: 550px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-            padding: 2rem;
-            animation: slideUp 0.3s ease;
-        }
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px) scale(0.95); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-        .modal .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
-        .modal .modal-header h2 { font-size: 1.3rem; font-weight: 700; }
-        .modal .modal-header .close {
-            background: none;
-            border: none;
-            font-size: 1.8rem;
-            cursor: pointer;
-            color: var(--gray-400);
-            transition: var(--transition);
-        }
-        .modal .modal-header .close:hover { color: var(--gray-900); transform: rotate(90deg); }
-        .modal .form-group { margin-bottom: 1.2rem; }
-        .modal .form-group label { display: block; font-weight: 600; font-size: 0.85rem; color: var(--gray-700); margin-bottom: 0.3rem; }
-        .modal .form-group input, .modal .form-group select, .modal .form-group textarea {
-            width: 100%;
-            padding: 10px 14px;
-            border: 2px solid var(--gray-200);
-            border-radius: var(--radius-sm);
-            font-size: 0.95rem;
-            transition: var(--transition);
-            font-family: inherit;
-        }
-        .modal .form-group input:focus, .modal .form-group select:focus, .modal .form-group textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(230, 57, 70, 0.1);
-        }
-        .modal .form-group textarea { resize: vertical; min-height: 60px; }
-        .modal .btn-submit {
-            width: 100%;
-            padding: 12px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: var(--radius-sm);
-            font-size: 1rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-        .modal .btn-submit:hover { background: var(--primary-dark); }
-
-        .empty-state { text-align: center; padding: 3rem 1rem; color: var(--gray-400); }
-        .empty-state i { font-size: 3rem; margin-bottom: 1rem; display: block; }
-
-        .notification {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            padding: 16px 24px;
-            border-radius: var(--radius-sm);
-            color: white;
-            font-weight: 600;
-            box-shadow: var(--shadow-xl);
-            z-index: 9999;
-            animation: slideUp 0.3s ease;
-            max-width: 400px;
-        }
-        .notification.success { background: #2e7d32; }
-        .notification.error { background: #c62828; }
-        .notification.warning { background: #f57c00; }
-        .notification.info { background: #1565c0; }
-
-        @media (max-width: 1200px) {
-            .board-columns { grid-template-columns: repeat(2, 1fr); }
-            .stats-grid { grid-template-columns: repeat(2, 1fr); }
-        }
-        @media (max-width: 992px) {
-            .sidebar { width: 72px; padding: 1rem 0.5rem; }
-            .sidebar .brand span, .sidebar .brand small, .sidebar .nav-item span:not(.badge), .sidebar .nav-item .badge { display: none; }
-            .sidebar .nav-item { justify-content: center; padding: 12px; }
-            .sidebar .nav-item i { font-size: 1.3rem; }
-            .main-content { margin-left: 72px; }
-        }
-        @media (max-width: 768px) {
-            .board-columns { grid-template-columns: 1fr; }
-            .stats-grid { grid-template-columns: 1fr; }
-            .topbar { flex-direction: column; align-items: start; }
-            .filters { flex-direction: column; width: 100%; }
-            .filters select, .filters input { width: 100%; }
-            .tab-header { flex-direction: column; align-items: stretch; }
-            .tab-header .actions { flex-direction: column; }
-            .btn-primary-sm, .btn-secondary-sm { width: 100%; justify-content: center; }
-            .modal { padding: 1.5rem; margin: 1rem; }
-            .login-box { padding: 2rem; }
-        }
-        @media (max-width: 480px) {
-            .sidebar { width: 60px; }
-            .sidebar .brand i { font-size: 1.2rem; padding: 6px; }
-            .main-content { margin-left: 60px; padding: 1rem; }
-            .topbar .page-title { font-size: 1.2rem; }
-        }
-    </style>
-</head>
-<body>
-
-    <!-- ===== LOGIN ===== -->
-    <div class="login-container" id="loginScreen">
-        <div class="login-box">
-            <div class="login-header">
-                <div class="icon-wrapper"><i class="fas fa-utensils"></i></div>
-                <h2>Panel de Administración</h2>
-                <p>Rotisería Delicias</p>
-            </div>
-            <form id="loginForm">
-                <div class="form-group">
-                    <label><i class="fas fa-user"></i> Usuario</label>
-                    <input type="text" id="loginUser" placeholder="admin" value="admin">
+// ===== RENDERIZAR PEDIDOS (KANBAN) =====
+function renderOrders() {
+    const statuses = ['pendiente', 'en-preparacion', 'en-camino', 'entregado'];
+    const statusLabels = {
+        'pendiente': 'pendiente',
+        'en-preparacion': 'preparacion',
+        'en-camino': 'camino',
+        'entregado': 'entregado'
+    };
+    
+    statuses.forEach(status => {
+        const container = document.getElementById(`col-${statusLabels[status]}`);
+        const countEl = document.getElementById(`count-${statusLabels[status]}`);
+        
+        if (!container) return;
+        
+        const filtered = orders.filter(o => o.estado === status);
+        
+        if (countEl) countEl.textContent = filtered.length;
+        
+        container.innerHTML = filtered.length === 0 
+            ? '<p style="text-align:center;color:#999;padding:1rem;">Sin pedidos</p>'
+            : filtered.map(order => `
+                <div class="order-card" data-id="${order.id}">
+                    <div class="order-time">
+                        <i class="far fa-clock"></i> ${new Date(order.fecha).toLocaleTimeString()}
+                    </div>
+                    <div class="order-customer">${order.cliente}</div>
+                    <div class="order-detail">${order.items}</div>
+                    <div class="order-address">
+                        <i class="fas fa-map-marker-alt"></i> ${order.direccion}
+                    </div>
+                    <div class="order-total">$${order.total.toLocaleString()}</div>
+                    <div style="font-size:0.8rem;color:#999;margin:0.3rem 0;">
+                        ${order.entregador !== 'Sin asignar' ? `🛵 ${order.entregador}` : '📦 Sin entregador'}
+                    </div>
+                    <div class="order-actions">
+                        <button class="btn-whatsapp" onclick="contactCustomer('${order.telefono}')">
+                            <i class="fab fa-whatsapp"></i>
+                        </button>
+                        ${status !== 'entregado' && status !== 'cancelado' ? `
+                            <button class="btn-status" onclick="changeOrderStatus('${order.id}')">
+                                <i class="fas fa-arrow-right"></i> Avanzar
+                            </button>
+                            <button class="btn-assign" onclick="assignDeliverer('${order.id}')">
+                                <i class="fas fa-motorcycle"></i> Asignar
+                            </button>
+                            <button class="btn-cancel" onclick="cancelOrder('${order.id}')">
+                                <i class="fas fa-times"></i> Cancelar
+                            </button>
+                        ` : ''}
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label><i class="fas fa-lock"></i> Contraseña</label>
-                    <input type="password" id="loginPass" placeholder="••••••••" value="admin123">
-                </div>
-                <button type="submit" class="btn-primary"><i class="fas fa-sign-in-alt"></i> Ingresar</button>
-            </form>
-        </div>
-    </div>
+            `).join('');
+    });
+}
 
-    <!-- ===== ADMIN DASHBOARD ===== -->
-    <div class="admin-wrapper" id="dashboardScreen">
+// ===== CAMBIAR ESTADO DEL PEDIDO =====
+function changeOrderStatus(orderId) {
+    const order = orders.find(o => o.id === orderId);
+    if (!order) return;
+    
+    const statusFlow = {
+        'pendiente': 'en-preparacion',
+        'en-preparacion': 'en-camino',
+        'en-camino': 'entregado'
+    };
+    
+    const nextStatus = statusFlow[order.estado];
+    if (!nextStatus) return;
+    
+    order.estado = nextStatus;
+    saveOrders();
+    renderOrders();
+    showNotification(`✅ Pedido actualizado a: ${nextStatus}`, 'success');
+}
 
-        <!-- ===== SIDEBAR ===== -->
-        <aside class="sidebar">
-            <div class="brand">
-                <i class="fas fa-utensils"></i>
-                <div><span>Delicias</span><small>Panel Admin</small></div>
-            </div>
-            <button class="nav-item active" data-tab="orders">
-                <i class="fas fa-clipboard-list"></i>
-                <span>Pedidos</span>
-                <span class="badge" id="sidebarOrdersCount">0</span>
-            </button>
-            <button class="nav-item" data-tab="deliverers">
-                <i class="fas fa-motorcycle"></i>
-                <span>Entregadores</span>
-                <span class="badge" id="sidebarDeliverersCount">0</span>
-            </button>
-            <button class="nav-item" data-tab="menu">
-                <i class="fas fa-utensils"></i>
-                <span>Menú</span>
-                <span class="badge" id="sidebarMenuCount">0</span>
-            </button>
-            <button class="nav-item" data-tab="stats">
-                <i class="fas fa-chart-bar"></i>
-                <span>Estadísticas</span>
-            </button>
-            <div class="logout-section">
-                <button class="nav-item logout-btn" id="logoutBtn">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span>Salir</span>
+// ===== ASIGNAR ENTREGADOR =====
+function assignDeliverer(orderId) {
+    const order = orders.find(o => o.id === orderId);
+    if (!order) return;
+    
+    // Mostrar modal con lista de entregadores disponibles
+    const available = deliverers.filter(d => d.disponible);
+    if (available.length === 0) {
+        showNotification('⚠️ No hay entregadores disponibles', 'warning');
+        return;
+    }
+    
+    // Por simplicidad, asignar el primero disponible
+    order.entregador = available[0].nombre;
+    order.estado = 'en-camino';
+    saveOrders();
+    renderOrders();
+    showNotification(`✅ Pedido asignado a ${order.entregador}`, 'success');
+}
+
+// ===== CANCELAR PEDIDO =====
+function cancelOrder(orderId) {
+    if (!confirm('¿Estás seguro de cancelar este pedido?')) return;
+    
+    const order = orders.find(o => o.id === orderId);
+    if (order) {
+        order.estado = 'cancelado';
+        saveOrders();
+        renderOrders();
+        showNotification('❌ Pedido cancelado', 'info');
+    }
+}
+
+// ===== CONTACTAR POR WHATSAPP =====
+function contactCustomer(phone) {
+    const cleanPhone = phone.replace(/\s/g, '').replace(/-/g, '');
+    window.open(`https://wa.me/54${cleanPhone}`, '_blank');
+}
+
+// ===== GUARDAR PEDIDOS =====
+function saveOrders() {
+    localStorage.setItem('orders', JSON.stringify(orders));
+    // También guardar en Google Sheets
+    syncOrdersWithSheets();
+}
+
+async function syncOrdersWithSheets() {
+    // Implementar sincronización con Google Sheets
+    console.log('Sincronizando con Google Sheets...');
+}
+
+// ===== RENDERIZAR ENTREGADORES =====
+function renderDeliverers() {
+    const container = document.getElementById('deliverersGrid');
+    if (!container) return;
+    
+    container.innerHTML = deliverers.map(d => `
+        <div class="deliverer-card">
+            <h4>${d.nombre}</h4>
+            <p><i class="fas fa-phone"></i> ${d.telefono}</p>
+            <p><i class="fas fa-bicycle"></i> ${d.vehiculo}</p>
+            <span class="status-badge ${d.disponible ? 'available' : 'unavailable'}">
+                ${d.disponible ? '🟢 Disponible' : '🔴 No disponible'}
+            </span>
+            <div class="deliverer-actions">
+                <button class="btn-edit" onclick="editDeliverer('${d.id}')">
+                    <i class="fas fa-edit"></i> Editar
+                </button>
+                <button class="btn-delete" onclick="deleteDeliverer('${d.id}')">
+                    <i class="fas fa-trash"></i> Eliminar
+                </button>
+                <button class="btn-status" onclick="toggleDelivererStatus('${d.id}')">
+                    <i class="fas fa-sync"></i> Cambiar
                 </button>
             </div>
-        </aside>
-
-        <!-- ===== MAIN CONTENT ===== -->
-        <main class="main-content">
-
-            <div class="topbar">
-                <div>
-                    <h1 class="page-title">Panel de <span>Control</span></h1>
-                    <p style="color: var(--gray-500); font-size: 0.9rem;">
-                        <i class="fas fa-calendar-alt"></i> 
-                        <span id="currentDate"></span>
-                    </p>
-                </div>
-                <div class="user-info">
-                    <div><div class="name">Administrador</div><div class="role">Super Admin</div></div>
-                    <div class="avatar">A</div>
-                </div>
-            </div>
-
-            <!-- ===== STATS ===== -->
-            <div class="stats-grid" id="statsGrid">
-                <div class="stat-card">
-                    <div class="stat-icon orange"><i class="fas fa-clipboard-list"></i></div>
-                    <div class="stat-number" id="statTotal">0</div>
-                    <div class="stat-label">Total Pedidos</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon blue"><i class="fas fa-clock"></i></div>
-                    <div class="stat-number" id="statPending">0</div>
-                    <div class="stat-label">Pendientes</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
-                    <div class="stat-number" id="statToday">0</div>
-                    <div class="stat-label">Hoy</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon purple"><i class="fas fa-dollar-sign"></i></div>
-                    <div class="stat-number" id="statRevenue">$0</div>
-                    <div class="stat-label">Ingresos</div>
-                </div>
-            </div>
-
-            <!-- ===== TAB: PEDIDOS ===== -->
-            <div class="tab-content active" id="ordersTab">
-                <div class="tab-header">
-                    <h2><i class="fas fa-clipboard-list" style="color: var(--primary);"></i> Gestión de Pedidos</h2>
-                    <div class="actions">
-                        <div class="filters">
-                            <select id="orderFilter">
-                                <option value="all">📋 Todos</option>
-                                <option value="pendiente">⏳ Pendientes</option>
-                                <option value="en-preparacion">👨‍🍳 En Preparación</option>
-                                <option value="en-camino">🛵 En Camino</option>
-                                <option value="entregado">✅ Entregados</option>
-                                <option value="cancelado">❌ Cancelados</option>
-                            </select>
-                            <input type="date" id="dateFilter">
-                            <button class="btn-secondary-sm" onclick="clearFilters()"><i class="fas fa-undo"></i> Limpiar</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="board-columns" id="orderBoard">
-                    <div class="column" data-status="pendiente">
-                        <div class="column-header"><h3>⏳ Pendientes</h3><span class="count" id="count-pendiente">0</span></div>
-                        <div class="column-body" id="col-pendiente"></div>
-                    </div>
-                    <div class="column" data-status="en-preparacion">
-                        <div class="column-header"><h3>👨‍🍳 En Preparación</h3><span class="count" id="count-preparacion">0</span></div>
-                        <div class="column-body" id="col-preparacion"></div>
-                    </div>
-                    <div class="column" data-status="en-camino">
-                        <div class="column-header"><h3>🛵 En Camino</h3><span class="count" id="count-camino">0</span></div>
-                        <div class="column-body" id="col-camino"></div>
-                    </div>
-                    <div class="column" data-status="entregado">
-                        <div class="column-header"><h3>✅ Entregados</h3><span class="count" id="count-entregado">0</span></div>
-                        <div class="column-body" id="col-entregado"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ===== TAB: ENTREGADORES ===== -->
-            <div class="tab-content" id="deliverersTab">
-                <div class="tab-header">
-                    <h2><i class="fas fa-motorcycle" style="color: var(--primary);"></i> Entregadores</h2>
-                    <div class="actions">
-                        <button class="btn-primary-sm" onclick="openDelivererModal()"><i class="fas fa-plus"></i> Agregar Entregador</button>
-                    </div>
-                </div>
-                <div class="deliverers-grid" id="deliverersGrid"></div>
-            </div>
-
-            <!-- ===== TAB: MENÚ ===== -->
-            <div class="tab-content" id="menuTab">
-                <div class="tab-header">
-                    <h2><i class="fas fa-utensils" style="color: var(--primary);"></i> Administrar Menú</h2>
-                    <div class="actions">
-                        <button class="btn-primary-sm" onclick="openProductModal()"><i class="fas fa-plus"></i> Agregar Producto</button>
-                    </div>
-                </div>
-                <div class="menu-admin-grid" id="menuAdminGrid"></div>
-            </div>
-
-            <!-- ===== TAB: ESTADÍSTICAS ===== -->
-            <div class="tab-content" id="statsTab">
-                <div class="tab-header">
-                    <h2><i class="fas fa-chart-bar" style="color: var(--primary);"></i> Estadísticas</h2>
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
-                    <div style="background: white; border-radius: var(--radius); padding: 1.5rem; box-shadow: var(--shadow);">
-                        <h3 style="margin-bottom: 1rem;">📊 Pedidos por Estado</h3>
-                        <div id="statusChart"></div>
-                    </div>
-                    <div style="background: white; border-radius: var(--radius); padding: 1.5rem; box-shadow: var(--shadow);">
-                        <h3 style="margin-bottom: 1rem;">📈 Ingresos Diarios</h3>
-                        <div id="revenueChart"></div>
-                    </div>
-                </div>
-            </div>
-
-        </main>
-    </div>
-
-    <!-- ===== MODALES ===== -->
-    <div class="modal-overlay" id="delivererModal">
-        <div class="modal">
-            <div class="modal-header">
-                <h2 id="delivererModalTitle">Agregar Entregador</h2>
-                <button class="close" onclick="closeDelivererModal()">&times;</button>
-            </div>
-            <form id="delivererForm">
-                <input type="hidden" id="delivererId">
-                <div class="form-group">
-                    <label>👤 Nombre completo *</label>
-                    <input type="text" id="delivererName" required placeholder="Ej: Carlos Gómez">
-                </div>
-                <div class="form-group">
-                    <label>📱 Teléfono *</label>
-                    <input type="tel" id="delivererPhone" required placeholder="11 2222-3333">
-                </div>
-                <div class="form-group">
-                    <label>🛵 Vehículo</label>
-                    <input type="text" id="delivererVehicle" placeholder="Ej: Moto, Bicicleta, Auto">
-                </div>
-                <div class="form-group">
-                    <label>📌 Disponible</label>
-                    <select id="delivererAvailable">
-                        <option value="true">✅ Disponible</option>
-                        <option value="false">❌ No disponible</option>
-                    </select>
-                </div>
-                <button type="submit" class="btn-submit"><i class="fas fa-save"></i> Guardar Entregador</button>
-            </form>
         </div>
-    </div>
+    `).join('');
+}
 
-    <div class="modal-overlay" id="productModal">
-        <div class="modal">
-            <div class="modal-header">
-                <h2 id="productModalTitle">Agregar Producto</h2>
-                <button class="close" onclick="closeProductModal()">&times;</button>
+// ===== CRUD ENTREGADORES =====
+function openDelivererModal(delivererId = null) {
+    const modal = document.getElementById('delivererModal');
+    const title = document.getElementById('delivererModalTitle');
+    const form = document.getElementById('delivererForm');
+    
+    if (!modal || !title || !form) return;
+    
+    if (delivererId) {
+        const d = deliverers.find(item => item.id === delivererId);
+        if (d) {
+            title.textContent = '✏️ Editar Entregador';
+            document.getElementById('delivererId').value = d.id;
+            document.getElementById('delivererName').value = d.nombre;
+            document.getElementById('delivererPhone').value = d.telefono;
+            document.getElementById('delivererVehicle').value = d.vehiculo;
+            document.getElementById('delivererAvailable').value = d.disponible ? 'true' : 'false';
+        }
+    } else {
+        title.textContent = '➕ Agregar Entregador';
+        form.reset();
+        document.getElementById('delivererId').value = '';
+    }
+    
+    modal.classList.add('active');
+}
+
+function closeDelivererModal() {
+    document.getElementById('delivererModal')?.classList.remove('active');
+}
+
+document.getElementById('delivererForm')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    
+    const id = document.getElementById('delivererId').value;
+    const nombre = document.getElementById('delivererName').value;
+    const telefono = document.getElementById('delivererPhone').value;
+    const vehiculo = document.getElementById('delivererVehicle').value;
+    const disponible = document.getElementById('delivererAvailable').value === 'true';
+    
+    if (id) {
+        // Editar
+        const index = deliverers.findIndex(d => d.id === id);
+        if (index !== -1) {
+            deliverers[index] = { ...deliverers[index], nombre, telefono, vehiculo, disponible };
+        }
+    } else {
+        // Agregar
+        deliverers.push({
+            id: Date.now().toString(),
+            nombre,
+            telefono,
+            vehiculo,
+            disponible
+        });
+    }
+    
+    localStorage.setItem('deliverers', JSON.stringify(deliverers));
+    renderDeliverers();
+    closeDelivererModal();
+    showNotification('✅ Entregador guardado correctamente', 'success');
+});
+
+function editDeliverer(id) {
+    openDelivererModal(id);
+}
+
+function deleteDeliverer(id) {
+    if (!confirm('¿Eliminar este entregador?')) return;
+    deliverers = deliverers.filter(d => d.id !== id);
+    localStorage.setItem('deliverers', JSON.stringify(deliverers));
+    renderDeliverers();
+    showNotification('Entregador eliminado', 'info');
+}
+
+function toggleDelivererStatus(id) {
+    const d = deliverers.find(item => item.id === id);
+    if (d) {
+        d.disponible = !d.disponible;
+        localStorage.setItem('deliverers', JSON.stringify(deliverers));
+        renderDeliverers();
+        showNotification(`Estado actualizado: ${d.disponible ? 'Disponible' : 'No disponible'}`, 'info');
+    }
+}
+
+// ===== RENDERIZAR MENÚ ADMIN =====
+function renderMenuAdmin() {
+    const container = document.getElementById('menuAdminGrid');
+    if (!container) return;
+    
+    container.innerHTML = menuItems.map(item => `
+        <div class="menu-admin-item">
+            <img src="${item.imagen}" alt="${item.nombre}">
+            <div class="info">
+                <h4>${item.nombre}</h4>
+                <p style="font-size:0.8rem;color:#999;">${item.descripcion}</p>
+                <div class="price">$${item.precio.toLocaleString()}</div>
             </div>
-            <form id="productForm">
-                <input type="hidden" id="productId">
-                <div class="form-group">
-                    <label>🍽️ Nombre *</label>
-                    <input type="text" id="productName" required placeholder="Ej: Pizza Muzzarella">
-                </div>
-                <div class="form-group">
-                    <label>📝 Descripción</label>
-                    <textarea id="productDescription" rows="2" placeholder="Breve descripción del producto"></textarea>
-                </div>
-                <div class="form-group">
-                    <label>💰 Precio $ *</label>
-                    <input type="number" id="productPrice" required step="100" placeholder="4500">
-                </div>
-                <div class="form-group">
-                    <label>🖼️ URL de la imagen</label>
-                    <input type="text" id="productImage" placeholder="https://images.unsplash.com/...">
-                </div>
-                <div class="form-group">
-                    <label>📂 Categoría</label>
-                    <select id="productCategory">
-                        <option value="pizzas">🍕 Pizzas</option>
-                        <option value="hamburguesas">🍔 Hamburguesas</option>
-                        <option value="lomitos">🥪 Lomitos</option>
-                        <option value="empanadas">🥟 Empanadas</option>
-                        <option value="papas">🍟 Papas Fritas</option>
-                        <option value="aderezos">🧂 Aderezos</option>
-                    </select>
-                </div>
-                <button type="submit" class="btn-submit"><i class="fas fa-save"></i> Guardar Producto</button>
-            </form>
+            <div class="actions">
+                <button class="btn-edit" onclick="editProduct(${item.id})">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn-delete" onclick="deleteProduct(${item.id})">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
         </div>
-    </div>
+    `).join('');
+}
 
-    <!-- ===== SCRIPTS ===== -->
-    <script src="js/google-sheets.js"></script>
-    <script>
-        // ============================================
-        // ADMIN - COMPLETO
-        // ============================================
-        
-        let orders = [];
-        let deliverers = [];
-        let menuItems = [];
+// ===== CRUD PRODUCTOS =====
+function openProductModal(productId = null) {
+    const modal = document.getElementById('productModal');
+    const title = document.getElementById('productModalTitle');
+    
+    if (!modal || !title) return;
+    
+    if (productId) {
+        const p = menuItems.find(item => item.id === productId);
+        if (p) {
+            title.textContent = '✏️ Editar Producto';
+            document.getElementById('productId').value = p.id;
+            document.getElementById('productName').value = p.nombre;
+            document.getElementById('productDescription').value = p.descripcion;
+            document.getElementById('productPrice').value = p.precio;
+            document.getElementById('productImage').value = p.imagen;
+            document.getElementById('productCategory').value = p.categoria;
+        }
+    } else {
+        title.textContent = '➕ Agregar Producto';
+        document.getElementById('productForm').reset();
+        document.getElementById('productId').value = '';
+    }
+    
+    modal.classList.add('active');
+}
 
-        // ===== FECHA =====
-        document.getElementById('currentDate').textContent = 
-            new Date().toLocaleDateString('es-AR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+function closeProductModal() {
+    document.getElementById('productModal')?.classList.remove('active');
+}
 
-        // ===== LOGIN =====
-        document.getElementById('loginForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const user = document.getElementById('loginUser').value;
-            const pass = document.getElementById('loginPass').value;
-            if (user === 'admin' && pass === 'admin123') {
-                document.getElementById('loginScreen').style.display = 'none';
-                document.getElementById('dashboardScreen').style.display = 'block';
-                showNotification('✅ Bienvenido al panel', 'success');
-                loadDashboardData();
-            } else {
-                showNotification('❌ Usuario o contraseña incorrectos', 'error');
-            }
+document.getElementById('productForm')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    
+    const id = document.getElementById('productId').value;
+    const nombre = document.getElementById('productName').value;
+    const descripcion = document.getElementById('productDescription').value;
+    const precio = parseInt(document.getElementById('productPrice').value);
+    const imagen = document.getElementById('productImage').value || 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=300';
+    const categoria = document.getElementById('productCategory').value;
+    
+    if (id) {
+        const index = menuItems.findIndex(p => p.id === parseInt(id));
+        if (index !== -1) {
+            menuItems[index] = { ...menuItems[index], nombre, descripcion, precio, imagen, categoria };
+        }
+    } else {
+        menuItems.push({
+            id: Date.now(),
+            nombre,
+            descripcion,
+            precio,
+            imagen,
+            categoria
         });
+    }
+    
+    localStorage.setItem('menuItems', JSON.stringify(menuItems));
+    renderMenuAdmin();
+    closeProductModal();
+    showNotification('✅ Producto guardado correctamente', 'success');
+});
 
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-            document.getElementById('loginScreen').style.display = 'flex';
-            document.getElementById('dashboardScreen').style.display = 'none';
-            showNotification('Sesión cerrada', 'info');
-        });
+function editProduct(id) {
+    openProductModal(id);
+}
 
-        // ===== NAVEGACIÓN =====
-        document.querySelectorAll('.sidebar .nav-item[data-tab]').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const tab = this.dataset.tab;
-                document.querySelectorAll('.sidebar .nav-item[data-tab]').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                document.getElementById(tab + 'Tab').classList.add('active');
-                if (tab === 'orders') renderOrders();
-                if (tab === 'deliverers') renderDeliverers();
-                if (tab === 'menu') renderMenuAdmin();
-                if (tab === 'stats') updateStats();
-            });
-        });
+function deleteProduct(id) {
+    if (!confirm('¿Eliminar este producto?')) return;
+    menuItems = menuItems.filter(p => p.id !== id);
+    localStorage.setItem('menuItems', JSON.stringify(menuItems));
+    renderMenuAdmin();
+    showNotification('Producto eliminado', 'info');
+}
 
-        // ===== NOTIFICACIONES =====
-        function showNotification(message, type = 'info') {
-            const div = document.createElement('div');
-            div.className = `notification ${type}`;
-            div.innerHTML = message;
-            document.body.appendChild(div);
-            setTimeout(() => {
-                div.style.opacity = '0';
-                div.style.transform = 'translateY(20px)';
-                div.style.transition = 'all 0.3s';
-                setTimeout(() => div.remove(), 300);
-            }, 4000);
-        }
+// ===== ESTADÍSTICAS =====
+function updateStats() {
+    const total = orders.length;
+    const pending = orders.filter(o => o.estado === 'pendiente' || o.estado === 'en-preparacion' || o.estado === 'en-camino').length;
+    const today = orders.filter(o => new Date(o.fecha).toDateString() === new Date().toDateString()).length;
+    const revenue = orders.reduce((sum, o) => o.estado !== 'cancelado' ? sum + o.total : sum, 0);
+    
+    document.getElementById('statTotal').textContent = total;
+    document.getElementById('statPending').textContent = pending;
+    document.getElementById('statToday').textContent = today;
+    document.getElementById('statRevenue').textContent = `$${revenue.toLocaleString()}`;
+}
 
-        // ===== GENERAR MOCK =====
-        function generateMockOrders() {
-            return [
-                { id: '1', fecha: new Date(Date.now() - 7200000).toISOString(), cliente: 'Juan Pérez', telefono: '11 1234-5678', tipo_entrega: 'Envío a domicilio', direccion: 'Av. Siempreviva 123', items: '2x Pizza Muzzarella, 1x Papas Fritas', total: 11000, pago: 'transferencia', notas: 'Sin cebolla', estado: 'pendiente', entregador: 'Sin asignar' },
-                { id: '2', fecha: new Date(Date.now() - 3600000).toISOString(), cliente: 'Ana Martínez', telefono: '11 8765-4321', tipo_entrega: 'Retiro en local', direccion: 'Retira en local', items: '1x Hamburguesa Completa, 1x Salsa Barbacoa', total: 5300, pago: 'efectivo', notas: '', estado: 'en-preparacion', entregador: 'Sin asignar' },
-                { id: '3', fecha: new Date(Date.now() - 1800000).toISOString(), cliente: 'Roberto Sánchez', telefono: '11 5555-6666', tipo_entrega: 'Envío a domicilio', direccion: 'Calle Falsa 456', items: '3x Empanadas de Carne, 1x Empanada de Jamón', total: 4800, pago: 'mercadoPago', notas: 'Con mucha salsa', estado: 'en-camino', entregador: 'Carlos Gómez' },
-                { id: '4', fecha: new Date(Date.now() - 600000).toISOString(), cliente: 'Laura Fernández', telefono: '11 7777-8888', tipo_entrega: 'Envío a domicilio', direccion: 'Belgrano 789', items: '1x Lomito Completo, 2x Salsa de Ajo', total: 6200, pago: 'debito', notas: 'Sin cebolla', estado: 'pendiente', entregador: 'Sin asignar' }
-            ];
-        }
-
-        // ===== CARGAR DATOS =====
-        async function loadDashboardData() {
-            await loadOrders();
-            loadDeliverers();
-            loadMenuItems();
-        }
-
-        async function loadOrders() {
-            try {
-                if (window.GoogleSheets) {
-                    const sheetOrders = await window.GoogleSheets.getOrders();
-                    if (sheetOrders && sheetOrders.length > 0) {
-                        orders = sheetOrders;
-                        localStorage.setItem('orders', JSON.stringify(orders));
-                        renderOrders();
-                        return;
-                    }
-                }
-                const saved = localStorage.getItem('orders');
-                orders = saved ? JSON.parse(saved) : generateMockOrders();
-                renderOrders();
-            } catch (error) {
-                console.warn('⚠️ Error cargando pedidos:', error);
-                const saved = localStorage.getItem('orders');
-                orders = saved ? JSON.parse(saved) : generateMockOrders();
-                renderOrders();
-            }
-        }
-
-        function loadDeliverers() {
-            const saved = localStorage.getItem('deliverers');
-            deliverers = saved ? JSON.parse(saved) : [
-                { id: '1', nombre: 'Carlos Gómez', telefono: '11 2222-3333', vehiculo: 'Moto', disponible: true },
-                { id: '2', nombre: 'María López', telefono: '11 4444-5555', vehiculo: 'Bicicleta', disponible: true }
-            ];
-            renderDeliverers();
-        }
-
-        function loadMenuItems() {
-            const saved = localStorage.getItem('menuItems');
-            menuItems = saved ? JSON.parse(saved) : [
-                { id: 1, nombre: 'Pizza Muzzarella', descripcion: 'Clásica con salsa', precio: 4500, imagen: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=300', categoria: 'pizzas' },
-                { id: 2, nombre: 'Hamburguesa Clásica', descripcion: 'Carne, lechuga y tomate', precio: 3800, imagen: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=300', categoria: 'hamburguesas' },
-                { id: 3, nombre: 'Empanada de Carne', descripcion: 'Carne cortada a cuchillo', precio: 1200, imagen: 'https://images.unsplash.com/photo-1625943553852-b2aa1393c3b5?w=300', categoria: 'empanadas' }
-            ];
-            renderMenuAdmin();
-        }
-
-        // ===== RENDER PEDIDOS =====
-        function renderOrders() {
-            const statuses = ['pendiente', 'en-preparacion', 'en-camino', 'entregado'];
-            const labels = { 'pendiente': 'pendiente', 'en-preparacion': 'preparacion', 'en-camino': 'camino', 'entregado': 'entregado' };
-            
-            statuses.forEach(status => {
-                const container = document.getElementById(`col-${labels[status]}`);
-                const countEl = document.getElementById(`count-${labels[status]}`);
-                if (!container) return;
-                
-                const filtered = orders.filter(o => o.estado === status);
-                if (countEl) countEl.textContent = filtered.length;
-                
-                container.innerHTML = filtered.length === 0 
-                    ? `<div class="empty-state"><i class="fas fa-inbox"></i><p>Sin pedidos</p></div>`
-                    : filtered.map(order => `
-                        <div class="order-card">
-                            <div class="order-time"><i class="far fa-clock"></i> ${new Date(order.fecha).toLocaleTimeString()}</div>
-                            <div class="order-customer">${order.cliente}</div>
-                            <div class="order-detail">${order.items}</div>
-                            <div class="order-address"><i class="fas fa-map-marker-alt"></i> ${order.direccion}</div>
-                            <div class="order-total">$${order.total.toLocaleString()}</div>
-                            <div class="order-deliverer">${order.entregador !== 'Sin asignar' ? '🛵 ' + order.entregador : '📦 Sin entregador'}</div>
-                            <div class="order-actions">
-                                <button class="btn-whatsapp" onclick="contactCustomer('${order.telefono}')"><i class="fab fa-whatsapp"></i></button>
-                                ${status !== 'entregado' && status !== 'cancelado' ? `
-                                    <button class="btn-status" onclick="changeOrderStatus('${order.id}')"><i class="fas fa-arrow-right"></i> Avanzar</button>
-                                    <button class="btn-assign" onclick="assignDeliverer('${order.id}')"><i class="fas fa-motorcycle"></i></button>
-                                    <button class="btn-cancel" onclick="cancelOrder('${order.id}')"><i class="fas fa-times"></i></button>
-                                ` : ''}
-                            </div>
-                        </div>
-                    `).join('');
-            });
-            
-            updateStats();
-            document.getElementById('sidebarOrdersCount').textContent = orders.length;
-        }
-
-        function changeOrderStatus(id) {
-            const order = orders.find(o => o.id === id);
-            if (!order) return;
-            const flow = { 'pendiente': 'en-preparacion', 'en-preparacion': 'en-camino', 'en-camino': 'entregado' };
-            order.estado = flow[order.estado] || order.estado;
-            localStorage.setItem('orders', JSON.stringify(orders));
-            renderOrders();
-            showNotification('✅ Estado actualizado', 'success');
-        }
-
-        function assignDeliverer(id) {
-            const available = deliverers.filter(d => d.disponible);
-            if (available.length === 0) {
-                showNotification('⚠️ No hay entregadores disponibles', 'warning');
-                return;
-            }
-            const order = orders.find(o => o.id === id);
-            if (order) {
-                order.entregador = available[0].nombre;
-                order.estado = 'en-camino';
-                localStorage.setItem('orders', JSON.stringify(orders));
-                renderOrders();
-                showNotification(`✅ Asignado a ${order.entregador}`, 'success');
-            }
-        }
-
-        function cancelOrder(id) {
-            if (!confirm('¿Cancelar este pedido?')) return;
-            const order = orders.find(o => o.id === id);
-            if (order) {
-                order.estado = 'cancelado';
-                localStorage.setItem('orders', JSON.stringify(orders));
-                renderOrders();
-                showNotification('❌ Pedido cancelado', 'info');
-            }
-        }
-
-        function contactCustomer(phone) {
-            const clean = phone.replace(/\s/g, '').replace(/-/g, '');
-            window.open(`https://wa.me/54${clean}`, '_blank');
-        }
-
-        function clearFilters() {
-            document.getElementById('orderFilter').value = 'all';
-            document.getElementById('dateFilter').value = '';
-            renderOrders();
-        }
-
-        // ===== RENDER ENTREGADORES =====
-        function renderDeliverers() {
-            const container = document.getElementById('deliverersGrid');
-            if (!container) return;
-            
-            container.innerHTML = deliverers.map(d => `
-                <div class="deliverer-card">
-                    <div class="header">
-                        <h4>${d.nombre}</h4>
-                        <span class="status-badge ${d.disponible ? 'available' : 'unavailable'}">
-                            ${d.disponible ? '🟢 Disponible' : '🔴 No disponible'}
-                        </span>
-                    </div>
-                    <div class="info"><i class="fas fa-phone"></i> ${d.telefono}</div>
-                    <div class="info"><i class="fas fa-bicycle"></i> ${d.vehiculo}</div>
-                    <div class="actions">
-                        <button class="btn-edit" onclick="editDeliverer('${d.id}')"><i class="fas fa-edit"></i> Editar</button>
-                        <button class="btn-delete" onclick="deleteDeliverer('${d.id}')"><i class="fas fa-trash"></i></button>
-                        <button class="btn-toggle" onclick="toggleDeliverer('${d.id}')"><i class="fas fa-sync"></i></button>
-                    </div>
-                </div>
-            `).join('');
-            document.getElementById('sidebarDeliverersCount').textContent = deliverers.length;
-        }
-
-        function openDelivererModal(id = null) {
-            const modal = document.getElementById('delivererModal');
-            const title = document.getElementById('delivererModalTitle');
-            const form = document.getElementById('delivererForm');
-            
-            if (id) {
-                const d = deliverers.find(item => item.id === id);
-                if (d) {
-                    title.textContent = '✏️ Editar Entregador';
-                    document.getElementById('delivererId').value = d.id;
-                    document.getElementById('delivererName').value = d.nombre;
-                    document.getElementById('delivererPhone').value = d.telefono;
-                    document.getElementById('delivererVehicle').value = d.vehiculo;
-                    document.getElementById('delivererAvailable').value = d.disponible ? 'true' : 'false';
-                }
-            } else {
-                title.textContent = '➕ Agregar Entregador';
-                form.reset();
-                document.getElementById('delivererId').value = '';
-            }
-            modal.classList.add('active');
-        }
-
-        function closeDelivererModal() {
-            document.getElementById('delivererModal').classList.remove('active');
-        }
-
-        document.getElementById('delivererForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const id = document.getElementById('delivererId').value;
-            const data = {
-                nombre: document.getElementById('delivererName').value,
-                telefono: document.getElementById('delivererPhone').value,
-                vehiculo: document.getElementById('delivererVehicle').value,
-                disponible: document.getElementById('delivererAvailable').value === 'true'
-            };
-            
-            if (id) {
-                const index = deliverers.findIndex(d => d.id === id);
-                if (index !== -1) deliverers[index] = { ...deliverers[index], ...data };
-            } else {
-                deliverers.push({ id: Date.now().toString(), ...data });
-            }
-            localStorage.setItem('deliverers', JSON.stringify(deliverers));
-            renderDeliverers();
-            closeDelivererModal();
-            showNotification('✅ Entregador guardado', 'success');
-        });
-
-        function editDeliverer(id) { openDelivererModal(id); }
-        
-        function deleteDeliverer(id) {
-            if (!confirm('¿Eliminar este entregador?')) return;
-            deliverers = deliverers.filter(d => d.id !== id);
-            localStorage.setItem('deliverers', JSON.stringify(deliverers));
-            renderDeliverers();
-            showNotification('Entregador eliminado', 'info');
-        }
-
-        function toggleDeliverer(id) {
-            const d = deliverers.find(item => item.id === id);
-            if (d) { d.disponible = !d.disponible; localStorage.setItem('deliverers', JSON.stringify(deliverers)); renderDeliverers(); }
-        }
-
-        // ===== RENDER MENÚ ADMIN =====
-        function renderMenuAdmin() {
-            const container = document.getElementById('menuAdminGrid');
-            if (!container) return;
-            
-            container.innerHTML = menuItems.map(item => `
-                <div class="menu-admin-item">
-                    <img src="${item.imagen}" alt="${item.nombre}" onerror="this.src='https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=300'">
-                    <div class="info">
-                        <h4>${item.nombre}</h4>
-                        <div class="desc">${item.descripcion}</div>
-                        <div class="price">$${item.precio.toLocaleString()}</div>
-                    </div>
-                    <div class="actions">
-                        <button class="btn-edit" onclick="editProduct(${item.id})"><i class="fas fa-edit"></i> Editar</button>
-                        <button class="btn-delete" onclick="deleteProduct(${item.id})"><i class="fas fa-trash"></i></button>
-                    </div>
-                </div>
-            `).join('');
-            document.getElementById('sidebarMenuCount').textContent = menuItems.length;
-        }
-
-        function openProductModal(id = null) {
-            const modal = document.getElementById('productModal');
-            const title = document.getElementById('productModalTitle');
-            
-            if (id) {
-                const p = menuItems.find(item => item.id === id);
-                if (p) {
-                    title.textContent = '✏️ Editar Producto';
-                    document.getElementById('productId').value = p.id;
-                    document.getElementById('productName').value = p.nombre;
-                    document.getElementById('productDescription').value = p.descripcion;
-                    document.getElementById('productPrice').value = p.precio;
-                    document.getElementById('productImage').value = p.imagen;
-                    document.getElementById('productCategory').value = p.categoria;
-                }
-            } else {
-                title.textContent = '➕ Agregar Producto';
-                document.getElementById('productForm').reset();
-                document.getElementById('productId').value = '';
-            }
-            modal.classList.add('active');
-        }
-
-        function closeProductModal() {
-            document.getElementById('productModal').classList.remove('active');
-        }
-
-        document.getElementById('productForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const id = document.getElementById('productId').value;
-            const data = {
-                nombre: document.getElementById('productName').value,
-                descripcion: document.getElementById('productDescription').value,
-                precio: parseInt(document.getElementById('productPrice').value),
-                imagen: document.getElementById('productImage').value || 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=300',
-                categoria: document.getElementById('productCategory').value
-            };
-            
-            if (id) {
-                const index = menuItems.findIndex(p => p.id === parseInt(id));
-                if (index !== -1) menuItems[index] = { ...menuItems[index], ...data };
-            } else {
-                menuItems.push({ id: Date.now(), ...data });
-            }
-            localStorage.setItem('menuItems', JSON.stringify(menuItems));
-            renderMenuAdmin();
-            closeProductModal();
-            showNotification('✅ Producto guardado', 'success');
-        });
-
-        function editProduct(id) { openProductModal(id); }
-        
-        function deleteProduct(id) {
-            if (!confirm('¿Eliminar este producto?')) return;
-            menuItems = menuItems.filter(p => p.id !== id);
-            localStorage.setItem('menuItems', JSON.stringify(menuItems));
-            renderMenuAdmin();
-            showNotification('Producto eliminado', 'info');
-        }
-
-        // ===== ESTADÍSTICAS =====
-        function updateStats() {
-            const total = orders.length;
-            const pending = orders.filter(o => ['pendiente', 'en-preparacion', 'en-camino'].includes(o.estado)).length;
-            const today = orders.filter(o => new Date(o.fecha).toDateString() === new Date().toDateString()).length;
-            const revenue = orders.reduce((sum, o) => o.estado !== 'cancelado' ? sum + o.total : sum, 0);
-            
-            document.getElementById('statTotal').textContent = total;
-            document.getElementById('statPending').textContent = pending;
-            document.getElementById('statToday').textContent = today;
-            document.getElementById('statRevenue').textContent = `$${revenue.toLocaleString()}`;
-        }
-
-        console.log('🚀 Admin Panel listo');
-    </script>
-
-</body>
-</html>
+// ===== NOTIFICACIONES (reusar la misma función de main.js) =====
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.innerHTML = message;
+    notification.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        padding: 16px 24px;
+        border-radius: 12px;
+        background: ${type === 'success' ? '#2e7d32' : type === 'warning' ? '#f57c00' : type === 'error' ? '#c62828' : '#1976d2'};
+        color: white;
+        font-weight: 500;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        z-index: 10000;
+        animation: slideUp 0.3s;
+        max-width: 400px;
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        notification.style.transform = 'translateY(20px)';
+        notification.style.transition = 'all 0.3s';
+        setTimeout(() => notification.remove(), 300);
+    }, 4000);
+}
