@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🍕+Rotisería Delicias</title>
+    <title>🍕 Rotisería Delicias</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,7 +26,6 @@
             --shadow: 0 10px 30px rgba(0,0,0,0.08);
             --shadow-hover: 0 15px 40px rgba(230,57,70,0.2);
             --radius: 16px;
-            --transition: all 0.3s ease;
         }
         
         body {
@@ -82,7 +81,7 @@
             text-decoration: none;
             color: #2d3436;
             font-weight: 500;
-            transition: var(--transition);
+            transition: all 0.3s ease;
         }
         
         .nav-menu a:hover {
@@ -140,7 +139,7 @@
             grid-template-columns: 1fr 1fr;
             gap: 3rem;
             align-items: center;
-            min-height: 80vh;
+            min-height: 60vh;
         }
         
         .hero h1 {
@@ -173,7 +172,7 @@
             font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
-            transition: var(--transition);
+            transition: all 0.3s ease;
             text-decoration: none;
         }
         
@@ -221,7 +220,7 @@
             border-radius: var(--radius);
             overflow: hidden;
             box-shadow: var(--shadow);
-            transition: var(--transition);
+            transition: all 0.3s ease;
         }
         
         .product-card:hover {
@@ -281,7 +280,7 @@
             font-size: 1.1rem;
             cursor: pointer;
             font-weight: 700;
-            transition: var(--transition);
+            transition: all 0.3s ease;
         }
         
         .quantity-btn:hover {
@@ -304,18 +303,11 @@
             border-radius: 50px;
             font-weight: 600;
             cursor: pointer;
-            transition: var(--transition);
+            transition: all 0.3s ease;
         }
         
         .add-to-cart:hover {
             background: var(--primary-dark);
-        }
-        
-        footer {
-            background: var(--secondary);
-            color: white;
-            text-align: center;
-            padding: 2rem;
         }
         
         /* ===== CARRITO ===== */
@@ -337,8 +329,8 @@
         .cart-panel {
             position: fixed;
             top: 0;
-            right: -400px;
-            width: 400px;
+            right: -450px;
+            width: 450px;
             height: 100%;
             background: white;
             box-shadow: -10px 0 30px rgba(0,0,0,0.1);
@@ -389,6 +381,227 @@
             font-size: 1rem;
         }
         
+        /* ===== MODAL CHECKOUT ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 3000;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+        }
+        
+        .modal {
+            background: white;
+            border-radius: var(--radius);
+            max-width: 700px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 2rem;
+            animation: slideUp 0.3s ease;
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        
+        .modal .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .modal .modal-header h2 {
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+        
+        .modal .modal-header .close {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #999;
+            transition: all 0.3s ease;
+        }
+        
+        .modal .modal-header .close:hover {
+            color: #333;
+            transform: rotate(90deg);
+        }
+        
+        .modal .form-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .modal .form-section h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 0.8rem;
+            color: var(--secondary);
+        }
+        
+        .modal .form-group {
+            margin-bottom: 0.8rem;
+        }
+        
+        .modal .form-group label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #555;
+            margin-bottom: 0.3rem;
+        }
+        
+        .modal .form-group input,
+        .modal .form-group textarea,
+        .modal .form-group select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+        
+        .modal .form-group input:focus,
+        .modal .form-group textarea:focus,
+        .modal .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(230,57,70,0.1);
+        }
+        
+        .modal .form-group textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+        
+        .radio-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.8rem;
+        }
+        
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0.8rem 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .radio-option:hover {
+            border-color: var(--primary);
+        }
+        
+        .radio-option input[type="radio"]:checked + span {
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .payment-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+        }
+        
+        .payment-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            padding: 0.8rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.8rem;
+        }
+        
+        .payment-option:hover {
+            border-color: var(--primary);
+        }
+        
+        .payment-option i {
+            font-size: 1.4rem;
+        }
+        
+        .order-summary {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .order-summary .item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.4rem 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .order-summary .item:last-child {
+            border-bottom: none;
+        }
+        
+        .total-display {
+            font-size: 1.3rem;
+            font-weight: 700;
+            text-align: right;
+            color: var(--primary);
+            padding: 0.8rem 0;
+        }
+        
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .btn-submit:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(230,57,70,0.3);
+        }
+        
+        footer {
+            background: var(--secondary);
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+        
         .notification {
             position: fixed;
             bottom: 20px;
@@ -406,10 +619,10 @@
         .notification.success { background: #2e7d32; }
         .notification.warning { background: #f57c00; }
         .notification.error { background: #c62828; }
+        .notification.info { background: #1565c0; }
         
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .hidden {
+            display: none;
         }
         
         @media (max-width: 768px) {
@@ -422,6 +635,14 @@
             .hero-buttons { justify-content: center; }
             .hero h1 { font-size: 2.5rem; }
             .cart-panel { width: 100%; right: -100%; }
+            .menu-grid { grid-template-columns: 1fr 1fr; }
+            .modal { padding: 1.5rem; margin: 1rem; }
+            .radio-group { grid-template-columns: 1fr; }
+            .payment-options { grid-template-columns: repeat(2, 1fr); }
+        }
+        
+        @media (max-width: 480px) {
+            .menu-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -452,7 +673,7 @@
         <div>
             <h1>Sabores que <span>enamoran</span></h1>
             <p>Las mejores empanadas, pizzas, lomitos y hamburguesas de la ciudad. Hechas con amor y los mejores ingredientes.</p>
-            <div class="hero-buttons">
+            <div>
                 <a href="#menu" class="btn-primary">
                     <i class="fas fa-arrow-right"></i> Ver Menú
                 </a>
@@ -488,9 +709,107 @@
                 <span>Total:</span>
                 <span id="cartTotal">$0</span>
             </div>
-            <button class="btn-primary checkout-btn" onclick="alert('Funcionalidad en desarrollo')">
+            <button class="btn-primary checkout-btn" onclick="openCheckout()">
                 <i class="fas fa-credit-card"></i> Finalizar Pedido
             </button>
+        </div>
+    </div>
+
+    <!-- ===== MODAL CHECKOUT ===== -->
+    <div class="modal-overlay" id="checkoutModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>📋 Confirmar Pedido</h2>
+                <button class="close" onclick="closeCheckout()">&times;</button>
+            </div>
+
+            <form id="orderForm">
+                <!-- Datos del Cliente -->
+                <div class="form-section">
+                    <h3>👤 Datos de Contacto</h3>
+                    <div class="form-group">
+                        <label>Nombre completo *</label>
+                        <input type="text" id="customerName" required placeholder="Ej: Juan Pérez">
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono *</label>
+                        <input type="tel" id="customerPhone" required placeholder="11 1234-5678">
+                    </div>
+                </div>
+
+                <!-- Resumen del Pedido -->
+                <div class="form-section">
+                    <h3>🛒 Resumen del Pedido</h3>
+                    <div class="order-summary" id="orderSummary"></div>
+                    <div class="total-display">
+                        <span>Total:</span>
+                        <span id="modalTotal">$0</span>
+                    </div>
+                </div>
+
+                <!-- Forma de Retiro -->
+                <div class="form-section">
+                    <h3>📍 ¿Cómo querés recibir tu pedido?</h3>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="deliveryType" value="delivery" checked>
+                            <i class="fas fa-truck"></i>
+                            <span>Envío a domicilio</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="deliveryType" value="pickup">
+                            <i class="fas fa-store"></i>
+                            <span>Retiro en el local</span>
+                        </label>
+                    </div>
+                    <div id="addressField" class="form-group">
+                        <label>Dirección de entrega *</label>
+                        <input type="text" id="deliveryAddress" placeholder="Calle y número">
+                    </div>
+                </div>
+
+                <!-- Formas de Pago -->
+                <div class="form-section">
+                    <h3>💳 Forma de Pago</h3>
+                    <div class="payment-options">
+                        <label class="payment-option">
+                            <input type="radio" name="payment" value="efectivo">
+                            <i class="fas fa-money-bill"></i>
+                            <span>Efectivo</span>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment" value="debito">
+                            <i class="fas fa-credit-card"></i>
+                            <span>Débito</span>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment" value="credito">
+                            <i class="fas fa-credit-card"></i>
+                            <span>Crédito</span>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment" value="transferencia" checked>
+                            <i class="fas fa-university"></i>
+                            <span>Transferencia</span>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment" value="mercadoPago">
+                            <i class="fas fa-qrcode"></i>
+                            <span>Mercado Pago</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Observaciones -->
+                <div class="form-section">
+                    <h3>📝 Observaciones</h3>
+                    <textarea id="orderNotes" placeholder="Ej: Sin cebolla, extra salsa, etc." rows="2"></textarea>
+                </div>
+
+                <button type="submit" class="btn-submit">
+                    <i class="fas fa-check-circle"></i> Confirmar Pedido
+                </button>
+            </form>
         </div>
     </div>
 
@@ -502,7 +821,7 @@
     <!-- ===== SCRIPTS ===== -->
     <script>
         // ============================================
-        // DATOS DE PRODUCTOS (FIJOS PARA PRUEBA)
+        // DATOS DE PRODUCTOS
         // ============================================
         const PRODUCTOS = [
             {
@@ -542,10 +861,24 @@
             },
             {
                 id: 6,
+                nombre: 'Empanada de Jamón y Queso',
+                descripcion: 'Jamón cocido y queso cremoso',
+                precio: 1200,
+                imagen: 'https://images.unsplash.com/photo-1625943553852-b2aa1393c3b5?w=300'
+            },
+            {
+                id: 7,
                 nombre: 'Papas Fritas',
                 descripcion: 'Papas cortadas, fritas y saladas',
                 precio: 2000,
                 imagen: 'https://images.unsplash.com/photo-1630384060421-cb20d0e0649d?w=300'
+            },
+            {
+                id: 8,
+                nombre: 'Lomito Completo',
+                descripcion: 'Lomo, lechuga, tomate, huevo y jamón',
+                precio: 5200,
+                imagen: 'https://images.unsplash.com/photo-1547496502-affa22d38842?w=300'
             }
         ];
 
@@ -553,8 +886,6 @@
         // ESTADO
         // ============================================
         let cart = [];
-        let totalItems = 0;
-        let totalPrice = 0;
 
         // ============================================
         // RENDERIZAR MENÚ
@@ -565,7 +896,8 @@
 
             grid.innerHTML = PRODUCTOS.map(p => `
                 <div class="product-card">
-                    <img src="${p.imagen}" alt="${p.nombre}" onerror="this.src='https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=300'">
+                    <img src="${p.imagen}" alt="${p.nombre}" 
+                         onerror="this.src='https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=300'">
                     <div class="info">
                         <h3>${p.nombre}</h3>
                         <div class="desc">${p.descripcion}</div>
@@ -627,8 +959,8 @@
             
             if (!count || !total || !itemsContainer) return;
             
-            totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-            totalPrice = cart.reduce((sum, item) => sum + (item.precio * item.quantity), 0);
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            const totalPrice = cart.reduce((sum, item) => sum + (item.precio * item.quantity), 0);
             
             count.textContent = totalItems;
             total.textContent = `$${totalPrice.toLocaleString()}`;
@@ -667,6 +999,135 @@
         }
 
         // ============================================
+        // CHECKOUT - ABRIR MODAL
+        // ============================================
+        function openCheckout() {
+            if (cart.length === 0) {
+                showNotification('⚠️ Agregá productos al carrito primero', 'warning');
+                return;
+            }
+
+            // Cerrar carrito
+            toggleCart();
+
+            // Actualizar resumen
+            const summary = document.getElementById('orderSummary');
+            const totalDisplay = document.getElementById('modalTotal');
+            
+            const totalPrice = cart.reduce((sum, item) => sum + (item.precio * item.quantity), 0);
+            
+            summary.innerHTML = cart.map(item => `
+                <div class="item">
+                    <span>${item.quantity}x ${item.nombre}</span>
+                    <span>$${(item.precio * item.quantity).toLocaleString()}</span>
+                </div>
+            `).join('');
+            
+            totalDisplay.textContent = `$${totalPrice.toLocaleString()}`;
+
+            // Mostrar modal
+            document.getElementById('checkoutModal').classList.add('active');
+        }
+
+        function closeCheckout() {
+            document.getElementById('checkoutModal').classList.remove('active');
+        }
+
+        // ============================================
+        // ENVIAR PEDIDO
+        // ============================================
+        document.getElementById('orderForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const nombre = document.getElementById('customerName').value;
+            const telefono = document.getElementById('customerPhone').value;
+            const deliveryType = document.querySelector('input[name="deliveryType"]:checked').value;
+            const direccion = document.getElementById('deliveryAddress').value;
+            const payment = document.querySelector('input[name="payment"]:checked').value;
+            const notas = document.getElementById('orderNotes').value;
+            const totalPrice = cart.reduce((sum, item) => sum + (item.precio * item.quantity), 0);
+
+            // Validar
+            if (!nombre || !telefono) {
+                showNotification('⚠️ Completá tus datos de contacto', 'warning');
+                return;
+            }
+
+            if (deliveryType === 'delivery' && !direccion) {
+                showNotification('⚠️ Ingresá la dirección de entrega', 'warning');
+                return;
+            }
+
+            // Construir pedido
+            const order = {
+                id: Date.now().toString(),
+                fecha: new Date().toISOString(),
+                cliente: nombre,
+                telefono: telefono,
+                tipo_entrega: deliveryType === 'delivery' ? 'Envío a domicilio' : 'Retiro en local',
+                direccion: direccion || 'Retira en local',
+                items: cart.map(item => `${item.quantity}x ${item.nombre}`).join(', '),
+                total: totalPrice,
+                pago: payment,
+                notas: notas || '',
+                estado: 'pendiente',
+                entregador: 'Sin asignar'
+            };
+
+            // Mostrar en consola
+            console.log('📦 Pedido confirmado:', order);
+
+            // Mostrar notificación
+            showNotification('🎉 Pedido confirmado!', 'success');
+
+            // Guardar en localStorage para el admin
+            const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+            orders.push(order);
+            localStorage.setItem('orders', JSON.stringify(orders));
+
+            // Limpiar carrito
+            cart = [];
+            updateCartUI();
+            closeCheckout();
+            this.reset();
+
+            // Mostrar resumen en una alerta bonita
+            const mensaje = `
+✅ PEDIDO CONFIRMADO
+━━━━━━━━━━━━━━━━━━━━━
+👤 Cliente: ${nombre}
+📱 Teléfono: ${telefono}
+📦 ${order.tipo_entrega}
+📍 ${order.direccion}
+💳 Pago: ${payment}
+
+🛒 Productos:
+${order.items}
+
+💰 Total: $${totalPrice.toLocaleString()}
+${notas ? '📝 Notas: ' + notas : ''}
+━━━━━━━━━━━━━━━━━━━━━
+📋 Pedido guardado en el panel admin
+            `;
+
+            alert(mensaje);
+        });
+
+        // ============================================
+        // TOGGLE DIRECCIÓN
+        // ============================================
+        document.querySelectorAll('input[name="deliveryType"]').forEach(input => {
+            input.addEventListener('change', function() {
+                const addressField = document.getElementById('addressField');
+                if (this.value === 'delivery') {
+                    addressField.style.display = 'block';
+                } else {
+                    addressField.style.display = 'none';
+                }
+            });
+        });
+
+        // ============================================
         // NOTIFICACIONES
         // ============================================
         function showNotification(message, type = 'info') {
@@ -683,13 +1144,20 @@
         }
 
         // ============================================
+        // CERRAR MODAL CLICK FUERA
+        // ============================================
+        document.getElementById('checkoutModal').addEventListener('click', function(e) {
+            if (e.target === this) closeCheckout();
+        });
+
+        // ============================================
         // INICIALIZAR
         // ============================================
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 Aplicación iniciada');
             renderMenu();
             updateCartUI();
-            console.log(`✅ ${PRODUCTOS.length} productos cargados`);
+            console.log('✅ Listo!');
         });
     </script>
 
