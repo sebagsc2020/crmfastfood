@@ -41,7 +41,6 @@
             <p class="text-gray-600">Selecciona cantidad y personaliza tu pedido</p>
         </div>
 
-        <!-- Categorías -->
         <div class="flex justify-center space-x-2 mb-8 overflow-x-auto pb-2 no-scrollbar">
             <button onclick="filterMenu('all')" class="px-6 py-2 bg-orange-600 text-white rounded-full shadow-md hover:bg-orange-700 transition whitespace-nowrap">Todos</button>
             <button onclick="filterMenu('empanadas')" class="px-6 py-2 bg-white text-gray-700 rounded-full shadow-md hover:bg-gray-100 transition whitespace-nowrap">Empanadas</button>
@@ -51,7 +50,6 @@
             <button onclick="filterMenu('bebidas')" class="px-6 py-2 bg-white text-gray-700 rounded-full shadow-md hover:bg-gray-100 transition whitespace-nowrap">Bebidas</button>
         </div>
 
-        <!-- Grid de Productos -->
         <div id="menu-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             <!-- Se llena con JS -->
         </div>
@@ -64,18 +62,15 @@
             <button onclick="loadPedidos()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition shadow"><i class="fas fa-sync"></i> Actualizar Pedidos</button>
         </div>
 
-        <!-- Pestañas Admin -->
         <div class="flex space-x-6 mb-6 border-b border-gray-300">
             <button onclick="showAdminTab('pedidos')" id="tab-pedidos" class="pb-2 border-b-2 border-orange-600 font-bold text-orange-600 transition">Pedidos Activos</button>
             <button onclick="showAdminTab('repartidores')" id="tab-repartidores" class="pb-2 border-b-2 border-transparent hover:border-gray-400 text-gray-600 transition">Gestión Repartidores</button>
         </div>
 
-        <!-- Lista de Pedidos -->
         <div id="admin-pedidos" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div class="col-span-full text-center py-10 text-gray-500 bg-white rounded-xl shadow">Cargando pedidos...</div>
         </div>
 
-        <!-- Gestión Repartidores -->
         <div id="admin-repartidores" class="hidden">
             <div class="bg-white p-6 rounded-xl shadow-md mb-6 border-l-4 border-green-500">
                 <h3 class="text-xl font-bold mb-4 text-gray-800">Registrar Nuevo Repartidor</h3>
@@ -139,7 +134,7 @@
 
     <script>
         // ================= CONFIGURACIÓN =================
-        const API_URL = 'https://script.google.com/macros/s/AKfycbxx7e6ShD0Xistz7zEtjf2DCeeK_dpnr3p8R7QwCoIczqQkHSGBWU2ZM8N4FYovbCnsiw/exec'; // <-- PEGA LA URL AQUÍ
+        const API_URL = 'PEGA_AQUI_TU_URL_DE_APPS_SCRIPT'; // <-- PEGA LA URL AQUÍ
 
         // ================= DATOS DEL MENÚ =================
         const productos = [
@@ -245,7 +240,7 @@
 
         function filterMenu(cat) { renderMenu(cat); }
 
-        // ================= LÓGICA DEL CARRITO (AGRUPANDO ADEREZOS) =================
+        // ================= LÓGICA DEL CARRITO =================
         function addToCart(id) {
             const prod = productos.find(p => p.id === id);
             const qty = parseInt(document.getElementById(`qty-${id}`).value) || 1;
@@ -285,14 +280,11 @@
             let total = 0;
             let html = '';
 
-            // 1. Renderizar productos principales
             const mainItems = cart.filter(i => i.categoria !== 'aderezos');
-            mainItems.forEach((item, index) => {
+            mainItems.forEach((item) => {
                 const subtotal = item.precio * item.cantidad;
                 total += subtotal;
                 const aderezoText = item.aderezo && item.aderezo !== 'Sin aderezo' ? `<br><span class="text-xs text-orange-600 font-semibold">${item.aderezo}</span>` : '';
-                
-                // Encontrar el índice real en el array 'cart' para poder borrarlo
                 const realIndex = cart.indexOf(item);
 
                 html += `
@@ -304,4 +296,357 @@
                         </div>
                         <div class="flex flex-col items-end gap-2">
                             <span class="font-bold text-gray-800 ars">$${subtotal.toLocaleString('es-AR')}</span>
-                            <button onclick="removeFromCart(${realIndex})" class="text-red
+                            <button onclick="removeFromCart(${realIndex})" class="text-red-400 hover:text-red-600 text-xs flex items-center gap-1 transition">
+                                <i class="fas fa-trash"></i> Quitar
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            const aderezosItems = cart.filter(i => i.categoria === 'aderezos');
+            if (aderezosItems.length > 0) {
+                let aderezosTotal = 0;
+                let aderezosDetalle = aderezosItems.map(item => {
+                    aderezosTotal += (item.precio * item.cantidad);
+                    return `${item.cantidad}x ${item.nombre} (${item.opcionSeleccionada})`;
+                }).join(', ');
+                total += aderezosTotal;
+
+                html += `
+                    <div class="flex justify-between items-start bg-yellow-50 p-3 rounded-lg border border-yellow-200">
+                        <div class="flex-grow">
+                            <p class="font-bold text-sm text-yellow-800"><i class="fas fa-wine-bottle mr-1"></i> Aderezos:</p>
+                            <p class="text-xs text-yellow-700 mt-1">${aderezosDetalle}</p>
+                        </div>
+                        <div class="flex flex-col items-end gap-2">
+                            <span class="font-bold text-yellow-800 ars">$${aderezosTotal.toLocaleString('es-AR')}</span>
+                            <button onclick="removeAderezos()" class="text-red-400 hover:text-red-600 text-xs flex items-center gap-1 transition">
+                                <i class="fas fa-trash"></i> Quitar todos
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+            document.getElementById('cart-total').innerText = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(total);
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCartUI();
+        }
+
+        function removeAderezos() {
+            cart = cart.filter(i => i.categoria !== 'aderezos');
+            updateCartUI();
+        }
+
+        function toggleCart() {
+            const modal = document.getElementById('cart-modal');
+            modal.classList.toggle('hidden');
+        }
+
+        function toggleDireccion(mostrar) {
+            const campo = document.getElementById('campo-direccion');
+            const input = document.getElementById('cliente-direccion');
+            if (mostrar) {
+                campo.classList.remove('hidden');
+                input.required = true;
+            } else {
+                campo.classList.add('hidden');
+                input.required = false;
+                input.value = '';
+            }
+        }
+
+        // ================= PROCESAR PEDIDO (CON FORMATO DE LISTA VERTICAL) =================
+        function processOrder(e) {
+            e.preventDefault();
+            if (cart.length === 0) return alert('El carrito está vacío');
+
+            const nombre = document.getElementById('cliente-nombre').value;
+            const telefono = document.getElementById('cliente-telefono').value;
+            const tipo = document.querySelector('input[name="tipoEntrega"]:checked').value;
+            const direccion = tipo === 'Envio' ? document.getElementById('cliente-direccion').value : 'Retiro en Local';
+            
+            const mainItems = cart.filter(i => i.categoria !== 'aderezos');
+            const aderezosItems = cart.filter(i => i.categoria === 'aderezos');
+
+            // Generamos el detalle con saltos de línea (\n) y viñetas (•) para que se vea vertical
+            let detalleComida = mainItems.map(i => {
+                let desc = `• ${i.cantidad}x ${i.nombre} (${i.opcionSeleccionada})`;
+                if (i.aderezo && i.aderezo !== 'Sin aderezo') desc += ` [${i.aderezo}]`;
+                return desc;
+            }).join('\n');
+
+            let detalleAderezos = "";
+            if (aderezosItems.length > 0) {
+                const aderezosResumen = aderezosItems.map(i => `• ${i.cantidad}x ${i.nombre} (${i.opcionSeleccionada})`).join('\n');
+                detalleAderezos = `\n\n🧴 ADEREZOS:\n${aderezosResumen}`;
+            }
+
+            const detalleFinal = detalleComida + detalleAderezos;
+            const total = cart.reduce((sum, i) => sum + (i.precio * i.cantidad), 0);
+
+            const pedidoData = {
+                action: 'nuevoPedido',
+                cliente: nombre,
+                telefono: telefono,
+                direccion: direccion,
+                tipo: tipo,
+                detalle: detalleFinal,
+                total: total
+            };
+
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+            btn.disabled = true;
+
+            fetch(API_URL, {
+                method: 'POST',
+                body: JSON.stringify(pedidoData)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === 'success') {
+                    alert('¡Pedido enviado con éxito! ID: ' + data.id);
+                    cart = [];
+                    updateCartUI();
+                    toggleCart();
+                    e.target.reset();
+                    toggleDireccion(false);
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Error de conexión. Intenta de nuevo.');
+            })
+            .finally(() => {
+                btn.innerHTML = '<i class="fab fa-whatsapp text-xl"></i> Confirmar y Enviar Pedido';
+                btn.disabled = false;
+            });
+        }
+
+        // ================= LÓGICA DEL ADMIN CRM =================
+        
+        // Función auxiliar para convertir el texto con saltos de línea en una lista HTML vertical
+        function formatDetalleToHTML(detalleString) {
+            if (!detalleString) return '';
+            const lines = detalleString.split('\n').filter(line => line.trim() !== '');
+            return `<ul class="list-disc list-inside space-y-1 text-gray-700">
+                ${lines.map(line => `<li class="text-sm">${line.replace(/^•\s*/, '')}</li>`).join('')}
+            </ul>`;
+        }
+
+        function loadPedidos() {
+            const container = document.getElementById('admin-pedidos');
+            container.innerHTML = '<div class="col-span-full text-center py-10"><i class="fas fa-spinner fa-spin text-3xl text-orange-600"></i><p class="mt-2 text-gray-500">Cargando pedidos...</p></div>';
+
+            fetch(`${API_URL}?action=getPedidos`)
+                .then(res => res.json())
+                .then(pedidos => {
+                    container.innerHTML = '';
+                    if(pedidos.length === 0) {
+                        container.innerHTML = '<div class="col-span-full text-center text-gray-500 bg-white p-10 rounded-xl shadow">No hay pedidos registrados.</div>';
+                        return;
+                    }
+
+                    pedidos.forEach(p => {
+                        let statusColor = 'bg-yellow-100 text-yellow-800 border-yellow-300';
+                        if(p.Estado === 'En Preparación') statusColor = 'bg-blue-100 text-blue-800 border-blue-300';
+                        if(p.Estado === 'En Camino') statusColor = 'bg-purple-100 text-purple-800 border-purple-300';
+                        if(p.Estado === 'Entregado') statusColor = 'bg-green-100 text-green-800 border-green-300';
+
+                        const totalARS = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(p.Total);
+                        
+                        // Mensaje de WhatsApp limpio y con saltos de línea
+                        const msg = `Hola ${p.Cliente}, te escribimos de FastFood Express.%0A%0A📦 *Tu Pedido ${p.ID}*%0A💰 Total: *${totalARS}*%0A📍 Estado: *${p.Estado}*%0A${p.Repartidor ? '🛵 Repartidor: ' + p.Repartidor : ''}`;
+                        const waLink = `https://wa.me/${p.Telefono}?text=${msg}`;
+
+                        const direccionDisplay = p.TipoEntrega === 'Retiro' 
+                            ? `<span class="text-gray-500"><i class="fas fa-store mr-2"></i>Retiro en Local</span>` 
+                            : `<span class="font-semibold text-gray-800"><i class="fas fa-map-marker-alt text-red-500 mr-2"></i>${p.Direccion}</span>`;
+
+                        const repartidorActual = p.Repartidor || 'Sin asignar';
+                        const repartidorClass = p.Repartidor ? 'text-green-700 font-bold' : 'text-gray-500 italic';
+
+                        container.innerHTML += `
+                            <div class="bg-white rounded-xl shadow-md p-5 border-t-4 ${p.Estado === 'Entregado' ? 'border-green-500' : 'border-orange-500'} fade-in">
+                                <div class="flex justify-between items-start mb-4">
+                                    <div>
+                                        <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">${p.Fecha}</span>
+                                        <h4 class="text-xl font-bold text-gray-800">${p.ID}</h4>
+                                    </div>
+                                    <span class="px-3 py-1 rounded-full text-xs font-bold border ${statusColor}">${p.Estado}</span>
+                                </div>
+                                
+                                <div class="space-y-3 mb-4 text-sm">
+                                    <div class="flex items-center text-gray-700">
+                                        <i class="fas fa-user text-gray-400 w-6"></i> <strong>${p.Cliente}</strong>
+                                    </div>
+                                    <div class="flex items-center text-gray-700">
+                                        <i class="fas fa-phone text-gray-400 w-6"></i> ${p.Telefono}
+                                    </div>
+                                    <div class="flex items-start text-gray-700">
+                                        <i class="fas fa-truck text-gray-400 w-6 mt-1"></i> 
+                                        <div>
+                                            <span class="text-xs text-gray-500 uppercase block">Entrega:</span>
+                                            ${direccionDisplay}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-100 mt-3">
+                                        <p class="text-xs font-bold text-gray-500 uppercase mb-2">Detalle del Pedido:</p>
+                                        <!-- AQUÍ SE APLICA EL FORMATO DE LISTA VERTICAL -->
+                                        ${formatDetalleToHTML(p.Detalle)}
+                                        <div class="mt-4 pt-3 border-t border-gray-200 flex justify-between items-center">
+                                            <span class="font-semibold text-gray-600">Total a Pagar:</span>
+                                            <span class="text-xl font-bold text-orange-600 ars">${totalARS}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-3 mb-3">
+                                    <a href="${waLink}" target="_blank" class="bg-green-500 text-white text-center py-3 rounded-lg hover:bg-green-600 font-semibold text-sm transition flex items-center justify-center gap-2">
+                                        <i class="fab fa-whatsapp text-lg"></i> Notificar
+                                    </a>
+                                    <select onchange="updateStatus('${p.ID}', this.value)" class="border border-gray-300 rounded-lg p-3 text-sm font-semibold text-gray-700 focus:ring-2 focus:ring-orange-500 outline-none cursor-pointer">
+                                        <option value="" disabled selected>Cambiar Estado...</option>
+                                        <option value="Pendiente">Pendiente</option>
+                                        <option value="En Preparación">En Preparación</option>
+                                        <option value="En Camino">En Camino</option>
+                                        <option value="Entregado">Entregado</option>
+                                    </select>
+                                </div>
+
+                                ${p.TipoEntrega === 'Envio' && p.Estado !== 'Entregado' ? `
+                                <div class="mt-4 pt-4 border-t border-gray-200 bg-blue-50 p-4 rounded-lg">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <p class="text-xs font-bold text-blue-800 uppercase">Asignar Repartidor</p>
+                                        <span class="text-xs ${repartidorClass}">Actual: ${repartidorActual}</span>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <select id="rep-${p.ID}" class="flex-grow border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+                                            <option value="">Seleccionar repartidor...</option>
+                                        </select>
+                                        <button onclick="assignDriver('${p.ID}')" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-700 transition whitespace-nowrap">
+                                            Asignar
+                                        </button>
+                                    </div>
+                                </div>` : ''}
+                                
+                                ${p.Repartidor && p.Estado !== 'Entregado' ? `
+                                <div class="mt-2 text-center">
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        <i class="fas fa-motorcycle mr-1"></i> Asignado a: ${p.Repartidor}
+                                    </span>
+                                </div>` : ''}
+                            </div>
+                        `;
+                    });
+                    loadRepartidoresForSelect();
+                });
+        }
+
+        function updateStatus(id, nuevoEstado) {
+            if(!nuevoEstado) return;
+            fetch(API_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'actualizarEstado', idPedido: id, estado: nuevoEstado })
+            }).then(() => loadPedidos());
+        }
+
+        function assignDriver(idPedido) {
+            const select = document.getElementById(`rep-${idPedido}`);
+            const repartidor = select.value;
+            
+            if(!repartidor) return alert('Por favor, selecciona un repartidor registrado de la lista');
+            
+            const btn = select.nextElementSibling;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            btn.disabled = true;
+
+            fetch(API_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'actualizarEstado', idPedido: idPedido, estado: 'En Camino', repartidor: repartidor })
+            }).then(() => {
+                alert(`✅ Repartidor "${repartidor}" asignado correctamente al pedido.`);
+                loadPedidos();
+            }).catch(() => {
+                alert('Error al asignar. Intenta de nuevo.');
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            });
+        }
+
+        function loadRepartidoresForSelect() {
+            fetch(`${API_URL}?action=getRepartidores`)
+                .then(res => res.json())
+                .then(reps => {
+                    document.querySelectorAll('select[id^="rep-"]').forEach(select => {
+                        const currentVal = select.value;
+                        select.innerHTML = '<option value="">Seleccionar repartidor...</option>';
+                        reps.forEach(r => {
+                            if(r.Estado === 'Disponible') {
+                                select.innerHTML += `<option value="${r.Nombre}">${r.Nombre}</option>`;
+                            }
+                        });
+                        select.value = currentVal;
+                    });
+                });
+        }
+
+        // ================= GESTIÓN REPARTIDORES =================
+        function loadRepartidores() {
+            const container = document.getElementById('lista-repartidores');
+            container.innerHTML = '<p class="col-span-full text-center text-gray-500 py-4">Cargando repartidores...</p>';
+            
+            fetch(`${API_URL}?action=getRepartidores`)
+                .then(res => res.json())
+                .then(reps => {
+                    container.innerHTML = '';
+                    if(reps.length === 0) {
+                        container.innerHTML = '<p class="col-span-full text-center text-gray-500 py-4 bg-white rounded-lg">No hay repartidores registrados.</p>';
+                        return;
+                    }
+                    reps.forEach(r => {
+                        container.innerHTML += `
+                            <div class="bg-white p-4 rounded-lg shadow border-l-4 ${r.Estado === 'Disponible' ? 'border-green-500' : 'border-red-500'} flex justify-between items-center">
+                                <div>
+                                    <h4 class="font-bold text-gray-800">${r.Nombre}</h4>
+                                    <p class="text-sm text-gray-600"><i class="fas fa-phone text-xs mr-1"></i> ${r.Telefono}</p>
+                                </div>
+                                <span class="px-3 py-1 text-xs rounded-full font-bold ${r.Estado === 'Disponible' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                                    ${r.Estado}
+                                </span>
+                            </div>
+                        `;
+                    });
+                });
+        }
+
+        function addRepartidor(e) {
+            e.preventDefault();
+            const data = {
+                action: 'nuevoRepartidor',
+                nombre: document.getElementById('rep-nombre').value,
+                telefono: document.getElementById('rep-telefono').value
+            };
+            
+            fetch(API_URL, { method: 'POST', body: JSON.stringify(data) })
+                .then(res => res.json())
+                .then(() => {
+                    alert('Repartidor registrado exitosamente');
+                    e.target.reset();
+                    loadRepartidores();
+                });
+        }
+
+        // Inicializar
+        renderMenu();
+    </script>
+</body>
+</html>
