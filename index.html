@@ -412,6 +412,16 @@
             .finally(() => { btn.innerHTML = originalText; btn.disabled = false; });
         }
 
+        // FUNCIÓN PARA OBTENER VALOR DE CAMPO DE FORMA SEGURA
+        function getFieldValue(obj, ...keys) {
+            for (let key of keys) {
+                if (obj && obj[key] !== undefined && obj[key] !== null) {
+                    return obj[key];
+                }
+            }
+            return undefined;
+        }
+
         function formatDetalleToHTML(detalleString) {
             if (!detalleString || detalleString.toString().trim() === '') {
                 return '<p class="text-gray-500 text-sm italic">Sin detalle disponible</p>';
@@ -456,7 +466,7 @@
                     
                     if (!Array.isArray(pedidos)) {
                         console.error('Error: pedidos no es un array', pedidos);
-                        container.innerHTML = '<div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg"><h3 class="text-red-800 font-bold">Error</h3><p>Los datos recibidos no son válidos</p></div>';
+                        container.innerHTML = '<div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg"><h3 class="text-red-800 font-bold">Error</h3><p>Los datos recibidos no son válidos. Revisa la consola.</p></div>';
                         return;
                     }
                     
@@ -467,13 +477,13 @@
 
                     const estadoPrioridad = { 'Pendiente': 1, 'En Preparación': 2, 'En Camino': 3, 'Entregado': 4 };
                     pedidos.sort((a, b) => {
-                        const estadoA = a.Estado || a.estado || 'Pendiente';
-                        const estadoB = b.Estado || b.estado || 'Pendiente';
+                        const estadoA = getFieldValue(a, 'Estado', 'estado') || 'Pendiente';
+                        const estadoB = getFieldValue(b, 'Estado', 'estado') || 'Pendiente';
                         const prioA = estadoPrioridad[estadoA] || 5;
                         const prioB = estadoPrioridad[estadoB] || 5;
                         if (prioA !== prioB) return prioA - prioB;
-                        const fechaA = a.Fecha || a.fecha || new Date(0);
-                        const fechaB = b.Fecha || b.fecha || new Date(0);
+                        const fechaA = getFieldValue(a, 'Fecha', 'fecha') || new Date(0);
+                        const fechaB = getFieldValue(b, 'Fecha', 'fecha') || new Date(0);
                         return new Date(fechaB) - new Date(fechaA);
                     });
 
@@ -495,57 +505,71 @@
                                 <tbody>`;
 
                     pedidos.forEach((p, index) => {
-                        // Acceder a los campos (mayúsculas como están en la hoja)
-                        const id = p.ID || p.id || `P-${index}`;
-                        const fecha = p.Fecha || p.fecha || '';
-                        const cliente = p.Cliente || p.cliente || 'Sin nombre';
-                        const telefono = p.Teléfono || p.Telefono || p.telefono || '';
-                        const detalle = p.Detalle || p.detalle || '';
-                        let estado = p.Estado || p.estado || 'Pendiente';
-                        const repartidor = p.Repartidor || p.repartidor || 'Sin asignar';
-                        const tipoEntrega = p.TipoEntrega || p.tipoEntrega || '';
+                        // OBTENER TODOS LOS CAMPOS CON MÚLTIPLES POSIBILIDADES
+                        const id = getFieldValue(p, 'ID', 'id') || `P-${index}`;
+                        const fecha = getFieldValue(p, 'Fecha', 'fecha') || '';
+                        const cliente = getFieldValue(p, 'Cliente', 'cliente') || 'Sin nombre';
+                        const telefono = getFieldValue(p, 'Teléfono', 'Telefono', 'telefono') || '';
+                        const detalle = getFieldValue(p, 'Detalle', 'detalle') || '';
+                        const estado = getFieldValue(p, 'Estado', 'estado') || 'Pendiente';
+                        const repartidor = getFieldValue(p, 'Repartidor', 'repartidor') || 'Sin asignar';
+                        const tipoEntrega = getFieldValue(p, 'TipoEntrega', 'tipoEntrega') || '';
                         
-                        // Normalizar estado
-                        estado = estado.charAt(0).toUpperCase() + estado.slice(1).toLowerCase();
-                        if (estado === 'Pendiente') estado = 'Pendiente';
-                        else if (estado === 'En preparación') estado = 'En Preparación';
-                        else if (estado === 'En camino') estado = 'En Camino';
+                        // 🔧 OBTENER TOTAL CORRECTAMENTE - CONVERTIR A NÚMERO
+                        let totalValor = getFieldValue(p, 'Total', 'total');
                         
-                        // Calcular total si es string
-                        let totalValor = p.Total || p.total || 0;
-                        if (typeof totalValor === 'string') {
-                            totalValor = parseFloat(totalValor.replace(/[^\d,.-]/g, '').replace(',', '.')) || 0;
+                        // Si es undefined o null, asignar 0
+                        if (totalValor === undefined || totalValor === null) {
+                            totalValor = 0;
                         }
-                        if (isNaN(totalValor)) totalValor = 0;
                         
+                        // Si es string, limpiar y convertir a número
+                        if (typeof totalValor === 'string') {
+                            // Eliminar $, puntos, comas, espacios y convertir
+                            totalValor = totalValor.replace(/[^\d,.-]/g, '').replace(',', '.');
+                            totalValor = parseFloat(totalValor) || 0;
+                        }
+                        
+                        // Si no es número, asignar 0
+                        if (typeof totalValor !== 'number' || isNaN(totalValor)) {
+                            totalValor = 0;
+                        }
+                        
+                        // Formatear como moneda ARS (sin decimales)
                         const totalARS = new Intl.NumberFormat('es-AR', { 
-                            style: 'currency', currency: 'ARS' 
-                        }).format(totalValor);
+                            style: 'currency', 
+                            currency: 'ARS',
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 0                        }).format(totalValor);
 
+                        // Mensaje para WhatsApp
                         const msg = `Hola ${cliente}, te escribimos de FastFood Express.%0A%0A📦 *Pedido ${id}*%0A💰 Total: *${totalARS}*%0A📍 Estado: *${estado}*%0A🍔 Puedes seguir tu pedido desde nuestra app.`;
                         const waLink = `https://wa.me/${telefono}?text=${msg}`;
 
                         const detalleHTML = formatDetalleToHTML(detalle);
 
                         let statusClass = 'status-pendiente';
-                        if (estado === 'En Preparación') statusClass = 'status-preparacion';
-                        else if (estado === 'En Camino') statusClass = 'status-camino';
-                        else if (estado === 'Entregado') statusClass = 'status-entregado';
+                        const estadoNormalizado = estado.charAt(0).toUpperCase() + estado.slice(1).toLowerCase();
+                        if (estadoNormalizado === 'En Preparación') statusClass = 'status-preparacion';
+                        else if (estadoNormalizado === 'En Camino') statusClass = 'status-camino';
+                        else if (estadoNormalizado === 'Entregado') statusClass = 'status-entregado';
+
+                        const idSanitized = id.replace(/[^a-zA-Z0-9]/g, '');
 
                         tableHTML += `
                             <tr>
                                 <td class="font-bold text-gray-800">#${id}</td>
-                                <td class="text-xs text-gray-500">${fecha instanceof Date ? fecha.toLocaleString() : fecha}</td>
+                                <td class="text-xs text-gray-500">${fecha}</td>
                                 <td>
                                     <div class="font-semibold">${cliente}</div>
                                     <div class="text-xs text-gray-500">${telefono}</div>
                                     ${tipoEntrega ? `<div class="text-xs text-orange-600 font-medium mt-1">${tipoEntrega}</div>` : ''}
                                 </td>
                                 <td>
-                                    <button onclick="toggleDetalle(this, 'detalle-${id.replace(/[^a-zA-Z0-9]/g, '')}')" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                    <button onclick="toggleDetalle(this, 'detalle-${idSanitized}')" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
                                         <i class="fas fa-eye mr-1"></i> Ver detalle
                                     </button>
-                                    <div id="detalle-${id.replace(/[^a-zA-Z0-9]/g, '')}" class="hidden mt-2 detalle-expand rounded-lg">
+                                    <div id="detalle-${idSanitized}" class="hidden mt-2 detalle-expand rounded-lg">
                                         ${detalleHTML}
                                     </div>
                                 </td>
@@ -555,7 +579,7 @@
                                     ${repartidor && repartidor !== 'Sin asignar' && repartidor !== '' 
                                         ? `<i class="fas fa-motorcycle text-green-600 mr-1"></i>${repartidor}`
                                         : '<span class="text-gray-400 italic">Sin asignar</span>'}
-                                 </td>
+                                </td>
                                 <td>
                                     <div class="flex flex-col gap-2">
                                         <a href="${waLink}" target="_blank" class="accion-btn btn-whatsapp text-center">
@@ -570,17 +594,17 @@
                                         </select>
                                         ${estado !== 'Entregado' ? `
                                         <div class="flex gap-1">
-                                            <select id="rep-${id.replace(/[^a-zA-Z0-9]/g, '')}" class="flex-1 border border-gray-300 rounded-lg px-2 py-1 text-xs">
+                                            <select id="rep-${idSanitized}" class="flex-1 border border-gray-300 rounded-lg px-2 py-1 text-xs">
                                                 <option value="">Asignar...</option>
                                             </select>
                                             <button onclick="assignDriver('${id}')" class="accion-btn btn-asignar">✓</button>
                                         </div>` : ''}
                                     </div>
-                                 </td>
+                                </td>
                             </tr>`;
                     });
 
-                    tableHTML += `</tbody>ahimut</div>`;
+                    tableHTML += `</tbody></table></div>`;
                     container.innerHTML = tableHTML;
                     loadRepartidoresForSelect();
                 })
