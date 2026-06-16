@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FastFood+CRM & Pedidos</title>
+    <title>FastFood CRM & Pedidos</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -58,7 +58,8 @@
             <button onclick="showAdminTab('pedidos')" id="tab-pedidos" class="pb-2 border-b-2 border-orange-600 font-bold text-orange-600 transition">Pedidos Activos</button>
             <button onclick="showAdminTab('repartidores')" id="tab-repartidores" class="pb-2 border-b-2 border-transparent hover:border-gray-400 text-gray-600 transition">Repartidores</button>
         </div>
-        <div id="admin-pedidos" class="grid grid-cols-1 lg:grid-cols-2 gap-6"></div>
+        <!-- CAMBIO: Grid de 3 columnas en lugar de 2 -->
+        <div id="admin-pedidos" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         <div id="admin-repartidores" class="hidden">
             <div class="bg-white p-6 rounded-xl shadow-md mb-6 border-l-4 border-green-500">
                 <h3 class="text-xl font-bold mb-4 text-gray-800">Registrar Nuevo Repartidor</h3>
@@ -273,8 +274,9 @@
         }
 
         function formatDetalleToHTML(detalleString) {
-            if (!detalleString) return '';
+            if (!detalleString) return '<p class="text-gray-500 text-sm">Sin detalles</p>';
             const lines = detalleString.split('\n').filter(line => line.trim() !== '');
+            if (lines.length === 0) return '<p class="text-gray-500 text-sm">Sin detalles</p>';
             return `<ul class="list-disc list-inside space-y-1 text-gray-700">${lines.map(line => `<li class="text-sm">${line.replace(/^•\s*/, '')}</li>`).join('')}</ul>`;
         }
 
@@ -307,18 +309,26 @@
                         if(p.Estado === 'En Camino') statusColor = 'bg-purple-100 text-purple-800 border-purple-300';
                         if(p.Estado === 'Entregado') statusColor = 'bg-green-100 text-green-800 border-green-300';
 
-                        // LECTURA SEGURA DEL TOTAL (Columna H)
-                        const totalValor = parseFloat(p.Total) || 0;
+                        // CORRECCION: Manejo seguro del total
+                        let totalValor = 0;
+                        if (p.Total !== null && p.Total !== undefined && p.Total !== '') {
+                            totalValor = typeof p.Total === 'string' ? parseFloat(p.Total.replace(/\./g, '').replace(',', '.')) : parseFloat(p.Total);
+                            if (isNaN(totalValor)) totalValor = 0;
+                        }
                         const totalARS = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(totalValor);
                         
                         const msg = `Hola ${p.Cliente}, te escribimos de FastFood Express.%0A%0A📦 *Tu Pedido ${p.ID}*%0A💰 Total: *${totalARS}*%0A📍 Estado: *${p.Estado}*%0A${p.Repartidor ? '🛵 Repartidor: ' + p.Repartidor : ''}`;
                         const waLink = `https://wa.me/${p.Telefono}?text=${msg}`;
 
-                        // LECTURA SEGURA DEL TIPO DE ENTREGA Y DIRECCIÓN (Columna E)
+                        // CORRECCION: Manejo seguro de la dirección
                         const tipoEntregaStr = (p.TipoEntrega || '').toString().trim().toLowerCase();
-                        const direccionDisplay = tipoEntregaStr.includes('retiro') 
-                            ? `<span class="text-gray-500"><i class="fas fa-store mr-2"></i>Retiro en Local</span>` 
-                            : `<span class="font-semibold text-gray-800"><i class="fas fa-map-marker-alt text-red-500 mr-2"></i>${p.Direccion || 'Sin dirección especificada'}</span>`;
+                        let direccionDisplay = '';
+                        if (tipoEntregaStr.includes('retiro')) {
+                            direccionDisplay = `<span class="text-gray-500"><i class="fas fa-store mr-2"></i>Retiro en Local</span>`;
+                        } else {
+                            const direccionText = (p.Direccion && p.Direccion.toString().trim() !== '') ? p.Direccion : 'Sin dirección especificada';
+                            direccionDisplay = `<span class="font-semibold text-gray-800"><i class="fas fa-map-marker-alt text-red-500 mr-2"></i>${direccionText}</span>`;
+                        }
 
                         const repartidorActual = p.Repartidor || 'Sin asignar';
                         const repartidorClass = p.Repartidor ? 'text-green-700 font-bold' : 'text-gray-500 italic';
@@ -327,19 +337,22 @@
                         const repTel = repInfo ? repInfo.Telefono : '';
                         const waRepLink = repTel ? `https://wa.me/${repTel}?text=${encodeURIComponent('Hola ' + p.Repartidor + ', el pedido ' + p.ID + ' está listo. Dir: ' + (p.Direccion || 'Retiro en local'))}` : '#';
 
+                        // CORRECCION: Mostrar detalle del pedido correctamente
+                        const detalleHTML = formatDetalleToHTML(p.Detalle);
+
                         container.innerHTML += `
-                            <div class="bg-white rounded-xl shadow-md p-5 border-t-4 ${p.Estado === 'Entregado' ? 'border-green-500' : 'border-orange-500'} fade-in">
+                            <div class="bg-white rounded-xl shadow-md p-5 border-t-4 ${p.Estado === 'Entregado' ? 'border-green-500' : 'border-orange-500'} fade-in card-hover">
                                 <div class="flex justify-between items-start mb-4">
                                     <div><span class="text-xs font-bold text-gray-400 uppercase tracking-wider">${p.Fecha}</span><h4 class="text-xl font-bold text-gray-800">${p.ID}</h4></div>
                                     <span class="px-3 py-1 rounded-full text-xs font-bold border ${statusColor}">${p.Estado}</span>
                                 </div>
                                 <div class="space-y-3 mb-4 text-sm">
-                                    <div class="flex items-center text-gray-700"><i class="fas fa-user text-gray-400 w-6"></i> <strong>${p.Cliente}</strong></div>
-                                    <div class="flex items-center text-gray-700"><i class="fas fa-phone text-gray-400 w-6"></i> ${p.Telefono}</div>
+                                    <div class="flex items-center text-gray-700"><i class="fas fa-user text-gray-400 w-6"></i> <strong>${p.Cliente || 'Sin nombre'}</strong></div>
+                                    <div class="flex items-center text-gray-700"><i class="fas fa-phone text-gray-400 w-6"></i> ${p.Telefono || 'Sin teléfono'}</div>
                                     <div class="flex items-start text-gray-700"><i class="fas fa-truck text-gray-400 w-6 mt-1"></i> <div><span class="text-xs text-gray-500 uppercase block">Entrega:</span>${direccionDisplay}</div></div>
                                     <div class="bg-gray-50 p-4 rounded-lg border border-gray-100 mt-3">
                                         <p class="text-xs font-bold text-gray-500 uppercase mb-2">Detalle del Pedido:</p>
-                                        ${formatDetalleToHTML(p.Detalle)}
+                                        ${detalleHTML}
                                         <div class="mt-4 pt-3 border-t border-gray-200 flex justify-between items-center">
                                             <span class="font-semibold text-gray-600">Total a Pagar:</span>
                                             <span class="text-xl font-bold text-orange-600 ars">${totalARS}</span>
@@ -383,6 +396,10 @@
                             </div>`;
                     });
                     loadRepartidoresForSelect();
+                })
+                .catch(err => {
+                    console.error('Error cargando pedidos:', err);
+                    container.innerHTML = '<div class="col-span-full text-center text-red-500 bg-white p-10 rounded-xl shadow">Error al cargar los pedidos. Verifica la consola.</div>';
                 });
         }
 
