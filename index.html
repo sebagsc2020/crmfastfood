@@ -3,757 +3,256 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FastFood CRM & Pedidos</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
-        body { font-family: 'Poppins', sans-serif; background-color: #f1f5f9; }
-        .card-hover:hover { transform: translateY(-5px); transition: all 0.3s ease; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); }
-        .fade-in { animation: fadeIn 0.4s ease-in; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .ars { font-feature-settings: "tnum"; font-variant-numeric: tabular-nums; }
-        
-        .pedidos-table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        .pedidos-table thead {
-            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-            color: white;
-        }
-        .pedidos-table th {
-            padding: 16px;
-            text-align: left;
-            font-weight: 600;
-            font-size: 0.875rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        .pedidos-table td {
-            padding: 14px 16px;
-            border-bottom: 1px solid #e5e7eb;
-            font-size: 0.875rem;
-        }
-        .pedidos-table tbody tr:hover {
-            background-color: #fef3c7;
-        }
-        .pedidos-table tbody tr:last-child td {
-            border-bottom: none;
-        }
-        .status-badge {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            display: inline-block;
-            white-space: nowrap;
-        }
-        .status-pendiente { background-color: #fef3c7; color: #92400e; }
-        .status-preparacion { background-color: #dbeafe; color: #1e40af; }
-        .status-camino { background-color: #ede9fe; color: #6b21a8; }
-        .status-entregado { background-color: #d1fae5; color: #065f46; }
-        .accion-btn {
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
-            white-space: nowrap;
-            display: inline-block;
-        }
-        .btn-whatsapp { background-color: #25D366; color: white; border: none; }
-        .btn-whatsapp:hover { background-color: #128C7E; }
-        .btn-asignar { background-color: #3B82F6; color: white; border: none; min-width: 32px; }
-        .btn-asignar:hover { background-color: #2563EB; }
-        .detalle-expand {
-            background-color: #f9fafb;
-            padding: 12px 16px;
-            border-left: 4px solid #f97316;
-            margin-top: 8px;
-        }
-        .detalle-expand ul { list-style: none; padding: 0; margin: 0; }
-        .detalle-expand ul li { padding: 4px 0; color: #374151; }
-        .total-destacado { font-weight: 700; color: #f97316; font-size: 1rem; white-space: nowrap; }
-    </style>
+    <title>🍕 Rotisería Delicias - Pedidos Online</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- CSS Principal -->
+    <link rel="stylesheet" href="css/styles.css">
 </head>
-<body class="text-gray-800">
-
-    <nav class="bg-orange-600 text-white shadow-lg sticky top-0 z-50">
-        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="flex items-center space-x-3">
-                <div class="bg-white text-orange-600 p-2 rounded-full font-bold text-xl w-10 h-10 flex items-center justify-center">FF</div>
-                <h1 class="text-2xl font-bold tracking-wide hidden sm:block">FastFood Express</h1>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <i class="fas fa-utensils"></i>
+                <span>Delicias</span>
             </div>
-            <div class="flex items-center space-x-4">
-                <button onclick="showView('cliente')" class="hover:text-orange-200 font-semibold transition"><i class="fas fa-utensils"></i> <span class="hidden sm:inline">Menú</span></button>
-                <button onclick="showView('admin')" class="hover:text-orange-200 font-semibold transition"><i class="fas fa-cog"></i> <span class="hidden sm:inline">CRM</span></button>
-                <button onclick="toggleCart()" class="bg-white text-orange-600 px-4 py-2 rounded-full font-bold relative hover:bg-gray-100 transition">
-                    <i class="fas fa-shopping-cart"></i> <span id="cart-count" class="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center border-2 border-orange-600">0</span>
-                </button>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="#menu">Menú</a></li>
+                    <li><a href="#como-pedir">Cómo Pedir</a></li>
+                    <li><a href="#contacto">Contacto</a></li>
+                    <li><a href="admin.html" class="admin-btn"><i class="fas fa-user-shield"></i> Admin</a></li>
+                </ul>
+            </nav>
+            <div class="cart-icon" onclick="toggleCart()">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="cart-count" id="cartCount">0</span>
             </div>
         </div>
-    </nav>
+    </header>
 
-    <div id="view-cliente" class="container mx-auto px-4 py-8 fade-in">
-        <div class="text-center mb-10">
-            <h2 class="text-4xl font-bold text-gray-800 mb-2">Nuestro Menú</h2>
-            <p class="text-gray-600">Selecciona cantidad y personaliza tu pedido</p>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>🍕 Sabores que <span>enamoran</span></h1>
+            <p>Las mejores empanadas, pizzas, lomitos y hamburguesas de la ciudad. Hechas con amor y los mejores ingredientes.</p>
+            <a href="#menu" class="btn-primary">
+                <i class="fas fa-arrow-right"></i> Ver Menú
+            </a>
         </div>
-        <div class="flex justify-center space-x-2 mb-8 overflow-x-auto pb-2 no-scrollbar">
-            <button onclick="filterMenu('all')" class="px-6 py-2 bg-orange-600 text-white rounded-full shadow-md hover:bg-orange-700 transition whitespace-nowrap">Todos</button>
-            <button onclick="filterMenu('empanadas')" class="px-6 py-2 bg-white text-gray-700 rounded-full shadow-md hover:bg-gray-100 transition whitespace-nowrap">Empanadas</button>
-            <button onclick="filterMenu('pizzas')" class="px-6 py-2 bg-white text-gray-700 rounded-full shadow-md hover:bg-gray-100 transition whitespace-nowrap">Pizzas</button>
-            <button onclick="filterMenu('lomitos')" class="px-6 py-2 bg-white text-gray-700 rounded-full shadow-md hover:bg-gray-100 transition whitespace-nowrap">Lomitos</button>
-            <button onclick="filterMenu('aderezos')" class="px-6 py-2 bg-white text-gray-700 rounded-full shadow-md hover:bg-gray-100 transition whitespace-nowrap">Aderezos</button>
-            <button onclick="filterMenu('bebidas')" class="px-6 py-2 bg-white text-gray-700 rounded-full shadow-md hover:bg-gray-100 transition whitespace-nowrap">Bebidas</button>
+        <div class="hero-image">
+            <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=500" alt="Comida">
         </div>
-        <div id="menu-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+    </section>
+
+    <!-- Sección de Categorías Rápidas -->
+    <section class="categories">
+        <div class="category-item">
+            <i class="fas fa-pizza-slice"></i>
+            <span>Pizzas</span>
+        </div>
+        <div class="category-item">
+            <i class="fas fa-hamburger"></i>
+            <span>Hamburguesas</span>
+        </div>
+        <div class="category-item">
+            <i class="fas fa-bread"></i>
+            <span>Lomitos</span>
+        </div>
+        <div class="category-item">
+            <i class="fas fa-drumstick-bite"></i>
+            <span>Empanadas</span>
+        </div>
+        <div class="category-item">
+            <i class="fas fa-french-fries"></i>
+            <span>Papas Fritas</span>
+        </div>
+    </section>
+
+    <!-- Menú Principal -->
+    <section id="menu" class="menu-section">
+        <div class="section-header">
+            <h2>🔥 Nuestro Menú</h2>
+            <p>Elige tus productos favoritos y personaliza tu pedido</p>
+        </div>
+
+        <div class="menu-grid" id="menuGrid">
+            <!-- Las tarjetas se cargarán dinámicamente con JavaScript -->
+        </div>
+    </section>
+
+    <!-- Carrito de Compras -->
+    <div class="cart-overlay" id="cartOverlay" onclick="toggleCart()">
+        <div class="cart-panel" onclick="event.stopPropagation()">
+            <div class="cart-header">
+                <h3><i class="fas fa-shopping-cart"></i> Tu Pedido</h3>
+                <button class="close-cart" onclick="toggleCart()">&times;</button>
+            </div>
+            <div class="cart-items" id="cartItems">
+                <p class="empty-cart">Tu carrito está vacío</p>
+            </div>
+            <div class="cart-total">
+                <span>Total:</span>
+                <span id="cartTotal">$0</span>
+            </div>
+            <button class="btn-primary checkout-btn" onclick="openCheckout()">
+                <i class="fas fa-credit-card"></i> Finalizar Pedido
+            </button>
+        </div>
     </div>
 
-    <div id="view-admin" class="container mx-auto px-4 py-8 hidden fade-in">
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-            <h2 class="text-3xl font-bold text-gray-800"><i class="fas fa-chart-line text-orange-600"></i> Panel de Pedidos</h2>
-            <button onclick="loadPedidos()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition shadow"><i class="fas fa-sync"></i> Actualizar</button>
-        </div>
-        <div class="flex space-x-6 mb-6 border-b border-gray-300">
-            <button onclick="showAdminTab('pedidos')" id="tab-pedidos" class="pb-2 border-b-2 border-orange-600 font-bold text-orange-600 transition">Pedidos Activos</button>
-            <button onclick="showAdminTab('repartidores')" id="tab-repartidores" class="pb-2 border-b-2 border-transparent hover:border-gray-400 text-gray-600 transition">Repartidores</button>
-        </div>
-        <div id="admin-pedidos" class="w-full"></div>
-        <div id="admin-repartidores" class="hidden">
-            <div class="bg-white p-6 rounded-xl shadow-md mb-6 border-l-4 border-green-500">
-                <h3 class="text-xl font-bold mb-4 text-gray-800">Registrar Nuevo Repartidor</h3>
-                <form onsubmit="addRepartidor(event)" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <input type="text" id="rep-nombre" placeholder="Nombre Completo" class="border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-green-500 outline-none" required>
-                    <input type="tel" id="rep-telefono" placeholder="Teléfono (Ej: 54911...)" class="border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-green-500 outline-none" required>
-                    <button type="submit" class="bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 font-bold transition shadow">Guardar</button>
-                </form>
+    <!-- Modal de Confirmación de Pedido -->
+    <div class="modal" id="checkoutModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📋 Confirmar Pedido</h2>
+                <button class="close-modal" onclick="closeCheckout()">&times;</button>
             </div>
-            <div id="lista-repartidores" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
-        </div>
-    </div>
+            
+            <form id="orderForm" class="order-form">
+                <!-- Datos del Cliente -->
+                <div class="form-section">
+                    <h3>👤 Datos de Contacto</h3>
+                    <div class="form-group">
+                        <label>Nombre completo *</label>
+                        <input type="text" id="customerName" required placeholder="Ej: Juan Pérez">
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono *</label>
+                        <input type="tel" id="customerPhone" required placeholder="11 1234-5678">
+                    </div>
+                </div>
 
-    <div id="cart-modal" class="fixed inset-0 bg-black bg-opacity-60 hidden z-50 flex justify-end backdrop-blur-sm">
-        <div class="bg-white w-full max-w-md h-full overflow-y-auto p-6 shadow-2xl fade-in flex flex-col">
-            <div class="flex justify-between items-center mb-6 border-b pb-4">
-                <h3 class="text-2xl font-bold text-gray-800">Tu Pedido</h3>
-                <button onclick="toggleCart()" class="text-gray-400 hover:text-red-600 text-3xl transition">&times;</button>
-            </div>
-            <div id="cart-items" class="space-y-4 mb-6 flex-grow"></div>
-            <div class="border-t pt-4 mb-6 bg-gray-50 p-4 rounded-xl">
-                <div class="flex justify-between text-2xl font-bold text-gray-800">
-                    <span>Total a Pagar:</span>
-                    <span id="cart-total" class="ars text-orange-600">$0</span>
+                <!-- Resumen del Pedido -->
+                <div class="form-section">
+                    <h3>🛒 Resumen del Pedido</h3>
+                    <div id="orderSummary"></div>
+                    <div class="total-display">
+                        <span>Total:</span>
+                        <span id="modalTotal">$0</span>
+                    </div>
                 </div>
-            </div>
-            <form onsubmit="processOrder(event)" class="space-y-4">
-                <h4 class="font-bold text-gray-700 border-b pb-2">Datos de Entrega</h4>
-                <input type="text" id="cliente-nombre" placeholder="Tu Nombre y Apellido" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" required>
-                <input type="tel" id="cliente-telefono" placeholder="Tu Teléfono (Ej: 54911...)" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" required>
-                <div class="flex space-x-4 bg-gray-50 p-3 rounded-lg">
-                    <label class="flex items-center space-x-2 cursor-pointer flex-1">
-                        <input type="radio" name="tipoEntrega" value="Envio" checked onchange="toggleDireccion(true)" class="text-orange-600 focus:ring-orange-500 w-4 h-4">
-                        <span class="font-semibold">Envío a Domicilio</span>
-                    </label>
-                    <label class="flex items-center space-x-2 cursor-pointer flex-1">
-                        <input type="radio" name="tipoEntrega" value="Retiro" onchange="toggleDireccion(false)" class="text-orange-600 focus:ring-orange-500 w-4 h-4">
-                        <span class="font-semibold">Retiro en Local</span>
-                    </label>
+
+                <!-- Forma de Retiro -->
+                <div class="form-section">
+                    <h3>📍 ¿Cómo querés recibir tu pedido?</h3>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="deliveryType" value="delivery" checked>
+                            <i class="fas fa-truck"></i>
+                            <span>Envío a domicilio</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="deliveryType" value="pickup">
+                            <i class="fas fa-store"></i>
+                            <span>Retiro en el local</span>
+                        </label>
+                    </div>
+                    <div id="addressField" class="form-group">
+                        <label>Dirección de entrega *</label>
+                        <input type="text" id="deliveryAddress" placeholder="Calle y número">
+                    </div>
                 </div>
-                <div id="campo-direccion" class="transition-all duration-300">
-                    <input type="text" id="cliente-direccion" placeholder="Dirección completa (Calle, número, piso)" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none">
+
+                <!-- Formas de Pago -->
+                <div class="form-section">
+                    <h3>💳 Forma de Pago</h3>
+                    <div class="payment-options">
+                        <label class="payment-option">
+                            <input type="radio" name="payment" value="efectivo">
+                            <i class="fas fa-money-bill"></i>
+                            <span>Efectivo</span>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment" value="debito">
+                            <i class="fas fa-credit-card"></i>
+                            <span>Débito</span>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment" value="credito">
+                            <i class="fas fa-credit-card"></i>
+                            <span>Crédito</span>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment" value="transferencia" checked>
+                            <i class="fas fa-university"></i>
+                            <span>Transferencia</span>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment" value="mercadoPago">
+                            <i class="fas fa-qrcode"></i>
+                            <span>Mercado Pago</span>
+                        </label>
+                    </div>
                 </div>
-                <button type="submit" class="w-full bg-green-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-green-700 shadow-lg transition transform active:scale-95 flex items-center justify-center gap-2">
-                    <i class="fab fa-whatsapp text-xl"></i> Confirmar Pedido
+
+                <!-- Observaciones -->
+                <div class="form-section">
+                    <h3>📝 Observaciones</h3>
+                    <textarea id="orderNotes" placeholder="Ej: Sin cebolla, extra salsa, etc."></textarea>
+                </div>
+
+                <button type="submit" class="btn-primary btn-large">
+                    <i class="fas fa-check-circle"></i> Confirmar Pedido
                 </button>
             </form>
         </div>
     </div>
 
-    <script>
-        // 🔧 IMPORTANTE: Reemplaza con tu URL de Google Apps Script
-        const API_URL = 'https://script.google.com/macros/s/AKfycbxsWCJrzaad_v2rYCcHiqK9AuMciNzZUa14kmDIOKV5Hx2iQ34KvsInd-Y8abOxN__U1Q/exec';
-        
-        let repartidoresDB = [];
+    <!-- Sección Cómo Pedir -->
+    <section id="como-pedir" class="how-to-order">
+        <h2>📱 ¿Cómo pedir?</h2>
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <h3>Elegí tus productos</h3>
+                <p>Seleccioná las cantidades que querés de cada item</p>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <h3>Confirmá tu pedido</h3>
+                <p>Completá tus datos y elegí cómo retirar</p>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <h3>¡Disfrutá!</h3>
+                <p>Recibí tu pedido caliente y fresco</p>
+            </div>
+        </div>
+    </section>
 
-        const productos = [
-            { id: 1, nombre: 'Empanada Carne', categoria: 'empanadas', precio: 1500, img: 'https://images.unsplash.com/photo-1626700051175-6818013e1d4f?w=500', opciones: ['Carne Suave', 'Carne Picante'], tieneAderezos: false },
-            { id: 2, nombre: 'Empanada J y Q', categoria: 'empanadas', precio: 1500, img: 'https://images.unsplash.com/photo-1626700051175-6818013e1d4f?w=500', opciones: ['Jamón y Queso'], tieneAderezos: false },
-            { id: 3, nombre: 'Pizza Muzzarella', categoria: 'pizzas', precio: 8500, img: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500', opciones: ['Media', 'Entera'], tieneAderezos: true },
-            { id: 4, nombre: 'Pizza Especial', categoria: 'pizzas', precio: 10500, img: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?w=500', opciones: ['Media', 'Entera'], tieneAderezos: true },
-            { id: 5, nombre: 'Lomito Completo', categoria: 'lomitos', precio: 12000, img: 'https://images.unsplash.com/photo-1550507992-eb63ffee0847?w=500', opciones: ['Carne', 'Pollo', 'Milanesa'], tieneAderezos: true },
-            { id: 6, nombre: 'Coca Cola 1.5L', categoria: 'bebidas', precio: 3000, img: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=500', opciones: ['Original', 'Zero'], tieneAderezos: false },
-            { id: 7, nombre: 'Mayonesa', categoria: 'aderezos', precio: 500, img: 'https://images.unsplash.com/photo-1585664811087-47f65be1bac9?w=500', opciones: ['Pote Chico', 'Pote Grande'], tieneAderezos: false },
-            { id: 8, nombre: 'Salsa Golf', categoria: 'aderezos', precio: 600, img: 'https://images.unsplash.com/photo-1472476443507-c7a392dd6182?w=500', opciones: ['Pote Chico', 'Pote Grande'], tieneAderezos: false }
-        ];
-        let cart = [];
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>🍕 Delicias</h4>
+                <p>Sabores que enamoran desde 2020</p>
+            </div>
+            <div class="footer-section">
+                <h4>Contacto</h4>
+                <p><i class="fas fa-phone"></i> 11 1234-5678</p>
+                <p><i class="fab fa-whatsapp"></i> 11 9876-5432</p>
+            </div>
+            <div class="footer-section">
+                <h4>Horarios</h4>
+                <p>Lun - Dom: 18:00 - 00:00</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Delicias Rotisería - Todos los derechos reservados</p>
+        </div>
+    </footer>
 
-        function showView(view) {
-            document.getElementById('view-cliente').classList.add('hidden');
-            document.getElementById('view-admin').classList.add('hidden');
-            document.getElementById(`view-${view}`).classList.remove('hidden');
-            if(view === 'admin') loadPedidos();
-        }
-
-        function showAdminTab(tab) {
-            document.getElementById('admin-pedidos').classList.add('hidden');
-            document.getElementById('admin-repartidores').classList.add('hidden');
-            document.getElementById(`admin-${tab}`).classList.remove('hidden');
-            document.getElementById('tab-pedidos').className = tab === 'pedidos' ? "pb-2 border-b-2 border-orange-600 font-bold text-orange-600 transition" : "pb-2 border-b-2 border-transparent hover:border-gray-400 text-gray-600 transition";
-            document.getElementById('tab-repartidores').className = tab === 'repartidores' ? "pb-2 border-b-2 border-orange-600 font-bold text-orange-600 transition" : "pb-2 border-b-2 border-transparent hover:border-gray-400 text-gray-600 transition";
-            if(tab === 'repartidores') loadRepartidores();
-        }
-
-        function renderMenu(filtro = 'all') {
-            const grid = document.getElementById('menu-grid');
-            grid.innerHTML = '';
-            const items = filtro === 'all' ? productos : productos.filter(p => p.categoria === filtro);
-            items.forEach(p => {
-                const opcionesHTML = p.opciones.map(op => `<option value="${op}">${op}</option>`).join('');
-                let aderezoHTML = p.tieneAderezos ? `
-                    <div class="mb-3">
-                        <label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Aderezo:</label>
-                        <select id="adz-${p.id}" class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-orange-500 outline-none bg-gray-50">
-                            <option value="Sin aderezo">Sin aderezo</option>
-                            <option value="Con Mayonesa">Con Mayonesa</option>
-                            <option value="Con Ketchup">Con Ketchup</option>
-                            <option value="Con Salsa Golf">Con Salsa Golf</option>
-                        </select>
-                    </div>` : '';
-
-                grid.innerHTML += `
-                    <div class="bg-white rounded-2xl shadow-md overflow-hidden card-hover border border-gray-100 flex flex-col">
-                        <div class="relative"><img src="${p.img}" alt="${p.nombre}" class="w-full h-48 object-cover">
-                        <span class="absolute top-3 right-3 bg-white text-gray-800 px-3 py-1 rounded-full font-bold shadow-md text-xs uppercase">${p.categoria}</span></div>
-                        <div class="p-5 flex flex-col flex-grow">
-                            <h3 class="text-lg font-bold text-gray-800 leading-tight mb-2">${p.nombre}</h3>
-                            <select id="opt-${p.id}" class="w-full border border-gray-300 rounded-lg p-2 mb-3 text-sm focus:ring-2 focus:ring-orange-500 outline-none bg-gray-50">${opcionesHTML}</select>
-                            ${aderezoHTML}
-                            <div class="mt-auto pt-4 border-t border-gray-100 flex items-center justify-between gap-3">
-                                <div class="flex items-center border border-gray-300 rounded-lg overflow-hidden">
-                                    <button type="button" onclick="adjustQty(${p.id}, -1)" class="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold">-</button>
-                                    <input type="number" id="qty-${p.id}" value="1" min="1" class="w-12 text-center border-none outline-none text-gray-800 font-bold" readonly>
-                                    <button type="button" onclick="adjustQty(${p.id}, 1)" class="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold">+</button>
-                                </div>
-                                <div class="text-right">
-                                    <span class="block text-xl font-bold text-orange-600 ars">$${p.precio.toLocaleString('es-AR')}</span>
-                                    <button onclick="addToCart(${p.id})" class="text-sm bg-orange-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-orange-700 transition mt-1 w-full">Agregar</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>`;
-            });
-        }
-
-        function adjustQty(id, change) {
-            const input = document.getElementById(`qty-${id}`);
-            if (!input) return;
-            let val = parseInt(input.value) + change;
-            if (val < 1) val = 1;
-            if (val > 99) val = 99;
-            input.value = val;
-        }
-
-        function filterMenu(cat) { renderMenu(cat); }
-
-        function addToCart(id) {
-            const prod = productos.find(p => p.id === id);
-            if (!prod) return;
-            const qtyInput = document.getElementById(`qty-${id}`);
-            const qty = qtyInput ? parseInt(qtyInput.value) || 1 : 1;
-            const optSelect = document.getElementById(`opt-${id}`);
-            const opcion = optSelect ? optSelect.value : prod.opciones[0];
-            let aderezo = null;
-            if (prod.tieneAderezos) {
-                const adzSelect = document.getElementById(`adz-${id}`);
-                aderezo = adzSelect ? adzSelect.value : 'Sin aderezo';
-            }
-            
-            const existingIndex = cart.findIndex(item => 
-                item.id === id && 
-                item.opcionSeleccionada === opcion && 
-                item.aderezo === aderezo
-            );
-            
-            if (existingIndex > -1) {
-                cart[existingIndex].cantidad += qty;
-            } else {
-                cart.push({ ...prod, opcionSeleccionada: opcion, aderezo: aderezo, cantidad: qty });
-            }
-            
-            updateCartUI();
-            
-            const btn = event.target;
-            if (btn && btn.tagName === 'BUTTON') {
-                const originalText = btn.innerHTML;
-                btn.innerHTML = '<i class="fas fa-check"></i> ✓';
-                btn.classList.replace('bg-orange-600', 'bg-green-600');
-                setTimeout(() => { 
-                    btn.innerHTML = originalText; 
-                    btn.classList.replace('bg-green-600', 'bg-orange-600'); 
-                }, 800);
-            }
-        }
-
-        function updateCartUI() {
-            const count = cart.reduce((sum, item) => sum + item.cantidad, 0);
-            document.getElementById('cart-count').innerText = count;
-            
-            const container = document.getElementById('cart-items');
-            if (cart.length === 0) { 
-                container.innerHTML = '<p class="text-gray-500 text-center py-10">El carrito está vacío</p>'; 
-                document.getElementById('cart-total').innerText = '$0'; 
-                return; 
-            }
-            
-            let total = 0, html = '';
-            
-            cart.forEach((item, index) => {
-                const subtotal = item.precio * item.cantidad; 
-                total += subtotal;
-                const aderezoText = item.aderezo && item.aderezo !== 'Sin aderezo' ? 
-                    `<br><span class="text-xs text-orange-600 font-semibold">${item.aderezo}</span>` : '';
-                
-                html += `<div class="flex justify-between items-start bg-gray-50 p-3 rounded-lg border border-gray-100">
-                    <div class="flex-grow">
-                        <p class="font-bold text-sm text-gray-800">${item.cantidad}x ${item.nombre}</p>
-                        <p class="text-xs text-gray-500">${item.opcionSeleccionada}</p>${aderezoText}
-                    </div>
-                    <div class="flex flex-col items-end gap-2">
-                        <span class="font-bold text-gray-800 ars">$${subtotal.toLocaleString('es-AR')}</span>
-                        <button onclick="removeFromCart(${index})" class="text-red-400 hover:text-red-600 text-xs flex items-center gap-1 transition">
-                            <i class="fas fa-trash"></i> Quitar
-                        </button>
-                    </div>
-                </div>`;
-            });
-            
-            container.innerHTML = html;
-            document.getElementById('cart-total').innerText = new Intl.NumberFormat('es-AR', { 
-                style: 'currency', currency: 'ARS' 
-            }).format(total);
-        }
-
-        function removeFromCart(index) { cart.splice(index, 1); updateCartUI(); }
-        
-        function toggleCart() { document.getElementById('cart-modal').classList.toggle('hidden'); }
-        
-        function toggleDireccion(mostrar) {
-            const campo = document.getElementById('campo-direccion');
-            const input = document.getElementById('cliente-direccion');
-            if (mostrar) { 
-                campo.classList.remove('hidden'); 
-                input.required = true; 
-            } else { 
-                campo.classList.add('hidden'); 
-                input.required = false; 
-                input.value = ''; 
-            }
-        }
-
-        function processOrder(e) {
-            e.preventDefault();
-            if (cart.length === 0) return alert('El carrito está vacío');
-            
-            const nombre = document.getElementById('cliente-nombre').value.trim();
-            const telefono = document.getElementById('cliente-telefono').value.trim();
-            const tipo = document.querySelector('input[name="tipoEntrega"]:checked').value;
-            const direccion = tipo === 'Envio' ? document.getElementById('cliente-direccion').value.trim() : 'Retiro en Local';
-            
-            if (!nombre || !telefono) return alert('Completa tu nombre y teléfono');
-            
-            let detalleComida = cart.map(i => { 
-                let desc = `• ${i.cantidad}x ${i.nombre} (${i.opcionSeleccionada})`; 
-                if (i.aderezo && i.aderezo !== 'Sin aderezo') desc += ` [${i.aderezo}]`; 
-                return desc; 
-            }).join('\n');
-            
-            const total = cart.reduce((sum, i) => sum + (i.precio * i.cantidad), 0);
-
-            const btn = e.target.querySelector('button[type="submit"]');
-            if (!btn) return;
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...'; 
-            btn.disabled = true;
-
-            fetch(API_URL, { 
-                method: 'POST', 
-                body: JSON.stringify({ 
-                    action: 'nuevoPedido', 
-                    cliente: nombre, 
-                    telefono: telefono, 
-                    direccion: direccion, 
-                    tipo: tipo, 
-                    detalle: detalleComida, 
-                    total: total 
-                }) 
-            })
-            .then(res => res.json())
-            .then(data => {
-                if(data.status === 'success') {
-                    alert('¡Pedido enviado con éxito! ID: ' + data.id);
-                    cart = []; updateCartUI(); toggleCart(); 
-                    e.target.reset();
-                    document.getElementById('cliente-direccion').value = '';
-                    toggleDireccion(false);
-                } else {
-                    alert('Error: ' + (data.message || 'No se pudo procesar'));
-                }
-            })
-            .catch(err => { console.error(err); alert('Error de conexión: ' + err.message); })
-            .finally(() => { btn.innerHTML = originalText; btn.disabled = false; });
-        }
-
-        // FUNCIÓN PARA OBTENER VALOR DE CAMPO DE FORMA SEGURA
-        function getFieldValue(obj, ...keys) {
-            for (let key of keys) {
-                if (obj && obj[key] !== undefined && obj[key] !== null) {
-                    return obj[key];
-                }
-            }
-            return undefined;
-        }
-
-        function formatDetalleToHTML(detalleString) {
-            if (!detalleString || detalleString.toString().trim() === '') {
-                return '<p class="text-gray-500 text-sm italic">Sin detalle disponible</p>';
-            }
-            const lines = detalleString.toString().split('\n').filter(line => line.trim() !== '');
-            if (lines.length === 0) return '<p class="text-gray-500 text-sm italic">Sin detalle</p>';
-            return `<ul class="list-disc list-inside space-y-1 text-gray-700">${lines.map(line => `<li class="text-sm">${line.replace(/^•\s*/, '')}</li>`).join('')}</ul>`;
-        }
-
-        function toggleDetalle(btn, detalleId) {
-            const detalle = document.getElementById(detalleId);
-            if (!detalle) return;
-            const icon = btn.querySelector('i');
-            if (detalle.classList.contains('hidden')) {
-                detalle.classList.remove('hidden');
-                if (icon) icon.classList.replace('fa-eye', 'fa-eye-slash');
-            } else {
-                detalle.classList.add('hidden');
-                if (icon) icon.classList.replace('fa-eye-slash', 'fa-eye');
-            }
-        }
-
-        function loadPedidos() {
-            const container = document.getElementById('admin-pedidos');
-            container.innerHTML = '<div class="text-center py-10"><i class="fas fa-spinner fa-spin text-3xl text-orange-600"></i><p class="mt-2 text-gray-500">Cargando pedidos...</p></div>';
-
-            if (!API_URL || API_URL === 'PEGA_AQUI_TU_URL_DE_APPS_SCRIPT') {
-                container.innerHTML = '<div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg"><h3 class="text-red-800 font-bold text-lg">Error de Configuración</h3><p class="text-red-700">Configura la URL de Google Apps Script.</p></div>';
-                return;
-            }
-
-            // Primero cargar repartidores
-            fetch(`${API_URL}?action=getRepartidores`)
-                .then(res => res.json())
-                .then(reps => {
-                    repartidoresDB = reps;
-                    return fetch(`${API_URL}?action=getPedidos`);
-                })
-                .then(res => res.json())
-                .then(pedidos => {
-                    console.log('📦 Pedidos recibidos:', pedidos);
-                    
-                    if (!Array.isArray(pedidos)) {
-                        console.error('Error: pedidos no es un array', pedidos);
-                        container.innerHTML = '<div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg"><h3 class="text-red-800 font-bold">Error</h3><p>Los datos recibidos no son válidos. Revisa la consola.</p></div>';
-                        return;
-                    }
-                    
-                    if (pedidos.length === 0) {
-                        container.innerHTML = '<div class="text-center text-gray-500 bg-white p-10 rounded-xl shadow">No hay pedidos activos.</div>';
-                        return;
-                    }
-
-                    const estadoPrioridad = { 'Pendiente': 1, 'En Preparación': 2, 'En Camino': 3, 'Entregado': 4 };
-                    pedidos.sort((a, b) => {
-                        const estadoA = getFieldValue(a, 'Estado', 'estado') || 'Pendiente';
-                        const estadoB = getFieldValue(b, 'Estado', 'estado') || 'Pendiente';
-                        const prioA = estadoPrioridad[estadoA] || 5;
-                        const prioB = estadoPrioridad[estadoB] || 5;
-                        if (prioA !== prioB) return prioA - prioB;
-                        const fechaA = getFieldValue(a, 'Fecha', 'fecha') || new Date(0);
-                        const fechaB = getFieldValue(b, 'Fecha', 'fecha') || new Date(0);
-                        return new Date(fechaB) - new Date(fechaA);
-                    });
-
-                    let tableHTML = `
-                        <div class="overflow-x-auto bg-white rounded-xl shadow-lg">
-                            <table class="pedidos-table">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Fecha</th>
-                                        <th>Cliente</th>
-                                        <th>Detalle</th>
-                                        <th>Total</th>
-                                        <th>Estado</th>
-                                        <th>Repartidor</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody>`;
-
-                    pedidos.forEach((p, index) => {
-                        // OBTENER TODOS LOS CAMPOS CON MÚLTIPLES POSIBILIDADES
-                        const id = getFieldValue(p, 'ID', 'id') || `P-${index}`;
-                        const fecha = getFieldValue(p, 'Fecha', 'fecha') || '';
-                        const cliente = getFieldValue(p, 'Cliente', 'cliente') || 'Sin nombre';
-                        const telefono = getFieldValue(p, 'Teléfono', 'Telefono', 'telefono') || '';
-                        const detalle = getFieldValue(p, 'Detalle', 'detalle') || '';
-                        const estado = getFieldValue(p, 'Estado', 'estado') || 'Pendiente';
-                        const repartidor = getFieldValue(p, 'Repartidor', 'repartidor') || 'Sin asignar';
-                        const tipoEntrega = getFieldValue(p, 'TipoEntrega', 'tipoEntrega') || '';
-                        
-                        // 🔧 OBTENER TOTAL CORRECTAMENTE - CONVERTIR A NÚMERO
-                        let totalValor = getFieldValue(p, 'Total', 'total');
-                        
-                        // Si es undefined o null, asignar 0
-                        if (totalValor === undefined || totalValor === null) {
-                            totalValor = 0;
-                        }
-                        
-                        // Si es string, limpiar y convertir a número
-                        if (typeof totalValor === 'string') {
-                            // Eliminar $, puntos, comas, espacios y convertir
-                            totalValor = totalValor.replace(/[^\d,.-]/g, '').replace(',', '.');
-                            totalValor = parseFloat(totalValor) || 0;
-                        }
-                        
-                        // Si no es número, asignar 0
-                        if (typeof totalValor !== 'number' || isNaN(totalValor)) {
-                            totalValor = 0;
-                        }
-                        
-                        // Formatear como moneda ARS (sin decimales)
-                        const totalARS = new Intl.NumberFormat('es-AR', { 
-                            style: 'currency', 
-                            currency: 'ARS',
-                            minimumFractionDigits: 0,
-                            maximumFractionDigits: 0                        }).format(totalValor);
-
-                        // Mensaje para WhatsApp
-                        const msg = `Hola ${cliente}, te escribimos de FastFood Express.%0A%0A📦 *Pedido ${id}*%0A💰 Total: *${totalARS}*%0A📍 Estado: *${estado}*%0A🍔 Puedes seguir tu pedido desde nuestra app.`;
-                        const waLink = `https://wa.me/${telefono}?text=${msg}`;
-
-                        const detalleHTML = formatDetalleToHTML(detalle);
-
-                        let statusClass = 'status-pendiente';
-                        const estadoNormalizado = estado.charAt(0).toUpperCase() + estado.slice(1).toLowerCase();
-                        if (estadoNormalizado === 'En Preparación') statusClass = 'status-preparacion';
-                        else if (estadoNormalizado === 'En Camino') statusClass = 'status-camino';
-                        else if (estadoNormalizado === 'Entregado') statusClass = 'status-entregado';
-
-                        const idSanitized = id.replace(/[^a-zA-Z0-9]/g, '');
-
-                        tableHTML += `
-                            <tr>
-                                <td class="font-bold text-gray-800">#${id}</td>
-                                <td class="text-xs text-gray-500">${fecha}</td>
-                                <td>
-                                    <div class="font-semibold">${cliente}</div>
-                                    <div class="text-xs text-gray-500">${telefono}</div>
-                                    ${tipoEntrega ? `<div class="text-xs text-orange-600 font-medium mt-1">${tipoEntrega}</div>` : ''}
-                                </td>
-                                <td>
-                                    <button onclick="toggleDetalle(this, 'detalle-${idSanitized}')" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                                        <i class="fas fa-eye mr-1"></i> Ver detalle
-                                    </button>
-                                    <div id="detalle-${idSanitized}" class="hidden mt-2 detalle-expand rounded-lg">
-                                        ${detalleHTML}
-                                    </div>
-                                </td>
-                                <td><span class="total-destacado">${totalARS}</span></td>
-                                <td><span class="status-badge ${statusClass}">${estado}</span></td>
-                                <td>
-                                    ${repartidor && repartidor !== 'Sin asignar' && repartidor !== '' 
-                                        ? `<i class="fas fa-motorcycle text-green-600 mr-1"></i>${repartidor}`
-                                        : '<span class="text-gray-400 italic">Sin asignar</span>'}
-                                </td>
-                                <td>
-                                    <div class="flex flex-col gap-2">
-                                        <a href="${waLink}" target="_blank" class="accion-btn btn-whatsapp text-center">
-                                            <i class="fab fa-whatsapp"></i> WhatsApp
-                                        </a>
-                                        <select onchange="updateStatus('${id}', this.value)" class="border border-gray-300 rounded-lg px-2 py-1 text-xs">
-                                            <option value="">Cambiar estado...</option>
-                                            <option value="Pendiente" ${estado === 'Pendiente' ? 'selected' : ''}>Pendiente</option>
-                                            <option value="En Preparación" ${estado === 'En Preparación' ? 'selected' : ''}>En Preparación</option>
-                                            <option value="En Camino" ${estado === 'En Camino' ? 'selected' : ''}>En Camino</option>
-                                            <option value="Entregado" ${estado === 'Entregado' ? 'selected' : ''}>Entregado</option>
-                                        </select>
-                                        ${estado !== 'Entregado' ? `
-                                        <div class="flex gap-1">
-                                            <select id="rep-${idSanitized}" class="flex-1 border border-gray-300 rounded-lg px-2 py-1 text-xs">
-                                                <option value="">Asignar...</option>
-                                            </select>
-                                            <button onclick="assignDriver('${id}')" class="accion-btn btn-asignar">✓</button>
-                                        </div>` : ''}
-                                    </div>
-                                </td>
-                            </tr>`;
-                    });
-
-                    tableHTML += `</tbody></table></div>`;
-                    container.innerHTML = tableHTML;
-                    loadRepartidoresForSelect();
-                })
-                .catch(err => {
-                    console.error('❌ Error:', err);
-                    container.innerHTML = `<div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg"><h3 class="text-red-800 font-bold text-lg">Error</h3><p>${err.message}</p><p class="text-sm mt-2">Verifica la consola para más detalles.</p></div>`;
-                });
-        }
-
-        function updateStatus(id, nuevoEstado) {
-            if(!nuevoEstado) return;
-            fetch(API_URL, { 
-                method: 'POST', 
-                body: JSON.stringify({ action: 'actualizarEstado', idPedido: id, estado: nuevoEstado }) 
-            })
-            .then(res => res.json())
-            .then(() => { 
-                alert('✅ Estado actualizado'); 
-                loadPedidos(); 
-            })
-            .catch(err => alert('Error: ' + err.message));
-        }
-
-        function assignDriver(idPedido) {
-            const selectId = `rep-${idPedido.replace(/[^a-zA-Z0-9]/g, '')}`;
-            const select = document.getElementById(selectId);
-            if (!select) return;
-            const repartidor = select.value;
-            if(!repartidor) return alert('Selecciona un repartidor');
-            const btn = select.nextElementSibling;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; 
-            btn.disabled = true;
-            fetch(API_URL, { 
-                method: 'POST', 
-                body: JSON.stringify({ 
-                    action: 'actualizarEstado', 
-                    idPedido: idPedido, 
-                    estado: 'En Camino', 
-                    repartidor: repartidor 
-                }) 
-            })
-            .then(() => { 
-                alert('✅ Repartidor asignado y pedido en camino'); 
-                loadPedidos(); 
-            })
-            .catch((err) => { 
-                alert('Error: ' + err.message); 
-                btn.innerHTML = '✓'; 
-                btn.disabled = false; 
-            });
-        }
-
-        function loadRepartidoresForSelect() {
-            document.querySelectorAll('select[id^="rep-"]').forEach(select => {
-                const currentVal = select.value;
-                select.innerHTML = '<option value="">Repartidor...</option>';
-                if (repartidoresDB && repartidoresDB.length > 0) {
-                    repartidoresDB.forEach(r => {
-                        const nombre = r.Nombre || r.nombre || '';
-                        const estado = r.Estado || r.estado || '';
-                        if(nombre && estado === 'Disponible') {
-                            select.innerHTML += `<option value="${nombre}">${nombre}</option>`;
-                        }
-                    });
-                }
-                select.value = currentVal;
-            });
-        }
-
-        function loadRepartidores() {
-            const container = document.getElementById('lista-repartidores');
-            container.innerHTML = '<p class="text-center text-gray-500 py-4">Cargando...</p>';
-            fetch(`${API_URL}?action=getRepartidores`)
-                .then(res => res.json())
-                .then(reps => {
-                    container.innerHTML = '';
-                    if(!reps || reps.length === 0) { 
-                        container.innerHTML = '<p class="text-center text-gray-500 py-4 bg-white rounded-lg">No hay repartidores registrados.</p>'; 
-                        return; 
-                    }
-                    reps.forEach(r => {
-                        const id = r.ID || r.id || '';
-                        const nombre = r.Nombre || r.nombre || '';
-                        const telefono = r.Teléfono || r.Telefono || r.telefono || '';
-                        const estado = r.Estado || r.estado || 'Disponible';
-                        
-                        container.innerHTML += `
-                        <div class="bg-white p-4 rounded-lg shadow border-l-4 ${estado === 'Disponible' ? 'border-green-500' : 'border-red-500'}">
-                            <h4 class="font-bold">${nombre}</h4>
-                            <p class="text-sm"><i class="fas fa-phone"></i> ${telefono}</p>
-                            <span class="inline-block mt-1 px-2 py-1 text-xs rounded-full font-bold ${estado === 'Disponible' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${estado}</span>
-                            <div class="flex gap-2 mt-2">
-                                <button onclick="editRepartidor('${id}', '${nombre}', '${telefono}')" class="flex-1 bg-blue-100 text-blue-700 py-1 rounded text-sm font-bold"><i class="fas fa-edit"></i> Editar</button>
-                                <button onclick="deleteRepartidor('${id}')" class="flex-1 bg-red-100 text-red-700 py-1 rounded text-sm font-bold"><i class="fas fa-trash"></i> Eliminar</button>
-                            </div>
-                        </div>`;
-                    });
-                })
-                .catch(err => { container.innerHTML = `<p class="text-red-500">Error: ${err.message}</p>`; });
-        }
-
-        function editRepartidor(id, nombreActual, telefonoActual) {
-            const nuevoNombre = prompt("Editar nombre:", nombreActual);
-            if (nuevoNombre === null) return;
-            const nuevoTelefono = prompt("Editar teléfono:", telefonoActual);
-            if (nuevoTelefono === null) return;
-            
-            fetch(API_URL, { 
-                method: 'POST', 
-                body: JSON.stringify({ 
-                    action: 'editarRepartidor', 
-                    id: id, 
-                    nombre: nuevoNombre, 
-                    telefono: nuevoTelefono 
-                }) 
-            })
-            .then(res => res.json())
-            .then(() => { alert('✅ Repartidor actualizado'); loadRepartidores(); loadPedidos(); });
-        }
-
-        function deleteRepartidor(id) {
-            if(!confirm("¿Eliminar este repartidor?")) return;
-            fetch(API_URL, { 
-                method: 'POST', 
-                body: JSON.stringify({ action: 'borrarRepartidor', id: id }) 
-            })
-            .then(res => res.json())
-            .then(() => { alert('✅ Repartidor eliminado'); loadRepartidores(); loadPedidos(); });
-        }
-
-        function addRepartidor(e) {
-            e.preventDefault();
-            const nombre = document.getElementById('rep-nombre').value.trim();
-            const telefono = document.getElementById('rep-telefono').value.trim();
-            
-            fetch(API_URL, { 
-                method: 'POST', 
-                body: JSON.stringify({ 
-                    action: 'nuevoRepartidor', 
-                    nombre: nombre, 
-                    telefono: telefono 
-                }) 
-            })
-            .then(res => res.json())
-            .then(() => { alert('✅ Repartidor registrado'); e.target.reset(); loadRepartidores(); });
-        }
-
-        // Inicializar
-        renderMenu();
-    </script>
+    <!-- JavaScript -->
+    <script src="js/main.js"></script>
+    <script src="js/google-sheets.js"></script>
 </body>
 </html>

@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Rotisería Delicias</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+    <div id="adminApp">
+        <!-- Login Screen -->
+        <div id="loginScreen" class="login-container">
+            <div class="login-box">
+                <div class="login-header">
+                    <i class="fas fa-utensils"></i>
+                    <h2>Panel de Administración</h2>
+                    <p>Rotisería Delicias</p>
+                </div>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label>Usuario</label>
+                        <input type="text" id="loginUser" placeholder="admin" value="admin">
+                    </div>
+                    <div class="form-group">
+                        <label>Contraseña</label>
+                        <input type="password" id="loginPass" placeholder="••••••••" value="admin123">
+                    </div>
+                    <button type="submit" class="btn-primary btn-large">
+                        <i class="fas fa-sign-in-alt"></i> Ingresar
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Dashboard -->
+        <div id="dashboardScreen" style="display: none;">
+            <!-- Header Admin -->
+            <header class="admin-header">
+                <div class="header-container">
+                    <div class="logo">
+                        <i class="fas fa-utensils"></i>
+                        <span>Admin Delicias</span>
+                    </div>
+                    <nav>
+                        <button class="nav-btn active" data-tab="orders">
+                            <i class="fas fa-clipboard-list"></i> Pedidos
+                        </button>
+                        <button class="nav-btn" data-tab="deliverers">
+                            <i class="fas fa-motorcycle"></i> Entregadores
+                        </button>
+                        <button class="nav-btn" data-tab="menu">
+                            <i class="fas fa-utensils"></i> Menú
+                        </button>
+                        <button class="nav-btn" data-tab="stats">
+                            <i class="fas fa-chart-bar"></i> Estadísticas
+                        </button>
+                        <button class="nav-btn logout-btn" id="logoutBtn">
+                            <i class="fas fa-sign-out-alt"></i> Salir
+                        </button>
+                    </nav>
+                </div>
+            </header>
+
+            <!-- Contenido Principal -->
+            <main class="admin-main">
+                <!-- Tab: Pedidos -->
+                <div id="ordersTab" class="tab-content active">
+                    <div class="tab-header">
+                        <h2><i class="fas fa-clipboard-list"></i> Gestión de Pedidos</h2>
+                        <div class="filters">
+                            <select id="orderFilter">
+                                <option value="all">Todos</option>
+                                <option value="pendiente">Pendientes</option>
+                                <option value="en-preparacion">En Preparación</option>
+                                <option value="en-camino">En Camino</option>
+                                <option value="entregado">Entregados</option>
+                                <option value="cancelado">Cancelados</option>
+                            </select>
+                            <input type="date" id="dateFilter">
+                        </div>
+                    </div>
+
+                    <div class="board-columns" id="orderBoard">
+                        <!-- Columnas Kanban -->
+                        <div class="column" data-status="pendiente">
+                            <div class="column-header">
+                                <h3>⏳ Pendientes</h3>
+                                <span class="count" id="count-pendiente">0</span>
+                            </div>
+                            <div class="column-body" id="col-pendiente"></div>
+                        </div>
+                        <div class="column" data-status="en-preparacion">
+                            <div class="column-header">
+                                <h3>👨‍🍳 En Preparación</h3>
+                                <span class="count" id="count-preparacion">0</span>
+                            </div>
+                            <div class="column-body" id="col-preparacion"></div>
+                        </div>
+                        <div class="column" data-status="en-camino">
+                            <div class="column-header">
+                                <h3>🛵 En Camino</h3>
+                                <span class="count" id="count-camino">0</span>
+                            </div>
+                            <div class="column-body" id="col-camino"></div>
+                        </div>
+                        <div class="column" data-status="entregado">
+                            <div class="column-header">
+                                <h3>✅ Entregados</h3>
+                                <span class="count" id="count-entregado">0</span>
+                            </div>
+                            <div class="column-body" id="col-entregado"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Entregadores -->
+                <div id="deliverersTab" class="tab-content">
+                    <div class="tab-header">
+                        <h2><i class="fas fa-motorcycle"></i> Entregadores</h2>
+                        <button class="btn-primary" onclick="openDelivererModal()">
+                            <i class="fas fa-plus"></i> Agregar Entregador
+                        </button>
+                    </div>
+                    <div class="deliverers-grid" id="deliverersGrid"></div>
+                </div>
+
+                <!-- Tab: Menú -->
+                <div id="menuTab" class="tab-content">
+                    <div class="tab-header">
+                        <h2><i class="fas fa-utensils"></i> Administrar Menú</h2>
+                        <button class="btn-primary" onclick="openProductModal()">
+                            <i class="fas fa-plus"></i> Agregar Producto
+                        </button>
+                    </div>
+                    <div class="menu-admin-grid" id="menuAdminGrid"></div>
+                </div>
+
+                <!-- Tab: Estadísticas -->
+                <div id="statsTab" class="tab-content">
+                    <h2><i class="fas fa-chart-bar"></i> Estadísticas</h2>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <h3>Total Pedidos</h3>
+                            <span class="stat-number" id="statTotal">0</span>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Pendientes</h3>
+                            <span class="stat-number" id="statPending">0</span>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Hoy</h3>
+                            <span class="stat-number" id="statToday">0</span>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Ingresos $</h3>
+                            <span class="stat-number" id="statRevenue">$0</span>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modal: Entregador -->
+    <div class="modal" id="delivererModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="delivererModalTitle">Agregar Entregador</h2>
+                <button class="close-modal" onclick="closeDelivererModal()">&times;</button>
+            </div>
+            <form id="delivererForm">
+                <input type="hidden" id="delivererId">
+                <div class="form-group">
+                    <label>Nombre completo *</label>
+                    <input type="text" id="delivererName" required>
+                </div>
+                <div class="form-group">
+                    <label>Teléfono *</label>
+                    <input type="tel" id="delivererPhone" required>
+                </div>
+                <div class="form-group">
+                    <label>Vehículo</label>
+                    <input type="text" id="delivererVehicle" placeholder="Ej: Moto, Bicicleta">
+                </div>
+                <div class="form-group">
+                    <label>Disponible</label>
+                    <select id="delivererAvailable">
+                        <option value="true">Sí</option>
+                        <option value="false">No</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-primary btn-large">Guardar Entregador</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Producto -->
+    <div class="modal" id="productModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="productModalTitle">Agregar Producto</h2>
+                <button class="close-modal" onclick="closeProductModal()">&times;</button>
+            </div>
+            <form id="productForm">
+                <input type="hidden" id="productId">
+                <div class="form-group">
+                    <label>Nombre *</label>
+                    <input type="text" id="productName" required>
+                </div>
+                <div class="form-group">
+                    <label>Descripción</label>
+                    <textarea id="productDescription" rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Precio $ *</label>
+                    <input type="number" id="productPrice" required step="100">
+                </div>
+                <div class="form-group">
+                    <label>URL de la imagen</label>
+                    <input type="text" id="productImage" placeholder="https://...">
+                </div>
+                <div class="form-group">
+                    <label>Categoría</label>
+                    <select id="productCategory">
+                        <option value="pizzas">Pizzas</option>
+                        <option value="hamburguesas">Hamburguesas</option>
+                        <option value="lomitos">Lomitos</option>
+                        <option value="empanadas">Empanadas</option>
+                        <option value="papas">Papas Fritas</option>
+                        <option value="aderezos">Aderezos</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-primary btn-large">Guardar Producto</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/admin.js"></script>
+    <script src="js/google-sheets.js"></script>
+</body>
+</html>

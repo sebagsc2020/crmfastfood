@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔌 Test Google Sheets</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            padding: 2rem;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #e63946;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 2rem;
+        }
+        .btn-test {
+            background: #e63946;
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .btn-test:hover {
+            background: #c62828;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(230, 57, 70, 0.3);
+        }
+        .btn-test:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .status {
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            border-radius: 12px;
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            min-height: 100px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+            overflow: auto;
+            max-height: 500px;
+        }
+        .status.success {
+            border-color: #2e7d32;
+            background: #e8f5e9;
+        }
+        .status.error {
+            border-color: #c62828;
+            background: #ffebee;
+        }
+        .status.loading {
+            border-color: #f57c00;
+            background: #fff3e0;
+        }
+        .config-info {
+            background: #e3f2fd;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+        }
+        .config-info strong {
+            color: #1976d2;
+        }
+        .steps {
+            margin: 1.5rem 0;
+            padding-left: 1.5rem;
+        }
+        .steps li {
+            margin-bottom: 0.5rem;
+            color: #555;
+        }
+        .badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .badge.success {
+            background: #c8e6c9;
+            color: #2e7d32;
+        }
+        .badge.error {
+            background: #ffcdd2;
+            color: #c62828;
+        }
+        .badge.warning {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+        .badge.info {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.3rem 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .result-item .label {
+            color: #666;
+        }
+        .result-item .value {
+            font-weight: 600;
+        }
+        .copy-btn {
+            background: #e9ecef;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        .copy-btn:hover {
+            background: #dee2e6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>
+            <span>🔌</span> Test Google Sheets
+        </h1>
+        <p class="subtitle">Verificá que la conexión con Google Sheets funcione correctamente</p>
+
+        <div class="config-info">
+            <strong>📊 Configuración actual:</strong><br>
+            <span id="configDisplay">Cargando configuración...</span>
+        </div>
+
+        <button class="btn-test" onclick="testConnection()" id="testBtn">
+            <span>▶</span> Probar Conexión
+        </button>
+
+        <div id="resultado" class="status">
+            <span style="color: #999;">⏳ Esperando prueba...</span>
+        </div>
+
+        <div style="margin-top: 1.5rem;">
+            <h3>📋 Pasos para configurar:</h3>
+            <ol class="steps">
+                <li>✅ Crear planilla en Google Sheets con las pestañas: <strong>Pedidos</strong>, <strong>Productos</strong> y <strong>Entregadores</strong></li>
+                <li>✅ Obtener el <strong>SPREADSHEET_ID</strong> de la URL</li>
+                <li>✅ Habilitar Google Sheets API en Google Cloud Console</li>
+                <li>✅ Crear una <strong>API Key</strong> y restringirla a Sheets API</li>
+                <li>✅ Compartir la planilla con "Cualquier persona con el enlace" como Editor</li>
+                <li>✅ Reemplazar los valores en <code>js/google-sheets.js</code></li>
+            </ol>
+        </div>
+
+        <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 2px solid #f0f0f0;">
+            <h4>🔍 Verificar configuración:</h4>
+            <button onclick="checkConfig()" style="background: #e9ecef; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; margin-top: 0.5rem;">
+                Mostrar Configuración
+            </button>
+            <pre id="configCheck" style="display: none; background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-top: 0.5rem; font-size: 0.85rem; overflow: auto;"></pre>
+        </div>
+    </div>
+
+    <!-- Cargar Google Sheets primero -->
+    <script src="js/google-sheets.js"></script>
+
+    <script>
+        // ============================================
+        // VERIFICAR QUE GoogleSheets ESTÉ DISPONIBLE
+        // ============================================
+        console.log('🔍 Verificando GoogleSheets...');
+        console.log('window.GoogleSheets:', window.GoogleSheets);
+        console.log('typeof GoogleSheets:', typeof GoogleSheets);
+
+        // Mostrar configuración actual
+        function displayConfig() {
+            const configDisplay = document.getElementById('configDisplay');
+            if (window.GoogleSheets) {
+                configDisplay.innerHTML = `
+                    <strong>Spreadsheet ID:</strong> ${SHEETS_CONFIG.spreadsheetId || '⚠️ No configurado'}<br>
+                    <strong>API Key:</strong> ${SHEETS_CONFIG.apiKey ? '✅ Configurada' : '⚠️ No configurada'}<br>
+                    <strong>Pestañas:</strong> ${Object.values(SHEETS_CONFIG.sheets).join(', ')}
+                `;
+            } else {
+                configDisplay.innerHTML = '⚠️ GoogleSheets no está disponible. Verificá que el archivo se cargó correctamente.';
+            }
+        }
+
+        // ============================================
+        // FUNCIÓN PRINCIPAL DE PRUEBA
+        // ============================================
+        async function testConnection() {
+            const resultado = document.getElementById('resultado');
+            const testBtn = document.getElementById('testBtn');
+            
+            resultado.className = 'status loading';
+            resultado.textContent = '⏳ Conectando a Google Sheets...\n\n';
+            testBtn.disabled = true;
+
+            // Verificar que GoogleSheets existe
+            if (typeof GoogleSheets === 'undefined' && typeof window.GoogleSheets === 'undefined') {
+                resultado.className = 'status error';
+                resultado.textContent = `❌ ERROR: GoogleSheets no está definido\n\n`;
+                resultado.textContent += `Posibles causas:\n`;
+                resultado.textContent += `1. El archivo js/google-sheets.js no se cargó correctamente\n`;
+                resultado.textContent += `2. Hay un error de sintaxis en google-sheets.js\n`;
+                resultado.textContent += `3. La ruta del archivo es incorrecta\n\n`;
+                resultado.textContent += `📝 Revisá la consola (F12) para ver más detalles.`;
+                testBtn.disabled = false;
+                return;
+            }
+
+            try {
+                // Verificar configuración
+                if (SHEETS_CONFIG.spreadsheetId === 'TU_SPREADSHEET_ID') {
+                    throw new Error('⚠️ Debes configurar el SPREADSHEET_ID en js/google-sheets.js');
+                }
+
+                if (SHEETS_CONFIG.apiKey === 'TU_API_KEY') {
+                    throw new Error('⚠️ Debes configurar la API_KEY en js/google-sheets.js');
+                }
+
+                resultado.textContent += '📊 Configuración verificada correctamente\n';
+                resultado.textContent += `📋 Spreadsheet ID: ${SHEETS_CONFIG.spreadsheetId}\n`;
+                resultado.textContent += `🔑 API Key: ${SHEETS_CONFIG.apiKey.substring(0, 15)}...\n\n`;
+
+                // 1. PROBAR GUARDAR UN PEDIDO
+                resultado.textContent += '📦 1. Guardando pedido de prueba...\n';
+                
+                const pedidoPrueba = {
+                    id: 'test-' + Date.now(),
+                    fecha: new Date().toISOString(),
+                    cliente: 'Usuario de Prueba',
+                    telefono: '11 0000-0000',
+                    tipo_entrega: 'Prueba de conexión',
+                    direccion: 'Calle Test 123',
+                    items: 'Test de integración con Google Sheets',
+                    total: 100,
+                    pago: 'test',
+                    notas: 'Este es un pedido de prueba - ' + new Date().toLocaleString(),
+                    estado: 'pendiente',
+                    entregador: 'Sin asignar'
+                };
+
+                const result = await GoogleSheets.saveOrder(pedidoPrueba);
+                resultado.textContent += '✅ Pedido guardado correctamente\n';
+                resultado.textContent += `   ID: ${pedidoPrueba.id}\n\n`;
+
+                // 2. PROBAR OBTENER PEDIDOS
+                resultado.textContent += '📋 2. Obteniendo lista de pedidos...\n';
+                const pedidos = await GoogleSheets.getOrders();
+                resultado.textContent += `✅ ${pedidos.length} pedidos encontrados en la planilla\n\n`;
+
+                // 3. MOSTRAR ÚLTIMOS PEDIDOS
+                resultado.textContent += '📄 Últimos 3 pedidos:\n';
+                const ultimos = pedidos.slice(-3).reverse();
+                ultimos.forEach((p, i) => {
+                    resultado.textContent += `  ${i+1}. ${p.cliente} - $${p.total} - ${p.estado}\n`;
+                });
+
+                // 4. PROBAR ACTUALIZAR ESTADO
+                if (pedidos.length > 0) {
+                    const ultimo = pedidos[pedidos.length - 1];
+                    resultado.textContent += `\n🔄 3. Actualizando estado del pedido ${ultimo.id}...\n`;
+                    
+                    // Solo para prueba, si está pendiente lo pasamos a en-preparacion
+                    const nuevoEstado = ultimo.estado === 'pendiente' ? 'en-preparacion' : 'pendiente';
+                    await GoogleSheets.updateOrderStatus(ultimo.id, nuevoEstado);
+                    resultado.textContent += `✅ Estado actualizado a: ${nuevoEstado}\n`;
+                }
+
+                // ÉXITO TOTAL
+                resultado.className = 'status success';
+                resultado.textContent += '\n\n🎉 ¡TODAS LAS PRUEBAS PASARON EXITOSAMENTE!\n';
+                resultado.textContent += '✅ Google Sheets está correctamente configurado.\n';
+                resultado.textContent += '✅ Tu sistema ya puede guardar y leer datos de la planilla.';
+
+            } catch (error) {
+                resultado.className = 'status error';
+                resultado.textContent += `\n❌ ERROR: ${error.message}\n\n`;
+                resultado.textContent += `📝 Detalles técnicos:\n`;
+                resultado.textContent += `${error.stack || error}\n\n`;
+                
+                // Sugerencias según el error
+                if (error.message.includes('404')) {
+                    resultado.textContent += '💡 Sugerencia: Verificá que el SPREADSHEET_ID sea correcto\n';
+                    resultado.textContent += '   y que la planilla esté compartida con "Cualquier persona con el enlace".\n';
+                } else if (error.message.includes('403')) {
+                    resultado.textContent += '💡 Sugerencia: Verificá que la API Key sea correcta\n';
+                    resultado.textContent += '   y que la API de Google Sheets esté habilitada.\n';
+                } else if (error.message.includes('API_KEY')) {
+                    resultado.textContent += '💡 Sugerencia: Revisá que la API_KEY esté configurada correctamente\n';
+                    resultado.textContent += '   en js/google-sheets.js\n';
+                } else if (error.message.includes('SPREADSHEET_ID')) {
+                    resultado.textContent += '💡 Sugerencia: Configurá el SPREADSHEET_ID en js/google-sheets.js\n';
+                }
+                
+                console.error('Error completo:', error);
+            }
+
+            testBtn.disabled = false;
+        }
+
+        // ============================================
+        // MOSTRAR CONFIGURACIÓN
+        // ============================================
+        function checkConfig() {
+            const pre = document.getElementById('configCheck');
+            if (pre.style.display === 'none') {
+                pre.style.display = 'block';
+                pre.textContent = `Configuración actual de Google Sheets:\n\n`;
+                pre.textContent += `SPREADSHEET_ID: ${SHEETS_CONFIG.spreadsheetId || '⚠️ No configurado'}\n`;
+                pre.textContent += `API_KEY: ${SHEETS_CONFIG.apiKey ? '✅ Configurada' : '⚠️ No configurada'}\n`;
+                pre.textContent += `\nPestañas:\n`;
+                Object.entries(SHEETS_CONFIG.sheets).forEach(([key, value]) => {
+                    pre.textContent += `  ${key}: ${value}\n`;
+                });
+                pre.textContent += `\nDisponibilidad:\n`;
+                pre.textContent += `  GoogleSheets: ${typeof GoogleSheets !== 'undefined' ? '✅' : '❌'}\n`;
+                pre.textContent += `  window.GoogleSheets: ${typeof window.GoogleSheets !== 'undefined' ? '✅' : '❌'}\n`;
+            } else {
+                pre.style.display = 'none';
+            }
+        }
+
+        // ============================================
+        // INICIALIZACIÓN
+        // ============================================
+        document.addEventListener('DOMContentLoaded', () => {
+            displayConfig();
+            
+            // Verificar si hay errores de carga
+            if (typeof GoogleSheets === 'undefined' && typeof window.GoogleSheets === 'undefined') {
+                const resultado = document.getElementById('resultado');
+                resultado.className = 'status error';
+                resultado.textContent = '❌ ERROR: GoogleSheets no se cargó correctamente.\n\n';
+                resultado.textContent += 'Verificá que:\n';
+                resultado.textContent += '1. El archivo js/google-sheets.js existe\n';
+                resultado.textContent += '2. No hay errores de sintaxis en el archivo\n';
+                resultado.textContent += '3. La ruta en el script src es correcta\n\n';
+                resultado.textContent += '📝 Abrí la consola (F12) para ver más detalles.';
+            }
+        });
+    </script>
+</body>
+</html>
