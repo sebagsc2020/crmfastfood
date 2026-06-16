@@ -541,6 +541,11 @@
             border-color: var(--primary);
         }
         
+        .payment-option input[type="radio"]:checked + i + span {
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
         .payment-option i {
             font-size: 1.4rem;
         }
@@ -594,6 +599,12 @@
             box-shadow: 0 8px 25px rgba(230,57,70,0.3);
         }
         
+        .btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
         footer {
             background: var(--secondary);
             color: white;
@@ -623,6 +634,47 @@
         
         .hidden {
             display: none;
+        }
+        
+        /* ===== INDICADOR DE CONEXIÓN ===== */
+        .connection-status {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            z-index: 9999;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .connection-status.online {
+            background: rgba(46, 125, 50, 0.95);
+            color: white;
+        }
+        
+        .connection-status.offline {
+            background: rgba(198, 40, 40, 0.95);
+            color: white;
+        }
+        
+        .connection-status .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        
+        .connection-status.online .dot {
+            background: #4caf50;
+        }
+        
+        .connection-status.offline .dot {
+            background: #ff5252;
         }
         
         @media (max-width: 768px) {
@@ -773,27 +825,27 @@
                     <h3>💳 Forma de Pago</h3>
                     <div class="payment-options">
                         <label class="payment-option">
-                            <input type="radio" name="payment" value="efectivo">
+                            <input type="radio" name="payment" value="Efectivo">
                             <i class="fas fa-money-bill"></i>
                             <span>Efectivo</span>
                         </label>
                         <label class="payment-option">
-                            <input type="radio" name="payment" value="debito">
+                            <input type="radio" name="payment" value="Débito">
                             <i class="fas fa-credit-card"></i>
                             <span>Débito</span>
                         </label>
                         <label class="payment-option">
-                            <input type="radio" name="payment" value="credito">
+                            <input type="radio" name="payment" value="Crédito">
                             <i class="fas fa-credit-card"></i>
                             <span>Crédito</span>
                         </label>
                         <label class="payment-option">
-                            <input type="radio" name="payment" value="transferencia" checked>
+                            <input type="radio" name="payment" value="Transferencia" checked>
                             <i class="fas fa-university"></i>
                             <span>Transferencia</span>
                         </label>
                         <label class="payment-option">
-                            <input type="radio" name="payment" value="mercadoPago">
+                            <input type="radio" name="payment" value="Mercado Pago">
                             <i class="fas fa-qrcode"></i>
                             <span>Mercado Pago</span>
                         </label>
@@ -806,7 +858,7 @@
                     <textarea id="orderNotes" placeholder="Ej: Sin cebolla, extra salsa, etc." rows="2"></textarea>
                 </div>
 
-                <button type="submit" class="btn-submit">
+                <button type="submit" class="btn-submit" id="submitBtn">
                     <i class="fas fa-check-circle"></i> Confirmar Pedido
                 </button>
             </form>
@@ -818,7 +870,16 @@
         <p>&copy; 2026 Delicias Rotisería - Todos los derechos reservados</p>
     </footer>
 
+    <!-- ===== INDICADOR DE CONEXIÓN ===== -->
+    <div class="connection-status" id="connectionStatus">
+        <span class="dot"></span>
+        <span id="statusText">Conectando...</span>
+    </div>
+
     <!-- ===== SCRIPTS ===== -->
+    <!-- Google Sheets API -->
+    <script src="js/google-sheets.js"></script>
+
     <script>
         // ============================================
         // DATOS DE PRODUCTOS
@@ -886,6 +947,28 @@
         // ESTADO
         // ============================================
         let cart = [];
+        let isOnline = navigator.onLine;
+
+        // ============================================
+        // CONEXIÓN
+        // ============================================
+        function updateConnectionStatus() {
+            const status = document.getElementById('connectionStatus');
+            const text = document.getElementById('statusText');
+            
+            if (navigator.onLine) {
+                status.className = 'connection-status online';
+                text.textContent = '🌐 Online';
+            } else {
+                status.className = 'connection-status offline';
+                text.textContent = '📴 Offline - Datos locales';
+            }
+            isOnline = navigator.onLine;
+        }
+
+        window.addEventListener('online', updateConnectionStatus);
+        window.addEventListener('offline', updateConnectionStatus);
+        updateConnectionStatus();
 
         // ============================================
         // RENDERIZAR MENÚ
@@ -1007,10 +1090,8 @@
                 return;
             }
 
-            // Cerrar carrito
             toggleCart();
 
-            // Actualizar resumen
             const summary = document.getElementById('orderSummary');
             const totalDisplay = document.getElementById('modalTotal');
             
@@ -1025,7 +1106,6 @@
             
             totalDisplay.textContent = `$${totalPrice.toLocaleString()}`;
 
-            // Mostrar modal
             document.getElementById('checkoutModal').classList.add('active');
         }
 
@@ -1034,27 +1114,35 @@
         }
 
         // ============================================
-        // ENVIAR PEDIDO
+        // ENVIAR PEDIDO A GOOGLE SHEETS
         // ============================================
-        document.getElementById('orderForm').addEventListener('submit', function(e) {
+        document.getElementById('orderForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
-            const nombre = document.getElementById('customerName').value;
-            const telefono = document.getElementById('customerPhone').value;
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+
+            const nombre = document.getElementById('customerName').value.trim();
+            const telefono = document.getElementById('customerPhone').value.trim();
             const deliveryType = document.querySelector('input[name="deliveryType"]:checked').value;
-            const direccion = document.getElementById('deliveryAddress').value;
+            const direccion = document.getElementById('deliveryAddress').value.trim();
             const payment = document.querySelector('input[name="payment"]:checked').value;
-            const notas = document.getElementById('orderNotes').value;
+            const notas = document.getElementById('orderNotes').value.trim();
             const totalPrice = cart.reduce((sum, item) => sum + (item.precio * item.quantity), 0);
 
             // Validar
             if (!nombre || !telefono) {
                 showNotification('⚠️ Completá tus datos de contacto', 'warning');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> Confirmar Pedido';
                 return;
             }
 
             if (deliveryType === 'delivery' && !direccion) {
                 showNotification('⚠️ Ingresá la dirección de entrega', 'warning');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> Confirmar Pedido';
                 return;
             }
 
@@ -1074,25 +1162,35 @@
                 entregador: 'Sin asignar'
             };
 
-            // Mostrar en consola
-            console.log('📦 Pedido confirmado:', order);
+            try {
+                console.log('🔍 Verificando GoogleSheets...');
+                console.log('window.GoogleSheets:', typeof window.GoogleSheets);
 
-            // Mostrar notificación
-            showNotification('🎉 Pedido confirmado!', 'success');
+                // GUARDAR EN GOOGLE SHEETS
+                if (typeof window.GoogleSheets !== 'undefined' && window.GoogleSheets) {
+                    console.log('📤 Guardando en Google Sheets...');
+                    try {
+                        const result = await window.GoogleSheets.saveOrder(order);
+                        console.log('✅ Resultado:', result);
+                        showNotification('✅ Pedido guardado en Google Sheets!', 'success');
+                    } catch (sheetError) {
+                        console.error('❌ Error en Sheets:', sheetError);
+                        showNotification('⚠️ Error en Sheets, guardado localmente', 'warning');
+                        // Guardar en localStorage como fallback
+                        const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+                        orders.push(order);
+                        localStorage.setItem('orders', JSON.stringify(orders));
+                    }
+                } else {
+                    console.warn('⚠️ GoogleSheets NO disponible, guardando en localStorage');
+                    const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+                    orders.push(order);
+                    localStorage.setItem('orders', JSON.stringify(orders));
+                    showNotification('💾 Pedido guardado localmente', 'info');
+                }
 
-            // Guardar en localStorage para el admin
-            const orders = JSON.parse(localStorage.getItem('orders') || '[]');
-            orders.push(order);
-            localStorage.setItem('orders', JSON.stringify(orders));
-
-            // Limpiar carrito
-            cart = [];
-            updateCartUI();
-            closeCheckout();
-            this.reset();
-
-            // Mostrar resumen en una alerta bonita
-            const mensaje = `
+                // Mostrar resumen
+                const mensaje = `
 ✅ PEDIDO CONFIRMADO
 ━━━━━━━━━━━━━━━━━━━━━
 👤 Cliente: ${nombre}
@@ -1107,10 +1205,29 @@ ${order.items}
 💰 Total: $${totalPrice.toLocaleString()}
 ${notas ? '📝 Notas: ' + notas : ''}
 ━━━━━━━━━━━━━━━━━━━━━
-📋 Pedido guardado en el panel admin
-            `;
+📋 Pedido guardado correctamente
+                `;
+                alert(mensaje);
 
-            alert(mensaje);
+                // Limpiar carrito
+                cart = [];
+                updateCartUI();
+                closeCheckout();
+                this.reset();
+
+            } catch (error) {
+                console.error('❌ Error al guardar:', error);
+                showNotification('❌ Error al guardar el pedido. Intentá de nuevo.', 'error');
+                
+                // Guardar en localStorage como fallback
+                const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+                orders.push(order);
+                localStorage.setItem('orders', JSON.stringify(orders));
+                showNotification('💾 Pedido guardado localmente como respaldo', 'info');
+            }
+
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> Confirmar Pedido';
         });
 
         // ============================================
@@ -1158,6 +1275,13 @@ ${notas ? '📝 Notas: ' + notas : ''}
             renderMenu();
             updateCartUI();
             console.log('✅ Listo!');
+            
+            // Verificar Google Sheets
+            if (typeof window.GoogleSheets !== 'undefined') {
+                console.log('✅ Google Sheets disponible');
+            } else {
+                console.warn('⚠️ Google Sheets NO disponible');
+            }
         });
     </script>
 
