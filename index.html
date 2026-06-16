@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FastFood CRM & Pedidos</title>
+    <title>FastFood+CRM & Pedidos</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -58,7 +58,6 @@
             <button onclick="showAdminTab('pedidos')" id="tab-pedidos" class="pb-2 border-b-2 border-orange-600 font-bold text-orange-600 transition">Pedidos Activos</button>
             <button onclick="showAdminTab('repartidores')" id="tab-repartidores" class="pb-2 border-b-2 border-transparent hover:border-gray-400 text-gray-600 transition">Repartidores</button>
         </div>
-        <!-- CAMBIO: Grid de 3 columnas en lugar de 2 -->
         <div id="admin-pedidos" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         <div id="admin-repartidores" class="hidden">
             <div class="bg-white p-6 rounded-xl shadow-md mb-6 border-l-4 border-green-500">
@@ -111,7 +110,14 @@
     </div>
 
     <script>
+        // ⚠️ IMPORTANTE: Reemplaza esto con tu URL real de Google Apps Script
         const API_URL = 'https://script.google.com/macros/s/AKfycbxwe2zPsjiN_i4xZUbKaKOKhIW3lMvdgHfvrJ9LY6AuaR4AcUhGVc2Gc7g_M4MPvvmhQg/exec'; 
+        
+        // Validación al cargar
+        if (API_URL === 'https://script.google.com/macros/s/AKfycbxwe2zPsjiN_i4xZUbKaKOKhIW3lMvdgHfvrJ9LY6AuaR4AcUhGVc2Gc7g_M4MPvvmhQg/exec' || API_URL === '') {
+            alert('⚠️ ERROR: Debes configurar la URL de Google Apps Script.\n\n1. Ve a Google Apps Script\n2. Implementar > Nueva implementación\n3. Copia la URL que termina en /exec\n4. Pégala en el código HTML donde dice API_URL');
+        }
+        
         let repartidoresDB = [];
 
         const productos = [
@@ -284,6 +290,24 @@
             const container = document.getElementById('admin-pedidos');
             container.innerHTML = '<div class="col-span-full text-center py-10"><i class="fas fa-spinner fa-spin text-3xl text-orange-600"></i><p class="mt-2 text-gray-500">Cargando...</p></div>';
 
+            // Verificar URL
+            if (!API_URL || API_URL === 'PEGA_AQUI_TU_URL_DE_APPS_SCRIPT') {
+                container.innerHTML = `
+                    <div class="col-span-full bg-red-50 border-l-4 border-red-500 p-6 rounded-lg">
+                        <h3 class="text-red-800 font-bold text-lg mb-2"><i class="fas fa-exclamation-triangle"></i> Error de Configuración</h3>
+                        <p class="text-red-700 mb-4">Debes configurar la URL de Google Apps Script en el código HTML.</p>
+                        <ol class="text-red-700 text-sm list-decimal list-inside space-y-2">
+                            <li>Abre Google Apps Script</li>
+                            <li>Ve a "Implementar" > "Nueva implementación"</li>
+                            <li>Tipo: "Aplicación web"</li>
+                            <li>Quién tiene acceso: "Cualquier persona"</li>
+                            <li>Copia la URL que termina en <code>/exec</code></li>
+                            <li>Pégala en el HTML donde dice <code>API_URL</code></li>
+                        </ol>
+                    </div>`;
+                return;
+            }
+
             fetch(`${API_URL}?action=getRepartidores`)
                 .then(res => res.json())
                 .then(reps => {
@@ -309,7 +333,6 @@
                         if(p.Estado === 'En Camino') statusColor = 'bg-purple-100 text-purple-800 border-purple-300';
                         if(p.Estado === 'Entregado') statusColor = 'bg-green-100 text-green-800 border-green-300';
 
-                        // CORRECCION: Manejo seguro del total
                         let totalValor = 0;
                         if (p.Total !== null && p.Total !== undefined && p.Total !== '') {
                             totalValor = typeof p.Total === 'string' ? parseFloat(p.Total.replace(/\./g, '').replace(',', '.')) : parseFloat(p.Total);
@@ -320,7 +343,6 @@
                         const msg = `Hola ${p.Cliente}, te escribimos de FastFood Express.%0A%0A📦 *Tu Pedido ${p.ID}*%0A💰 Total: *${totalARS}*%0A📍 Estado: *${p.Estado}*%0A${p.Repartidor ? '🛵 Repartidor: ' + p.Repartidor : ''}`;
                         const waLink = `https://wa.me/${p.Telefono}?text=${msg}`;
 
-                        // CORRECCION: Manejo seguro de la dirección
                         const tipoEntregaStr = (p.TipoEntrega || '').toString().trim().toLowerCase();
                         let direccionDisplay = '';
                         if (tipoEntregaStr.includes('retiro')) {
@@ -337,7 +359,6 @@
                         const repTel = repInfo ? repInfo.Telefono : '';
                         const waRepLink = repTel ? `https://wa.me/${repTel}?text=${encodeURIComponent('Hola ' + p.Repartidor + ', el pedido ' + p.ID + ' está listo. Dir: ' + (p.Direccion || 'Retiro en local'))}` : '#';
 
-                        // CORRECCION: Mostrar detalle del pedido correctamente
                         const detalleHTML = formatDetalleToHTML(p.Detalle);
 
                         container.innerHTML += `
@@ -399,7 +420,21 @@
                 })
                 .catch(err => {
                     console.error('Error cargando pedidos:', err);
-                    container.innerHTML = '<div class="col-span-full text-center text-red-500 bg-white p-10 rounded-xl shadow">Error al cargar los pedidos. Verifica la consola.</div>';
+                    container.innerHTML = `
+                        <div class="col-span-full bg-red-50 border-l-4 border-red-500 p-6 rounded-lg">
+                            <h3 class="text-red-800 font-bold text-lg mb-2"><i class="fas fa-exclamation-circle"></i> Error de Conexión</h3>
+                            <p class="text-red-700 mb-2">No se pudo conectar con Google Apps Script.</p>
+                            <p class="text-red-600 text-sm mb-4">Error: ${err.message}</p>
+                            <div class="bg-white p-4 rounded text-sm">
+                                <p class="font-semibold mb-2">Verifica:</p>
+                                <ul class="list-disc list-inside space-y-1 text-red-700">
+                                    <li>Que la URL de API_URL sea correcta</li>
+                                    <li>Que el script esté implementado como "Aplicación web"</li>
+                                    <li>Que el acceso sea "Cualquier persona"</li>
+                                    <li>Que hayas creado una NUEVA versión al actualizar</li>
+                                </ul>
+                            </div>
+                        </div>`;
                 });
         }
 
