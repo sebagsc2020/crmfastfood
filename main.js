@@ -1,8 +1,8 @@
 // ===== CONFIGURACIÓN =====
 const CONFIG = {
     // Configuración de Google Sheets (se reemplazará con los datos reales)
-    SHEET_ID: 'TU_SHEET_ID',
-    API_KEY: 'TU_API_KEY',
+    SHEET_ID: '14xD_209wbWswASj3uFTBnTPC_NLf3_dKtDoIeP-Q3hE',
+    API_KEY: 'AIzaSyAJgw0PQKO4qhby7mYDkopJPUXJBu79rGk',
     // URL de la API de Google Sheets
     SHEETS_API: 'https://sheets.googleapis.com/v4/spreadsheets/'
 };
