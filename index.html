@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FastFood CRM & Pedidos</title>
+    <title>FastFood+CRM & Pedidos</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -17,7 +17,6 @@
 </head>
 <body class="text-gray-800">
 
-    <!-- Navegación -->
     <nav class="bg-orange-600 text-white shadow-lg sticky top-0 z-50">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center space-x-3">
@@ -34,7 +33,6 @@
         </div>
     </nav>
 
-    <!-- VISTA CLIENTE: Menú -->
     <div id="view-cliente" class="container mx-auto px-4 py-8 fade-in">
         <div class="text-center mb-10">
             <h2 class="text-4xl font-bold text-gray-800 mb-2">Nuestro Menú</h2>
@@ -51,7 +49,6 @@
         <div id="menu-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
     </div>
 
-    <!-- VISTA ADMIN: CRM -->
     <div id="view-admin" class="container mx-auto px-4 py-8 hidden fade-in">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
             <h2 class="text-3xl font-bold text-gray-800"><i class="fas fa-chart-line text-orange-600"></i> Panel de Pedidos</h2>
@@ -75,7 +72,6 @@
         </div>
     </div>
 
-    <!-- MODAL CARRITO -->
     <div id="cart-modal" class="fixed inset-0 bg-black bg-opacity-60 hidden z-50 flex justify-end backdrop-blur-sm">
         <div class="bg-white w-full max-w-md h-full overflow-y-auto p-6 shadow-2xl fade-in flex flex-col">
             <div class="flex justify-between items-center mb-6 border-b pb-4">
@@ -96,15 +92,15 @@
                 <div class="flex space-x-4 bg-gray-50 p-3 rounded-lg">
                     <label class="flex items-center space-x-2 cursor-pointer flex-1">
                         <input type="radio" name="tipoEntrega" value="Envio" checked onchange="toggleDireccion(true)" class="text-orange-600 focus:ring-orange-500 w-4 h-4">
-                        <span class="font-semibold">Envío</span>
+                        <span class="font-semibold">Envío a Domicilio</span>
                     </label>
                     <label class="flex items-center space-x-2 cursor-pointer flex-1">
                         <input type="radio" name="tipoEntrega" value="Retiro" onchange="toggleDireccion(false)" class="text-orange-600 focus:ring-orange-500 w-4 h-4">
-                        <span class="font-semibold">Retiro</span>
+                        <span class="font-semibold">Retiro en Local</span>
                     </label>
                 </div>
                 <div id="campo-direccion" class="transition-all duration-300">
-                    <input type="text" id="cliente-direccion" placeholder="Dirección completa" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none">
+                    <input type="text" id="cliente-direccion" placeholder="Dirección completa (Calle, número, piso)" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none">
                 </div>
                 <button type="submit" class="w-full bg-green-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-green-700 shadow-lg transition transform active:scale-95 flex items-center justify-center gap-2">
                     <i class="fab fa-whatsapp text-xl"></i> Confirmar Pedido
@@ -115,7 +111,7 @@
 
     <script>
         const API_URL = 'https://script.google.com/macros/s/AKfycbxwe2zPsjiN_i4xZUbKaKOKhIW3lMvdgHfvrJ9LY6AuaR4AcUhGVc2Gc7g_M4MPvvmhQg/exec'; 
-        let repartidoresDB = []; // Variable global para guardar datos de repartidores
+        let repartidoresDB = [];
 
         const productos = [
             { id: 1, nombre: 'Empanada Carne', categoria: 'empanadas', precio: 1500, img: 'https://images.unsplash.com/photo-1626700051175-6818013e1d4f?w=500', opciones: ['Carne Suave', 'Carne Picante'], tieneAderezos: false },
@@ -286,12 +282,10 @@
             const container = document.getElementById('admin-pedidos');
             container.innerHTML = '<div class="col-span-full text-center py-10"><i class="fas fa-spinner fa-spin text-3xl text-orange-600"></i><p class="mt-2 text-gray-500">Cargando...</p></div>';
 
-            // 1. Cargar repartidores primero para tener sus teléfonos
             fetch(`${API_URL}?action=getRepartidores`)
                 .then(res => res.json())
                 .then(reps => {
                     repartidoresDB = reps;
-                    // 2. Luego cargar pedidos
                     return fetch(`${API_URL}?action=getPedidos`);
                 })
                 .then(res => res.json())
@@ -313,22 +307,25 @@
                         if(p.Estado === 'En Camino') statusColor = 'bg-purple-100 text-purple-800 border-purple-300';
                         if(p.Estado === 'Entregado') statusColor = 'bg-green-100 text-green-800 border-green-300';
 
-                        // Usamos || 0 para evitar NaN si el dato viene vacío
-                        const totalARS = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(p.Total || 0);
+                        // LECTURA SEGURA DEL TOTAL (Columna H)
+                        const totalValor = parseFloat(p.Total) || 0;
+                        const totalARS = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(totalValor);
+                        
                         const msg = `Hola ${p.Cliente}, te escribimos de FastFood Express.%0A%0A📦 *Tu Pedido ${p.ID}*%0A💰 Total: *${totalARS}*%0A📍 Estado: *${p.Estado}*%0A${p.Repartidor ? '🛵 Repartidor: ' + p.Repartidor : ''}`;
                         const waLink = `https://wa.me/${p.Telefono}?text=${msg}`;
 
-                        const direccionDisplay = p.TipoEntrega === 'Retiro' 
+                        // LECTURA SEGURA DEL TIPO DE ENTREGA Y DIRECCIÓN (Columna E)
+                        const tipoEntregaStr = (p.TipoEntrega || '').toString().trim().toLowerCase();
+                        const direccionDisplay = tipoEntregaStr.includes('retiro') 
                             ? `<span class="text-gray-500"><i class="fas fa-store mr-2"></i>Retiro en Local</span>` 
-                            : `<span class="font-semibold text-gray-800"><i class="fas fa-map-marker-alt text-red-500 mr-2"></i>${p.Direccion || 'Sin dirección'}</span>`;
+                            : `<span class="font-semibold text-gray-800"><i class="fas fa-map-marker-alt text-red-500 mr-2"></i>${p.Direccion || 'Sin dirección especificada'}</span>`;
 
                         const repartidorActual = p.Repartidor || 'Sin asignar';
                         const repartidorClass = p.Repartidor ? 'text-green-700 font-bold' : 'text-gray-500 italic';
                         
-                        // Buscar teléfono del repartidor asignado
                         const repInfo = repartidoresDB.find(r => r.Nombre === p.Repartidor);
                         const repTel = repInfo ? repInfo.Telefono : '';
-                        const waRepLink = repTel ? `https://wa.me/${repTel}?text=${encodeURIComponent('Hola ' + p.Repartidor + ', el pedido ' + p.ID + ' está listo para entregar. Dirección: ' + (p.Direccion || 'Retiro en local'))}` : '#';
+                        const waRepLink = repTel ? `https://wa.me/${repTel}?text=${encodeURIComponent('Hola ' + p.Repartidor + ', el pedido ' + p.ID + ' está listo. Dir: ' + (p.Direccion || 'Retiro en local'))}` : '#';
 
                         container.innerHTML += `
                             <div class="bg-white rounded-xl shadow-md p-5 border-t-4 ${p.Estado === 'Entregado' ? 'border-green-500' : 'border-orange-500'} fade-in">
@@ -423,10 +420,41 @@
                 container.innerHTML = '';
                 if(reps.length === 0) { container.innerHTML = '<p class="col-span-full text-center text-gray-500 py-4 bg-white rounded-lg">No hay repartidores.</p>'; return; }
                 reps.forEach(r => {
-                    container.innerHTML += `<div class="bg-white p-4 rounded-lg shadow border-l-4 ${r.Estado === 'Disponible' ? 'border-green-500' : 'border-red-500'} flex justify-between items-center">
-                        <div><h4 class="font-bold text-gray-800">${r.Nombre}</h4><p class="text-sm text-gray-600"><i class="fas fa-phone text-xs mr-1"></i> ${r.Telefono}</p></div>
-                        <span class="px-3 py-1 text-xs rounded-full font-bold ${r.Estado === 'Disponible' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${r.Estado}</span></div>`;
+                    container.innerHTML += `
+                    <div class="bg-white p-4 rounded-lg shadow border-l-4 ${r.Estado === 'Disponible' ? 'border-green-500' : 'border-red-500'} flex flex-col justify-between">
+                        <div class="mb-3">
+                            <h4 class="font-bold text-gray-800">${r.Nombre}</h4>
+                            <p class="text-sm text-gray-600"><i class="fas fa-phone text-xs mr-1"></i> ${r.Telefono}</p>
+                            <span class="inline-block mt-2 px-2 py-1 text-xs rounded-full font-bold ${r.Estado === 'Disponible' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${r.Estado}</span>
+                        </div>
+                        <div class="flex gap-2 mt-2">
+                            <button onclick="editRepartidor('${r.ID}', '${r.Nombre}', '${r.Telefono}')" class="flex-1 bg-blue-100 text-blue-700 py-2 rounded-lg text-sm font-bold hover:bg-blue-200 transition"><i class="fas fa-edit"></i> Editar</button>
+                            <button onclick="deleteRepartidor('${r.ID}')" class="flex-1 bg-red-100 text-red-700 py-2 rounded-lg text-sm font-bold hover:bg-red-200 transition"><i class="fas fa-trash"></i> Borrar</button>
+                        </div>
+                    </div>`;
                 });
+            });
+        }
+
+        function editRepartidor(id, nombreActual, telefonoActual) {
+            const nuevoNombre = prompt("Editar nombre del repartidor:", nombreActual);
+            if (nuevoNombre === null) return;
+            const nuevoTelefono = prompt("Editar teléfono del repartidor:", telefonoActual);
+            if (nuevoTelefono === null) return;
+            
+            fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'editarRepartidor', id: id, nombre: nuevoNombre, telefono: nuevoTelefono }) })
+            .then(res => res.json()).then(() => {
+                alert('Repartidor actualizado correctamente');
+                loadRepartidores();
+            });
+        }
+
+        function deleteRepartidor(id) {
+            if(!confirm("¿Estás seguro de que deseas eliminar este repartidor? Esta acción no se puede deshacer.")) return;
+            fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'borrarRepartidor', id: id }) })
+            .then(res => res.json()).then(() => {
+                alert('Repartidor eliminado correctamente');
+                loadRepartidores();
             });
         }
 
