@@ -162,29 +162,53 @@
         .topbar .user-info .name { font-weight: 600; font-size: 0.95rem; }
         .topbar .user-info .role { font-size: 0.8rem; color: var(--gray-500); }
 
-        /* ===== STATS ===== */
+        /* ===== STATS (COMPACTOS) ===== */
         .stats-grid {
-            display: grid; grid-template-columns: repeat(4, 1fr);
-            gap: 1.5rem; margin-bottom: 2rem;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
         }
         .stat-card {
-            background: var(--white); border-radius: var(--radius);
-            padding: 1.5rem; box-shadow: var(--shadow);
+            background: var(--white);
+            border-radius: var(--radius-sm);
+            padding: 1rem 1.2rem;
+            box-shadow: var(--shadow);
             transition: var(--transition);
             border: 1px solid var(--gray-100);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
         }
-        .stat-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
         .stat-card .stat-icon {
-            width: 48px; height: 48px; border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.4rem; margin-bottom: 0.8rem;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
         }
         .stat-card .stat-icon.orange { background: #fff3e0; color: #e65100; }
         .stat-card .stat-icon.green { background: #e8f5e9; color: #2e7d32; }
         .stat-card .stat-icon.blue { background: #e3f2fd; color: #1565c0; }
         .stat-card .stat-icon.purple { background: #f3e5f5; color: #6a1b9a; }
-        .stat-card .stat-number { font-size: 2rem; font-weight: 800; color: var(--gray-900); }
-        .stat-card .stat-label { font-size: 0.85rem; color: var(--gray-500); font-weight: 500; }
+        .stat-card .stat-number {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--gray-900);
+            line-height: 1.1;
+        }
+        .stat-card .stat-label {
+            font-size: 0.75rem;
+            color: var(--gray-500);
+            font-weight: 500;
+        }
 
         /* ===== TABS ===== */
         .tab-content { display: none; animation: fadeIn 0.4s ease; }
@@ -527,6 +551,128 @@
             color: #2e7d32;
         }
 
+        /* ===== GRÁFICOS DE ESTADÍSTICAS ===== */
+        .stats-charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+        .stats-chart-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--gray-100);
+        }
+        .stats-chart-card h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 1.2rem;
+            color: var(--gray-900);
+        }
+
+        .status-bar-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .status-bar-label {
+            width: 130px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--gray-700);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .status-bar-track {
+            flex: 1;
+            height: 24px;
+            background: var(--gray-100);
+            border-radius: 50px;
+            overflow: hidden;
+        }
+        .status-bar-fill {
+            height: 100%;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 10px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: white;
+            transition: width 0.6s ease;
+            min-width: 0;
+        }
+        .status-bar-fill.pendiente { background: linear-gradient(90deg, #ff9800, #f57c00); }
+        .status-bar-fill.en-preparacion { background: linear-gradient(90deg, #2196f3, #1565c0); }
+        .status-bar-fill.en-camino { background: linear-gradient(90deg, #9c27b0, #6a1b9a); }
+        .status-bar-fill.entregado { background: linear-gradient(90deg, #4caf50, #2e7d32); }
+        .status-bar-fill.cancelado { background: linear-gradient(90deg, #f44336, #c62828); }
+        .status-bar-count {
+            width: 40px;
+            text-align: right;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--gray-900);
+        }
+
+        .revenue-bar-row {
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            height: 180px;
+            padding-top: 10px;
+            border-bottom: 2px solid var(--gray-200);
+            margin-bottom: 8px;
+        }
+        .revenue-bar-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100%;
+            justify-content: flex-end;
+        }
+        .revenue-bar {
+            width: 100%;
+            max-width: 50px;
+            background: linear-gradient(180deg, var(--primary), var(--primary-dark));
+            border-radius: 6px 6px 0 0;
+            transition: height 0.6s ease;
+            min-height: 4px;
+            position: relative;
+        }
+        .revenue-bar-value {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--primary);
+            white-space: nowrap;
+        }
+        .revenue-bar-label {
+            font-size: 0.7rem;
+            color: var(--gray-500);
+            margin-top: 6px;
+            font-weight: 500;
+        }
+
+        .empty-chart {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: var(--gray-400);
+        }
+        .empty-chart i {
+            font-size: 2.5rem;
+            margin-bottom: 0.8rem;
+            display: block;
+        }
+
         .empty-state { text-align: center; padding: 3rem 1rem; color: var(--gray-400); }
         .empty-state i { font-size: 3rem; margin-bottom: 1rem; display: block; }
 
@@ -545,6 +691,7 @@
         @media (max-width: 1200px) {
             .board-columns { grid-template-columns: repeat(2, 1fr); }
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .stats-charts-grid { grid-template-columns: 1fr; }
         }
         @media (max-width: 992px) {
             .sidebar { width: 72px; padding: 1rem 0.5rem; }
@@ -555,7 +702,7 @@
         }
         @media (max-width: 768px) {
             .board-columns { grid-template-columns: 1fr; }
-            .stats-grid { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
             .topbar { flex-direction: column; align-items: start; }
             .filters { flex-direction: column; width: 100%; }
             .filters select, .filters input { width: 100%; }
@@ -570,6 +717,7 @@
             .sidebar .brand i { font-size: 1.2rem; padding: 6px; }
             .main-content { margin-left: 60px; padding: 1rem; }
             .topbar .page-title { font-size: 1.2rem; }
+            .stats-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -650,27 +798,35 @@
                 </div>
             </div>
 
-            <!-- ===== STATS ===== -->
+            <!-- ===== STATS (COMPACTOS) ===== -->
             <div class="stats-grid" id="statsGrid">
                 <div class="stat-card">
                     <div class="stat-icon orange"><i class="fas fa-clipboard-list"></i></div>
-                    <div class="stat-number" id="statTotal">0</div>
-                    <div class="stat-label">Total Pedidos</div>
+                    <div>
+                        <div class="stat-number" id="statTotal">0</div>
+                        <div class="stat-label">Total Pedidos</div>
+                    </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon blue"><i class="fas fa-clock"></i></div>
-                    <div class="stat-number" id="statPending">0</div>
-                    <div class="stat-label">Pendientes</div>
+                    <div>
+                        <div class="stat-number" id="statPending">0</div>
+                        <div class="stat-label">Pendientes</div>
+                    </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
-                    <div class="stat-number" id="statToday">0</div>
-                    <div class="stat-label">Hoy</div>
+                    <div>
+                        <div class="stat-number" id="statToday">0</div>
+                        <div class="stat-label">Hoy</div>
+                    </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon purple"><i class="fas fa-dollar-sign"></i></div>
-                    <div class="stat-number" id="statRevenue">$0</div>
-                    <div class="stat-label">Ingresos</div>
+                    <div>
+                        <div class="stat-number" id="statRevenue">$0</div>
+                        <div class="stat-label">Ingresos</div>
+                    </div>
                 </div>
             </div>
 
@@ -681,10 +837,10 @@
                     <div class="actions">
                         <div class="filters">
                             <select id="orderFilter">
-                                <option value="all">📋 Todos</option>
+                                <option value="all"> Todos</option>
                                 <option value="pendiente">⏳ Pendientes</option>
-                                <option value="en-preparacion">👨‍🍳 En Preparación</option>
-                                <option value="en-camino">🛵 En Camino</option>
+                                <option value="en-preparacion">‍🍳 En Preparación</option>
+                                <option value="en-camino"> En Camino</option>
                                 <option value="entregado">✅ Entregados</option>
                                 <option value="cancelado">❌ Cancelados</option>
                             </select>
@@ -742,13 +898,13 @@
                 <div class="tab-header">
                     <h2><i class="fas fa-chart-bar" style="color: var(--primary);"></i> Estadísticas</h2>
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
-                    <div style="background: white; border-radius: var(--radius); padding: 1.5rem; box-shadow: var(--shadow);">
-                        <h3 style="margin-bottom: 1rem;"> Pedidos por Estado</h3>
+                <div class="stats-charts-grid">
+                    <div class="stats-chart-card">
+                        <h3>📊 Pedidos por Estado</h3>
                         <div id="statusChart"></div>
                     </div>
-                    <div style="background: white; border-radius: var(--radius); padding: 1.5rem; box-shadow: var(--shadow);">
-                        <h3 style="margin-bottom: 1rem;">📈 Ingresos Diarios</h3>
+                    <div class="stats-chart-card">
+                        <h3>📈 Ingresos Diarios (últimos 7 días)</h3>
                         <div id="revenueChart"></div>
                     </div>
                 </div>
@@ -791,7 +947,7 @@
                     <input type="text" id="delivererName" required placeholder="Ej: Carlos Gómez">
                 </div>
                 <div class="form-group">
-                    <label>📱 Teléfono *</label>
+                    <label> Teléfono *</label>
                     <input type="tel" id="delivererPhone" required placeholder="11 2222-3333">
                 </div>
                 <div class="form-group">
@@ -820,7 +976,7 @@
             <form id="productForm">
                 <input type="hidden" id="productId">
                 <div class="form-group">
-                    <label>️ Nombre *</label>
+                    <label>🍽️ Nombre *</label>
                     <input type="text" id="productName" required placeholder="Ej: Pizza Muzzarella">
                 </div>
                 <div class="form-group">
@@ -836,15 +992,15 @@
                     <input type="text" id="productImage" placeholder="https://images.unsplash.com/...">
                 </div>
                 <div class="form-group">
-                    <label> Categoría</label>
+                    <label>📂 Categoría</label>
                     <select id="productCategory">
                         <option value="pizzas">🍕 Pizzas</option>
                         <option value="hamburguesas">🍔 Hamburguesas</option>
                         <option value="lomitos">🥪 Lomitos</option>
                         <option value="empanadas">🥟 Empanadas</option>
                         <option value="papas">🍟 Papas Fritas</option>
-                        <option value="aderezos"> Aderezos</option>
-                        <option value="bebidas">🥤 Bebidas</option>
+                        <option value="aderezos">🧂 Aderezos</option>
+                        <option value="bebidas"> Bebidas</option>
                     </select>
                 </div>
                 <button type="submit" class="btn-submit"><i class="fas fa-save"></i> Guardar Producto</button>
@@ -1036,7 +1192,6 @@
                     valueSpan.textContent = formatElapsedTime(timestamp);
                 }
                 
-                // Modo urgente: más de 30 minutos
                 if (diffMinutes >= 30) {
                     timerEl.classList.add('urgent');
                 } else {
@@ -1108,7 +1263,7 @@
                                 <span class="${hasNotes ? 'notes-text' : 'no-notes'}">${notasText}</span>
                             </div>
                             <div class="order-total">$${parseInt(order.total).toLocaleString()}</div>
-                            <div class="order-deliverer">${order.entregador && order.entregador !== 'Sin asignar' ? ' ' + order.entregador : '📦 Sin entregador'}</div>
+                            <div class="order-deliverer">${order.entregador && order.entregador !== 'Sin asignar' ? '🛵 ' + order.entregador : '📦 Sin entregador'}</div>
                             <div class="order-actions">
                                 <button class="btn-whatsapp" onclick="contactCustomer('${order.telefono}')"><i class="fab fa-whatsapp"></i></button>
                                 ${status !== 'entregado' && status !== 'cancelado' ? `
@@ -1162,7 +1317,7 @@
                     <div class="deliverer-option" data-id="${d.id}" onclick="selectDeliverer('${d.id}')">
                         <div class="deliverer-name">${d.nombre}</div>
                         <div class="deliverer-vehicle"><i class="fas fa-motorcycle"></i> ${d.vehiculo || 'Sin vehículo'}</div>
-                        <div class="deliverer-status available"> Disponible</div>
+                        <div class="deliverer-status available">🟢 Disponible</div>
                     </div>
                 `).join('');
             }
@@ -1185,7 +1340,7 @@
 
         async function confirmAssignDeliverer() {
             if (!selectedOrderId || !selectedDelivererId) {
-                showNotification('️ Seleccioná un entregador', 'warning');
+                showNotification('⚠️ Seleccioná un entregador', 'warning');
                 return;
             }
             
@@ -1241,7 +1396,7 @@
                     <div class="header">
                         <h4>${d.nombre}</h4>
                         <span class="status-badge ${d.disponible ? 'available' : 'unavailable'}">
-                            ${d.disponible ? '🟢 Disponible' : ' No disponible'}
+                            ${d.disponible ? '🟢 Disponible' : '🔴 No disponible'}
                         </span>
                     </div>
                     <div class="info"><i class="fas fa-phone"></i> ${d.telefono}</div>
@@ -1367,7 +1522,7 @@
             if (id) {
                 const p = menuItems.find(item => parseInt(item.id) === parseInt(id));
                 if (p) {
-                    title.textContent = '✏️ Editar Producto';
+                    title.textContent = '️ Editar Producto';
                     document.getElementById('productId').value = p.id;
                     document.getElementById('productName').value = p.nombre;
                     document.getElementById('productDescription').value = p.descripcion;
@@ -1376,7 +1531,7 @@
                     document.getElementById('productCategory').value = p.categoria;
                 }
             } else {
-                title.textContent = ' Agregar Producto';
+                title.textContent = '➕ Agregar Producto';
                 document.getElementById('productForm').reset();
                 document.getElementById('productId').value = '';
             }
@@ -1436,18 +1591,132 @@
         }
 
         // ============================================
-        // ESTADÍSTICAS
+        // ESTADÍSTICAS (CON GRÁFICOS REALES)
         // ============================================
         function updateStats() {
             const total = orders.length;
             const pending = orders.filter(o => ['pendiente', 'en-preparacion', 'en-camino'].includes(o.estado)).length;
             const today = orders.filter(o => new Date(o.fecha).toDateString() === new Date().toDateString()).length;
-            const revenue = orders.reduce((sum, o) => o.estado !== 'cancelado' ? sum + parseInt(o.total) : sum, 0);
+            const revenue = orders.reduce((sum, o) => o.estado !== 'cancelado' ? sum + (parseInt(o.total) || 0) : sum, 0);
             
             document.getElementById('statTotal').textContent = total;
             document.getElementById('statPending').textContent = pending;
             document.getElementById('statToday').textContent = today;
             document.getElementById('statRevenue').textContent = `$${revenue.toLocaleString()}`;
+            
+            renderStatusChart();
+            renderRevenueChart();
+        }
+
+        // ===== GRÁFICO: PEDIDOS POR ESTADO =====
+        function renderStatusChart() {
+            const container = document.getElementById('statusChart');
+            if (!container) return;
+            
+            const estados = [
+                { key: 'pendiente', label: ' Pendientes', class: 'pendiente' },
+                { key: 'en-preparacion', label: '👨‍🍳 En Preparación', class: 'en-preparacion' },
+                { key: 'en-camino', label: '🛵 En Camino', class: 'en-camino' },
+                { key: 'entregado', label: '✅ Entregados', class: 'entregado' },
+                { key: 'cancelado', label: '❌ Cancelados', class: 'cancelado' }
+            ];
+            
+            const counts = estados.map(e => ({
+                ...e,
+                count: orders.filter(o => o.estado === e.key).length
+            }));
+            
+            const maxCount = Math.max(...counts.map(c => c.count), 1);
+            const totalOrders = orders.length;
+            
+            if (totalOrders === 0) {
+                container.innerHTML = `
+                    <div class="empty-chart">
+                        <i class="fas fa-chart-bar"></i>
+                        <p>Aún no hay pedidos registrados</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = counts.map(c => {
+                const percentage = (c.count / maxCount) * 100;
+                const percentOfTotal = totalOrders > 0 ? Math.round((c.count / totalOrders) * 100) : 0;
+                return `
+                    <div class="status-bar-row">
+                        <div class="status-bar-label">${c.label}</div>
+                        <div class="status-bar-track">
+                            <div class="status-bar-fill ${c.class}" style="width: ${percentage}%">
+                                ${c.count > 0 ? percentOfTotal + '%' : ''}
+                            </div>
+                        </div>
+                        <div class="status-bar-count">${c.count}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ===== GRÁFICO: INGRESOS DIARIOS (últimos 7 días) =====
+        function renderRevenueChart() {
+            const container = document.getElementById('revenueChart');
+            if (!container) return;
+            
+            const days = [];
+            const hoy = new Date();
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date(hoy);
+                d.setDate(hoy.getDate() - i);
+                days.push({
+                    date: d,
+                    key: d.toDateString(),
+                    label: d.toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric' })
+                });
+            }
+            
+            const dailyRevenue = days.map(day => {
+                const dayOrders = orders.filter(o => {
+                    const orderDate = new Date(o.fecha);
+                    return orderDate.toDateString() === day.key && o.estado !== 'cancelado';
+                });
+                const total = dayOrders.reduce((sum, o) => sum + (parseInt(o.total) || 0), 0);
+                return {
+                    ...day,
+                    total,
+                    count: dayOrders.length
+                };
+            });
+            
+            const maxRevenue = Math.max(...dailyRevenue.map(d => d.total), 1);
+            const totalRevenue = dailyRevenue.reduce((sum, d) => sum + d.total, 0);
+            
+            if (totalRevenue === 0) {
+                container.innerHTML = `
+                    <div class="empty-chart">
+                        <i class="fas fa-chart-line"></i>
+                        <p>Aún no hay ingresos registrados</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = `
+                <div class="revenue-bar-row">
+                    ${dailyRevenue.map(d => {
+                        const height = (d.total / maxRevenue) * 100;
+                        return `
+                            <div class="revenue-bar-wrapper">
+                                <div class="revenue-bar" style="height: ${height}%">
+                                    ${d.total > 0 ? `<span class="revenue-bar-value">$${(d.total/1000).toFixed(0)}k</span>` : ''}
+                                </div>
+                                <div class="revenue-bar-label">${d.label}</div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+                <div style="text-align: center; margin-top: 10px; font-size: 0.85rem; color: var(--gray-500);">
+                    Total 7 días: <strong style="color: var(--primary);">$${totalRevenue.toLocaleString()}</strong>
+                </div>
+            `;
         }
 
         // ============================================
