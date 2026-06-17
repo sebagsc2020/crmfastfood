@@ -433,6 +433,11 @@
             cursor: pointer;
             transition: var(--transition);
             box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
         }
 
         .category-item:hover {
@@ -442,10 +447,23 @@
             color: white;
         }
 
-        .category-item i {
-            font-size: 2.5rem;
-            display: block;
-            margin-bottom: 0.5rem;
+        /* ⭐ NUEVO: Imágenes de categorías */
+        .category-item img {
+            width: 70px;
+            height: 70px;
+            object-fit: contain;
+            transition: var(--transition);
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+        }
+
+        .category-item:hover img {
+            transform: scale(1.1);
+            filter: brightness(0) invert(1) drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        }
+
+        .category-item span {
+            font-weight: 600;
+            font-size: 0.95rem;
         }
 
         /* ⭐ NUEVO: Categoría activa */
@@ -454,6 +472,10 @@
             color: white;
             transform: translateY(-5px);
             box-shadow: var(--shadow-hover);
+        }
+
+        .category-item.active img {
+            filter: brightness(0) invert(1) drop-shadow(0 2px 4px rgba(0,0,0,0.2));
         }
 
         /* ===== MENÚ ===== */
@@ -979,6 +1001,11 @@
             .categories {
                 grid-template-columns: repeat(4, 1fr);
             }
+
+            .category-item img {
+                width: 60px;
+                height: 60px;
+            }
         }
 
         @media (max-width: 768px) {
@@ -1033,6 +1060,15 @@
             .categories {
                 grid-template-columns: repeat(3, 1fr);
             }
+
+            .category-item img {
+                width: 50px;
+                height: 50px;
+            }
+
+            .category-item span {
+                font-size: 0.85rem;
+            }
             
             .cart-panel {
                 width: 100%;
@@ -1070,6 +1106,11 @@
 
             .categories {
                 grid-template-columns: repeat(2, 1fr);
+            }
+
+            .category-item img {
+                width: 45px;
+                height: 45px;
             }
         }
     </style>
@@ -1141,34 +1182,34 @@
         </div>
     </section>
 
-    <!-- ===== CATEGORÍAS (CON "TODOS" Y "BEBIDAS") ===== -->
+    <!-- ===== CATEGORÍAS (CON ICONOS PERSONALIZADOS) ===== -->
     <section class="categories">
         <div class="category-item active" onclick="filterCategory('all', this)">
-            <i class="fas fa-utensils"></i>
+            <img src="images/ico_todos.png" alt="Todos">
             <span>Todos</span>
         </div>
         <div class="category-item" onclick="filterCategory('pizzas', this)">
-            <i class="fas fa-pizza-slice"></i>
+            <img src="images/ico_pizza.png" alt="Pizzas">
             <span>Pizzas</span>
         </div>
         <div class="category-item" onclick="filterCategory('hamburguesas', this)">
-            <i class="fas fa-hamburger"></i>
+            <img src="images/ico_hamburguesa.png" alt="Hamburguesas">
             <span>Hamburguesas</span>
         </div>
         <div class="category-item" onclick="filterCategory('lomitos', this)">
-            <i class="fas fa-bread-slice"></i>
+            <img src="images/ico_lomito.png" alt="Lomitos">
             <span>Lomitos</span>
         </div>
         <div class="category-item" onclick="filterCategory('empanadas', this)">
-            <i class="fas fa-drumstick-bite"></i>
+            <img src="images/ico_empanada.png" alt="Empanadas">
             <span>Empanadas</span>
         </div>
         <div class="category-item" onclick="filterCategory('papas', this)">
-            <i class="fas fa-french-fries"></i>
+            <img src="images/ico_papa.png" alt="Papas Fritas">
             <span>Papas Fritas</span>
         </div>
         <div class="category-item" onclick="filterCategory('bebidas', this)">
-            <i class="fas fa-wine-bottle"></i>
+            <img src="images/ico_bebida.png" alt="Bebidas">
             <span>Bebidas</span>
         </div>
     </section>
