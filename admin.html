@@ -317,7 +317,6 @@
         }
         .order-card:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
         .order-card .order-customer { font-weight: 700; font-size: 0.95rem; }
-        .order-card .order-detail { font-size: 0.85rem; color: var(--gray-600); margin: 0.2rem 0; }
         .order-card .order-address { font-size: 0.8rem; color: var(--gray-400); margin-bottom: 0.3rem; }
         .order-card .order-total { font-weight: 800; color: var(--primary); font-size: 1.1rem; margin: 0.3rem 0; }
         .order-card .order-deliverer { font-size: 0.8rem; color: var(--gray-500); margin: 0.3rem 0; }
@@ -383,6 +382,30 @@
                 box-shadow: 0 0 0 6px rgba(198, 40, 40, 0);
                 transform: scale(1.03);
             }
+        }
+
+        /* ===== LISTA DE ITEMS DEL PEDIDO ===== */
+        .order-items-list {
+            margin: 0.4rem 0;
+            padding: 0;
+            list-style: none;
+        }
+        .order-item-line {
+            font-size: 0.85rem;
+            color: var(--gray-600);
+            padding: 3px 0;
+            line-height: 1.5;
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+        }
+        .order-item-line::before {
+            content: '•';
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 1rem;
+            line-height: 1.3;
+            flex-shrink: 0;
         }
 
         /* ===== PAGO Y NOTAS ===== */
@@ -866,11 +889,11 @@
                         <div class="filters">
                             <select id="orderFilter">
                                 <option value="all">📋 Todos</option>
-                                <option value="pendiente">⏳ Pendientes</option>
-                                <option value="en-preparacion">👨‍🍳 En Preparación</option>
+                                <option value="pendiente"> Pendientes</option>
+                                <option value="en-preparacion">👨‍ En Preparación</option>
                                 <option value="en-camino">🛵 En Camino</option>
                                 <option value="entregado">✅ Entregados</option>
-                                <option value="cancelado"> Cancelados</option>
+                                <option value="cancelado">❌ Cancelados</option>
                             </select>
                             <input type="date" id="dateFilter">
                             <button class="btn-secondary-sm" onclick="clearFilters()"><i class="fas fa-undo"></i> Limpiar</button>
@@ -883,11 +906,11 @@
                         <div class="column-body" id="col-pendiente"></div>
                     </div>
                     <div class="column" data-status="en-preparacion">
-                        <div class="column-header"><h3>👨‍ En Preparación</h3><span class="count" id="count-preparacion">0</span></div>
+                        <div class="column-header"><h3>‍🍳 En Preparación</h3><span class="count" id="count-preparacion">0</span></div>
                         <div class="column-body" id="col-preparacion"></div>
                     </div>
                     <div class="column" data-status="en-camino">
-                        <div class="column-header"><h3>🛵 En Camino</h3><span class="count" id="count-camino">0</span></div>
+                        <div class="column-header"><h3> En Camino</h3><span class="count" id="count-camino">0</span></div>
                         <div class="column-body" id="col-camino"></div>
                     </div>
                     <div class="column" data-status="entregado">
@@ -940,7 +963,7 @@
                         <div id="statusChart"></div>
                     </div>
                     <div class="stats-chart-card">
-                        <h3> Ingresos Diarios (últimos 7 días)</h3>
+                        <h3>📈 Ingresos Diarios (últimos 7 días)</h3>
                         <div id="revenueChart"></div>
                     </div>
                 </div>
@@ -987,11 +1010,11 @@
                     <input type="tel" id="delivererPhone" required placeholder="11 2222-3333">
                 </div>
                 <div class="form-group">
-                    <label>🛵 Vehículo</label>
+                    <label> Vehículo</label>
                     <input type="text" id="delivererVehicle" placeholder="Ej: Moto, Bicicleta, Auto">
                 </div>
                 <div class="form-group">
-                    <label> Disponible</label>
+                    <label>📌 Disponible</label>
                     <select id="delivererAvailable">
                         <option value="true">✅ Disponible</option>
                         <option value="false">❌ No disponible</option>
@@ -1031,10 +1054,10 @@
                     <label>📂 Categoría</label>
                     <select id="productCategory">
                         <option value="pizzas">🍕 Pizzas</option>
-                        <option value="hamburguesas"> Hamburguesas</option>
-                        <option value="lomitos">🥪 Lomitos</option>
-                        <option value="empanadas"> Empanadas</option>
-                        <option value="papas">🍟 Papas Fritas</option>
+                        <option value="hamburguesas">🍔 Hamburguesas</option>
+                        <option value="lomitos"> Lomitos</option>
+                        <option value="empanadas">🥟 Empanadas</option>
+                        <option value="papas"> Papas Fritas</option>
                         <option value="aderezos">🧂 Aderezos</option>
                         <option value="bebidas">🥤 Bebidas</option>
                     </select>
@@ -1241,7 +1264,7 @@
                 clearInterval(timerInterval);
             }
             timerInterval = setInterval(updateAllTimers, 1000);
-            console.log('️ Timers de pedidos iniciados');
+            console.log('⏱️ Timers de pedidos iniciados');
         }
 
         function stopTimerUpdates() {
@@ -1252,7 +1275,20 @@
         }
 
         // ============================================
-        // RENDER PEDIDOS (CON TIMER)
+        // ⭐ PARSEAR ITEMS DEL PEDIDO
+        // ============================================
+        function parseOrderItems(itemsString) {
+            if (!itemsString) return [];
+            
+            // Separar por coma y limpiar
+            return itemsString
+                .split(',')
+                .map(item => item.trim())
+                .filter(item => item.length > 0);
+        }
+
+        // ============================================
+        // RENDER PEDIDOS (CON ITEMS EN LISTA)
         // ============================================
         function renderOrders() {
             const statuses = ['pendiente', 'en-preparacion', 'en-camino', 'entregado'];
@@ -1281,6 +1317,9 @@
                         const fechaPedido = new Date(order.fecha);
                         const timestamp = fechaPedido.getTime();
                         
+                        // ⭐ Parsear items para mostrar en lista
+                        const itemsList = parseOrderItems(order.items);
+                        
                         return `
                         <div class="order-card">
                             <div class="order-time-wrapper">
@@ -1291,7 +1330,9 @@
                                 </span>
                             </div>
                             <div class="order-customer">${order.cliente}</div>
-                            <div class="order-detail">${order.items}</div>
+                            <div class="order-items-list">
+                                ${itemsList.map(item => `<div class="order-item-line">${item}</div>`).join('')}
+                            </div>
                             <div class="order-address"><i class="fas fa-map-marker-alt"></i> ${order.direccion || 'Sin dirección'}</div>
                             <div class="order-payment"><i class="fas ${pagoIcon}"></i> ${order.pago || 'Efectivo'}</div>
                             <div class="order-notes">
@@ -1299,7 +1340,7 @@
                                 <span class="${hasNotes ? 'notes-text' : 'no-notes'}">${notasText}</span>
                             </div>
                             <div class="order-total">$${parseInt(order.total).toLocaleString()}</div>
-                            <div class="order-deliverer">${order.entregador && order.entregador !== 'Sin asignar' ? '🛵 ' + order.entregador : ' Sin entregador'}</div>
+                            <div class="order-deliverer">${order.entregador && order.entregador !== 'Sin asignar' ? '🛵 ' + order.entregador : '📦 Sin entregador'}</div>
                             <div class="order-actions">
                                 <button class="btn-whatsapp" onclick="contactCustomer('${order.telefono}')"><i class="fab fa-whatsapp"></i></button>
                                 ${status !== 'entregado' && status !== 'cancelado' ? `
@@ -1405,7 +1446,7 @@
                 order.estado = 'cancelado';
                 localStorage.setItem('orders', JSON.stringify(orders));
                 renderOrders();
-                showNotification('❌ Pedido cancelado', 'info');
+                showNotification(' Pedido cancelado', 'info');
             }
         }
 
@@ -1431,7 +1472,6 @@
                 return;
             }
             
-            // Confirmación doble
             if (!confirm(`¿Estás seguro que querés borrar ${deliveredCount} pedido(s) entregado(s)?\n\nEsta acción no se puede deshacer.`)) {
                 return;
             }
@@ -1441,14 +1481,11 @@
             }
             
             try {
-                // Filtrar pedidos que NO son entregados
                 const ordersToKeep = orders.filter(o => o.estado !== 'entregado');
                 
-                // Actualizar array local
                 orders = ordersToKeep;
                 localStorage.setItem('orders', JSON.stringify(orders));
                 
-                // Intentar actualizar en Google Sheets
                 if (window.GoogleSheets) {
                     try {
                         const sheetOrders = await window.GoogleSheets.getOrders();
@@ -1462,7 +1499,6 @@
                     }
                 }
                 
-                // Re-renderizar
                 renderOrders();
                 updateStats();
                 
@@ -1486,7 +1522,7 @@
                     <div class="header">
                         <h4>${d.nombre}</h4>
                         <span class="status-badge ${d.disponible ? 'available' : 'unavailable'}">
-                            ${d.disponible ? '🟢 Disponible' : '🔴 No disponible'}
+                            ${d.disponible ? '🟢 Disponible' : ' No disponible'}
                         </span>
                     </div>
                     <div class="info"><i class="fas fa-phone"></i> ${d.telefono}</div>
@@ -1698,14 +1734,13 @@
             renderRevenueChart();
         }
 
-        // ===== GRÁFICO: PEDIDOS POR ESTADO =====
         function renderStatusChart() {
             const container = document.getElementById('statusChart');
             if (!container) return;
             
             const estados = [
                 { key: 'pendiente', label: '⏳ Pendientes', class: 'pendiente' },
-                { key: 'en-preparacion', label: '👨‍ En Preparación', class: 'en-preparacion' },
+                { key: 'en-preparacion', label: '‍🍳 En Preparación', class: 'en-preparacion' },
                 { key: 'en-camino', label: '🛵 En Camino', class: 'en-camino' },
                 { key: 'entregado', label: '✅ Entregados', class: 'entregado' },
                 { key: 'cancelado', label: '❌ Cancelados', class: 'cancelado' }
@@ -1746,7 +1781,6 @@
             }).join('');
         }
 
-        // ===== GRÁFICO: INGRESOS DIARIOS (últimos 7 días) =====
         function renderRevenueChart() {
             const container = document.getElementById('revenueChart');
             if (!container) return;
