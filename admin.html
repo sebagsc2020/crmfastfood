@@ -819,7 +819,7 @@
                 </div>
                 <div class="form-group">
                     <label><i class="fas fa-lock"></i> Contraseña</label>
-                    <input type="password" id="loginPass" placeholder="•••••••••••••" value="admin123admin">
+                    <input type="password" id="loginPass" placeholder="••••••••" value="admin123">
                 </div>
                 <button type="submit" class="btn-primary"><i class="fas fa-sign-in-alt"></i> Ingresar</button>
             </form>
@@ -924,10 +924,10 @@
                     <div class="actions">
                         <div class="filters">
                             <select id="orderFilter">
-                                <option value="all"> Todos</option>
-                                <option value="pendiente">⏳ Pendientes</option>
-                                <option value="en-preparacion">👨‍🍳 En Preparación</option>
-                                <option value="en-camino"> En Camino</option>
+                                <option value="all">📋 Todos</option>
+                                <option value="pendiente"> Pendientes</option>
+                                <option value="en-preparacion">👨‍ En Preparación</option>
+                                <option value="en-camino">🛵 En Camino</option>
                                 <option value="entregado">✅ Entregados</option>
                                 <option value="cancelado">❌ Cancelados</option>
                             </select>
@@ -942,7 +942,7 @@
                         <div class="column-body" id="col-pendiente"></div>
                     </div>
                     <div class="column" data-status="en-preparacion">
-                        <div class="column-header"><h3>👨‍🍳 En Preparación</h3><span class="count" id="count-preparacion">0</span></div>
+                        <div class="column-header"><h3>👨‍ En Preparación</h3><span class="count" id="count-preparacion">0</span></div>
                         <div class="column-body" id="col-preparacion"></div>
                     </div>
                     <div class="column" data-status="en-camino">
@@ -1050,10 +1050,10 @@
                     <input type="text" id="delivererVehicle" placeholder="Ej: Moto, Bicicleta, Auto">
                 </div>
                 <div class="form-group">
-                    <label> Disponible</label>
+                    <label>📌 Disponible</label>
                     <select id="delivererAvailable">
                         <option value="true">✅ Disponible</option>
-                        <option value="false">❌ No disponible</option>
+                        <option value="false"> No disponible</option>
                     </select>
                 </div>
                 <button type="submit" class="btn-submit"><i class="fas fa-save"></i> Guardar Entregador</button>
@@ -1071,7 +1071,7 @@
             <form id="productForm">
                 <input type="hidden" id="productId">
                 <div class="form-group">
-                    <label>🍽️ Nombre *</label>
+                    <label>️ Nombre *</label>
                     <input type="text" id="productName" required placeholder="Ej: Pizza Muzzarella">
                 </div>
                 <div class="form-group">
@@ -1090,12 +1090,12 @@
                     <label>📂 Categoría</label>
                     <select id="productCategory">
                         <option value="pizzas">🍕 Pizzas</option>
-                        <option value="hamburguesas"> Hamburguesas</option>
+                        <option value="hamburguesas">🍔 Hamburguesas</option>
                         <option value="lomitos">🥪 Lomitos</option>
                         <option value="empanadas"> Empanadas</option>
                         <option value="papas">🍟 Papas Fritas</option>
                         <option value="aderezos">🧂 Aderezos</option>
-                        <option value="bebidas">🥤 Bebidas</option>
+                        <option value="bebidas"> Bebidas</option>
                     </select>
                 </div>
                 <button type="submit" class="btn-submit"><i class="fas fa-save"></i> Guardar Producto</button>
@@ -1117,7 +1117,7 @@
         let selectedOrderId = null;
         let selectedDelivererId = null;
         let timerInterval = null;
-        let autoRefreshInterval = null; // ⭐ NUEVO: Para auto-refresh
+        let autoRefreshInterval = null;
 
         // ===== FECHA =====
         document.getElementById('currentDate').textContent = 
@@ -1140,7 +1140,7 @@
 
         document.getElementById('logoutBtn').addEventListener('click', async () => {
             stopTimerUpdates();
-            stopAutoRefresh(); // ⭐ Detener auto-refresh al salir
+            stopAutoRefresh();
             if (window.GoogleSheets) {
                 await window.GoogleSheets.logout();
             }
@@ -1196,7 +1196,7 @@
                         orders = sheetOrders;
                         renderOrders();
                         startTimerUpdates();
-                        startAutoRefresh(); // ⭐ Iniciar auto-refresh
+                        startAutoRefresh();
                         return;
                     }
                 }
@@ -1257,15 +1257,12 @@
         // ============================================
         
         function startAutoRefresh() {
-            // Limpiar intervalo anterior si existe
             if (autoRefreshInterval) {
                 clearInterval(autoRefreshInterval);
             }
             
-            // Mostrar indicador de auto-refresh
             document.getElementById('autoRefreshIndicator').style.display = 'flex';
             
-            // Actualizar cada 10 segundos
             autoRefreshInterval = setInterval(async () => {
                 console.log('🔄 Actualización automática...');
                 
@@ -1274,7 +1271,6 @@
                         const sheetOrders = await window.GoogleSheets.getOrders();
                         
                         if (sheetOrders && sheetOrders.length > 0) {
-                            // Verificar si hay cambios comparando cantidad
                             const currentCount = orders.length;
                             const newCount = sheetOrders.length;
                             
@@ -1290,7 +1286,7 @@
                 } catch (error) {
                     console.error('Error en actualización automática:', error);
                 }
-            }, 10000); // 10 segundos (10000 ms)
+            }, 10000);
             
             console.log('⏰ Auto-refresh iniciado (cada 10 segundos)');
         }
@@ -1300,7 +1296,6 @@
                 clearInterval(autoRefreshInterval);
                 autoRefreshInterval = null;
             }
-            // Ocultar indicador
             document.getElementById('autoRefreshIndicator').style.display = 'none';
         }
 
@@ -1378,6 +1373,98 @@
         }
 
         // ============================================
+        // 📱 ENVIAR WHATSAPP CON DATOS COMPLETOS
+        // ============================================
+        function contactCustomer(orderId) {
+            const order = orders.find(o => o.id === orderId);
+            
+            if (!order) {
+                showNotification('❌ Pedido no encontrado', 'error');
+                return;
+            }
+            
+            const phone = (order.telefono || '').replace(/\s/g, '').replace(/-/g, '');
+            
+            if (!phone) {
+                showNotification('⚠️ El pedido no tiene teléfono registrado', 'warning');
+                return;
+            }
+            
+            const fecha = new Date(order.fecha).toLocaleString('es-AR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            const estadoEmojis = {
+                'pendiente': '⏳',
+                'en-preparacion': '👨‍',
+                'en-camino': '',
+                'entregado': '✅',
+                'cancelado': '❌'
+            };
+            
+            const estadoLabel = {
+                'pendiente': 'Pendiente',
+                'en-preparacion': 'En Preparación',
+                'en-camino': 'En Camino',
+                'entregado': 'Entregado',
+                'cancelado': 'Cancelado'
+            };
+            
+            const estadoEmoji = estadoEmojis[order.estado] || '📦';
+            const estadoTexto = estadoLabel[order.estado] || order.estado;
+            
+            let mensaje = ` *DELICIAS ROTISERÍA*\n`;
+            mensaje += `━━━━━━━━━━━━━━━━━━\n\n`;
+            mensaje += ` *DETALLE DE TU PEDIDO*\n\n`;
+            mensaje += `👤 *Cliente:* ${order.cliente}\n`;
+            mensaje += `📱 *Teléfono:* ${order.telefono}\n`;
+            mensaje += `📍 *Dirección:* ${order.direccion || 'Retira en local'}\n`;
+            mensaje += `🕐 *Fecha:* ${fecha}\n\n`;
+            mensaje += `━━━━━━━━━━━━━━━━━━\n`;
+            mensaje += `🛒 *PRODUCTOS:*\n\n`;
+            
+            const items = order.items || '';
+            const itemsList = items.split(',').map(item => item.trim()).filter(item => item);
+            
+            if (itemsList.length > 0) {
+                itemsList.forEach(item => {
+                    mensaje += `• ${item}\n`;
+                });
+            } else {
+                mensaje += `• Sin detalles\n`;
+            }
+            
+            mensaje += `\n━━━━━━━━━━━━━━━━━━\n`;
+            mensaje += `💰 *TOTAL:* $${parseInt(order.total).toLocaleString()}\n`;
+            mensaje += `💳 *Pago:* ${order.pago || 'Efectivo'}\n`;
+            
+            if (order.notas && order.notas.trim() !== '') {
+                mensaje += `\n📝 *Notas:* ${order.notas}\n`;
+            }
+            
+            mensaje += `\n━━━━━━━━━━━━━━━━━━\n`;
+            mensaje += `📦 *ESTADO DEL PEDIDO:* ${estadoEmoji} ${estadoTexto}\n`;
+            
+            if (order.entregador && order.entregador !== 'Sin asignar') {
+                mensaje += `🛵 *Entregador:* ${order.entregador}\n`;
+            }
+            
+            mensaje += `\n━━━━━━━━━━━━━━━━━━\n`;
+            mensaje += `¡Gracias por tu compra! 🙏\n`;
+            mensaje += `Cualquier consulta, estamos a tu disposición.`;
+            
+            const mensajeCodificado = encodeURIComponent(mensaje);
+            const url = `https://wa.me/54${phone}?text=${mensajeCodificado}`;
+            window.open(url, '_blank');
+            
+            console.log('📱 Mensaje de WhatsApp enviado a:', phone);
+        }
+
+        // ============================================
         // RENDER PEDIDOS (CON ITEMS EN LISTA)
         // ============================================
         function renderOrders() {
@@ -1431,7 +1518,7 @@
                             <div class="order-total">$${parseInt(order.total).toLocaleString()}</div>
                             <div class="order-deliverer">${order.entregador && order.entregador !== 'Sin asignar' ? '🛵 ' + order.entregador : '📦 Sin entregador'}</div>
                             <div class="order-actions">
-                                <button class="btn-whatsapp" onclick="contactCustomer('${order.telefono}')"><i class="fab fa-whatsapp"></i></button>
+                                <button class="btn-whatsapp" onclick="contactCustomer('${order.id}')" title="Enviar detalle del pedido por WhatsApp"><i class="fab fa-whatsapp"></i></button>
                                 ${status !== 'entregado' && status !== 'cancelado' ? `
                                     <button class="btn-status" onclick="changeOrderStatus('${order.id}')"><i class="fas fa-arrow-right"></i> Avanzar</button>
                                     <button class="btn-assign" onclick="openAssignDelivererModal('${order.id}')"><i class="fas fa-motorcycle"></i></button>
@@ -1483,7 +1570,7 @@
                     <div class="deliverer-option" data-id="${d.id}" onclick="selectDeliverer('${d.id}')">
                         <div class="deliverer-name">${d.nombre}</div>
                         <div class="deliverer-vehicle"><i class="fas fa-motorcycle"></i> ${d.vehiculo || 'Sin vehículo'}</div>
-                        <div class="deliverer-status available"> Disponible</div>
+                        <div class="deliverer-status available">🟢 Disponible</div>
                     </div>
                 `).join('');
             }
@@ -1514,7 +1601,7 @@
             const deliverer = deliverers.find(d => d.id === selectedDelivererId);
             
             if (!order || !deliverer) {
-                showNotification(' Error: pedido o entregador no encontrado', 'error');
+                showNotification('❌ Error: pedido o entregador no encontrado', 'error');
                 return;
             }
             
@@ -1535,13 +1622,8 @@
                 order.estado = 'cancelado';
                 localStorage.setItem('orders', JSON.stringify(orders));
                 renderOrders();
-                showNotification(' Pedido cancelado', 'info');
+                showNotification('❌ Pedido cancelado', 'info');
             }
-        }
-
-        function contactCustomer(phone) {
-            const clean = phone.replace(/\s/g, '').replace(/-/g, '');
-            window.open(`https://wa.me/54${clean}`, '_blank');
         }
 
         function clearFilters() {
@@ -1565,7 +1647,7 @@
                 return;
             }
             
-            if (!confirm('⚠️ ÚLTIMA CONFIRMACIÓN: Los pedidos serán eliminados permanentemente. ¿Continuar?')) {
+            if (!confirm('️ ÚLTIMA CONFIRMACIÓN: Los pedidos serán eliminados permanentemente. ¿Continuar?')) {
                 return;
             }
             
@@ -1611,7 +1693,7 @@
                     <div class="header">
                         <h4>${d.nombre}</h4>
                         <span class="status-badge ${d.disponible ? 'available' : 'unavailable'}">
-                            ${d.disponible ? '🟢 Disponible' : ' No disponible'}
+                            ${d.disponible ? ' Disponible' : '🔴 No disponible'}
                         </span>
                     </div>
                     <div class="info"><i class="fas fa-phone"></i> ${d.telefono}</div>
@@ -1832,7 +1914,7 @@
                 { key: 'en-preparacion', label: '👨‍🍳 En Preparación', class: 'en-preparacion' },
                 { key: 'en-camino', label: '🛵 En Camino', class: 'en-camino' },
                 { key: 'entregado', label: '✅ Entregados', class: 'entregado' },
-                { key: 'cancelado', label: '❌ Cancelados', class: 'cancelado' }
+                { key: 'cancelado', label: ' Cancelados', class: 'cancelado' }
             ];
             
             const counts = estados.map(e => ({
