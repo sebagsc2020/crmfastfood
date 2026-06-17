@@ -415,39 +415,6 @@
         .floating-badge .text { font-weight: 600; font-size: 0.9rem; }
         .floating-badge .sub { font-size: 0.7rem; color: var(--text-light); }
 
-        /* ===== CATEGORÍAS ===== */
-        .categories {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 2rem;
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 1rem;
-        }
-
-        .category-item {
-            background: var(--white);
-            padding: 1.5rem;
-            border-radius: var(--radius);
-            text-align: center;
-            cursor: pointer;
-            transition: var(--transition);
-            box-shadow: var(--shadow);
-        }
-
-        .category-item:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-hover);
-            background: var(--primary);
-            color: white;
-        }
-
-        .category-item i {
-            font-size: 2.5rem;
-            display: block;
-            margin-bottom: 0.5rem;
-        }
-
         /* ===== MENÚ ===== */
         .menu-section {
             max-width: 1400px;
@@ -967,10 +934,6 @@
             .hero-content p {
                 margin: 0 auto 2rem;
             }
-            
-            .categories {
-                grid-template-columns: repeat(3, 1fr);
-            }
         }
 
         @media (max-width: 768px) {
@@ -1020,10 +983,6 @@
             
             .menu-grid {
                 grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-            }
-            
-            .categories {
-                grid-template-columns: repeat(2, 1fr);
             }
             
             .cart-panel {
@@ -1126,30 +1085,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
-
-    <!-- ===== CATEGORÍAS ===== -->
-    <section class="categories">
-        <div class="category-item">
-            <i class="fas fa-pizza-slice"></i>
-            <span>Pizzas</span>
-        </div>
-        <div class="category-item">
-            <i class="fas fa-hamburger"></i>
-            <span>Hamburguesas</span>
-        </div>
-        <div class="category-item">
-            <i class="fas fa-bread"></i>
-            <span>Lomitos</span>
-        </div>
-        <div class="category-item">
-            <i class="fas fa-drumstick-bite"></i>
-            <span>Empanadas</span>
-        </div>
-        <div class="category-item">
-            <i class="fas fa-french-fries"></i>
-            <span>Papas Fritas</span>
         </div>
     </section>
 
