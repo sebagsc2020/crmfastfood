@@ -1,5 +1,5 @@
 // ============================================
-// CONFIGURACIÓN DE GOOGLE SHEETS CON GIS (Google Identity Services)
+// CONFIGURACIÓN DE GOOGLE SHEETS CON GIS
 // ============================================
 
 const CLIENT_ID = '1038997880728-v5dg34jpandsrvnprtkvm3atd9tldhmc.apps.googleusercontent.com';
@@ -21,7 +21,7 @@ const SHEETS_CONFIG = {
 console.log('📊 Configuración de Google Sheets cargada');
 
 // ============================================
-// CLASE GOOGLE SHEETS MANAGER CON GIS
+// CLASE GOOGLE SHEETS MANAGER
 // ============================================
 class GoogleSheetsManager {
     constructor(config) {
@@ -162,7 +162,7 @@ class GoogleSheetsManager {
                 };
 
                 // Pedir el token
-                this.tokenClient.requestAccessToken({ prompt: 'consent' });
+                this.tokenClient.requestAccessToken({ prompt: '' });
             });
 
         } catch (error) {
@@ -177,6 +177,11 @@ class GoogleSheetsManager {
             await this.authenticate();
         }
         return !!this.accessToken;
+    }
+
+    // ===== OBTENER TOKEN =====
+    getAuthToken() {
+        return this.accessToken;
     }
 
     // ===== HACER REQUEST AUTENTICADO =====
@@ -351,6 +356,9 @@ class GoogleSheetsManager {
         try {
             console.log('📦 Guardando producto:', product);
             
+            // Asegurar autenticación
+            await this.ensureAuthenticated();
+            
             const values = [[
                 product.id || Date.now(),
                 product.nombre || '',
@@ -427,6 +435,8 @@ class GoogleSheetsManager {
     async saveDelivererToSheets(deliverer) {
         try {
             console.log('📦 Guardando entregador:', deliverer);
+            
+            await this.ensureAuthenticated();
             
             const values = [[
                 deliverer.id || Date.now().toString(),
