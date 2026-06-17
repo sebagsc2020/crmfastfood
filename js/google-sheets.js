@@ -205,6 +205,16 @@ class GoogleSheetsManager {
         return response.json();
     }
 
+    // ===== FUNCIÓN PARA NORMALIZAR HEADERS =====
+    _normalizeHeader(header) {
+        return header
+            .toLowerCase()
+            .trim()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/\s+/g, '_');
+    }
+
     // ============================================
     // PEDIDOS
     // ============================================
@@ -268,7 +278,8 @@ class GoogleSheetsManager {
             const orders = rows.map(row => {
                 const order = {};
                 headers.forEach((header, index) => {
-                    order[header.toLowerCase().trim()] = row[index] || '';
+                    const key = this._normalizeHeader(header);
+                    order[key] = row[index] || '';
                 });
                 order.total = parseFloat(order.total) || 0;
                 return order;
@@ -336,7 +347,8 @@ class GoogleSheetsManager {
             const productos = rows.map(row => {
                 const product = {};
                 headers.forEach((header, index) => {
-                    product[header.toLowerCase().trim()] = row[index] || '';
+                    const key = this._normalizeHeader(header);
+                    product[key] = row[index] || '';
                 });
                 product.precio = parseFloat(product.precio) || 0;
                 product.id = parseInt(product.id) || Date.now();
@@ -416,7 +428,8 @@ class GoogleSheetsManager {
             const entregadores = rows.map(row => {
                 const deliverer = {};
                 headers.forEach((header, index) => {
-                    deliverer[header.toLowerCase().trim()] = row[index] || '';
+                    const key = this._normalizeHeader(header);
+                    deliverer[key] = row[index] || '';
                 });
                 deliverer.disponible = deliverer.disponible === 'Sí' || deliverer.disponible === 'true';
                 deliverer.id = deliverer.id || Date.now().toString();
