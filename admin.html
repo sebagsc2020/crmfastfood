@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin+Panel - Rotisería Delicias</title>
+    <title>Admin Panel - Rotisería Delicias</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -555,7 +555,7 @@
                             <select id="orderFilter">
                                 <option value="all">📋 Todos</option>
                                 <option value="pendiente">⏳ Pendientes</option>
-                                <option value="en-preparacion">👨‍🍳 En Preparación</option>
+                                <option value="en-preparacion">👨‍ En Preparación</option>
                                 <option value="en-camino">🛵 En Camino</option>
                                 <option value="entregado">✅ Entregados</option>
                                 <option value="cancelado">❌ Cancelados</option>
@@ -1123,11 +1123,15 @@
             
             if (window.GoogleSheets) {
                 try {
+                    // Forzar autenticación antes de guardar
+                    if (!window.GoogleSheets.accessToken) {
+                        await window.GoogleSheets.authenticate();
+                    }
                     await window.GoogleSheets.saveProductToSheets(data);
                     showNotification('✅ Producto guardado en Google Sheets', 'success');
                 } catch (error) {
                     console.warn('Error en Sheets:', error);
-                    showNotification('✅ Guardado localmente', 'success');
+                    showNotification('⚠️ Guardado localmente (error en Sheets)', 'warning');
                 }
             }
             
