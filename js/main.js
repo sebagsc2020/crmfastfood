@@ -5,6 +5,9 @@ const CONFIG = {
     SHEETS_API: 'https://sheets.googleapis.com/v4/spreadsheets/'
 };
 
+// ⭐ URL DE GOOGLE APPS SCRIPT (SIN POPUP DE GOOGLE)
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzno9_b1xIrGpBB5MZcXvH2XukxAx4inrG-3HIdM0ZSRsnxyR0YrzfQ_sUqibM_1rsWug/exec';
+
 // ===== DATOS DE PRODUCTOS (FALLBACK) =====
 const PRODUCTOS = [
     {
@@ -70,22 +73,6 @@ const PRODUCTOS = [
         precio: 2000,
         imagen: 'https://images.unsplash.com/photo-1630384060421-cb20d0e0649d?w=300',
         categoria: 'papas'
-    },
-    {
-        id: 9,
-        nombre: 'Salsa de Ajo',
-        descripcion: 'Aderezo cremoso con ajo y perejil',
-        precio: 500,
-        imagen: 'https://images.unsplash.com/photo-1702685662011-1d1a4ba2ee52?w=300',
-        categoria: 'aderezos'
-    },
-    {
-        id: 10,
-        nombre: 'Salsa Barbacoa',
-        descripcion: 'Barbacoa ahumada para tus platos',
-        precio: 500,
-        imagen: 'https://images.unsplash.com/photo-1702685662011-1d1a4ba2ee52?w=300',
-        categoria: 'aderezos'
     }
 ];
 
@@ -94,7 +81,7 @@ let cart = [];
 let totalItems = 0;
 let totalPrice = 0;
 let productosActuales = [];
-let categoriaActual = 'all'; // ⭐ NUEVO: Categoría seleccionada
+let categoriaActual = 'all';
 
 // ============================================
 // CARGAR PRODUCTOS DESDE GOOGLE SHEETS
@@ -133,13 +120,12 @@ async function loadProductsFromSheets() {
 }
 
 // ============================================
-// ⭐ FUNCIÓN PARA ORDENAR PRODUCTOS
+// FUNCIÓN PARA ORDENAR PRODUCTOS
 // Bebidas al final, el resto alfabéticamente
 // ============================================
 function sortProducts(products) {
     if (!products || products.length === 0) return [];
     
-    // Palabras clave para detectar bebidas
     const palabrasBebida = [
         'coca', 'sprite', 'fanta', 'agua', 'cerveza', 'vino',
         'gaseosa', 'jugo', 'pepsi', 'seven', 'schweppes',
@@ -149,44 +135,35 @@ function sortProducts(products) {
         'gancia', 'campari', 'cinzano', 'soda'
     ];
     
-    // Función para determinar si un producto es bebida
     const esBebida = (producto) => {
         const cat = (producto.categoria || '').toLowerCase().trim();
         const nom = (producto.nombre || '').toLowerCase();
         
-        // Por categoría
         if (cat === 'bebidas' || cat === 'bebida' || cat === 'drinks') return true;
-        
-        // Por nombre (palabras clave)
         return palabrasBebida.some(palabra => nom.includes(palabra));
     };
     
-    // Separar en dos grupos
     const bebidas = products.filter(esBebida);
     const otros = products.filter(p => !esBebida(p));
     
-    // Ordenar cada grupo alfabéticamente
     const comparar = (a, b) => (a.nombre || '').localeCompare(b.nombre || '', 'es', { sensitivity: 'base' });
     otros.sort(comparar);
     bebidas.sort(comparar);
     
-    // Concatenar: primero los demás, luego bebidas al final
     return [...otros, ...bebidas];
 }
 
 // ============================================
-// ⭐ FUNCIÓN PARA FILTRAR POR CATEGORÍA
+// FUNCIÓN PARA FILTRAR POR CATEGORÍA
 // ============================================
 function filterCategory(category, element) {
     categoriaActual = category;
     
-    // Resaltar categoría activa
     document.querySelectorAll('.category-item').forEach(item => {
         item.classList.remove('active');
     });
     if (element) element.classList.add('active');
     
-    // Re-renderizar el menú filtrado
     renderMenu();
 }
 
@@ -207,8 +184,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     
     productosActuales = await loadProductsFromSheets();
-    
-    // ⭐ ORDENAR al cargar
     productosActuales = sortProducts(productosActuales);
     
     window.PRODUCTOS_ACTUALES = productosActuales;
@@ -229,11 +204,8 @@ function renderMenu() {
     }
     
     let items = window.PRODUCTOS_ACTUALES || PRODUCTOS;
-    
-    // ⭐ ORDENAR antes de renderizar
     items = sortProducts(items);
     
-    // ⭐ FILTRAR por categoría
     if (categoriaActual && categoriaActual !== 'all') {
         items = items.filter(p => {
             const cat = (p.categoria || '').toLowerCase().trim();
@@ -408,7 +380,7 @@ function closeCheckout() {
     if (modal) modal.classList.remove('active');
 }
 
-// ===== ENVIAR PEDIDO =====
+// ===== ENVIAR PEDIDO (SIN POPUP DE GOOGLE) =====
 document.getElementById('orderForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     
@@ -445,12 +417,27 @@ document.getElementById('orderForm')?.addEventListener('submit', async (e) => {
     };
     
     try {
-        if (window.GoogleSheets) {
-            await window.GoogleSheets.saveOrder(order);
-            showNotification('🎉 Pedido confirmado! Se guardó en Google Sheets', 'success');
+        // ⭐ Enviar via Google Apps Script (SIN popup de Google)
+        if (WEB_APP_URL && WEB_APP_URL.includes('script.google.com')) {
+            await fetch(WEB_APP_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(order)
+            });
+            
+            showNotification('🎉 ¡Pedido confirmado! Lo recibirás en breve.', 'success');
+            
         } else {
-            console.log('📦 Pedido guardado localmente:', order);
-            showNotification('🎉 Pedido confirmado! (guardado localmente)', 'success');
+            // Fallback: usar Google Sheets API con OAuth
+            if (window.GoogleSheets) {
+                await window.GoogleSheets.saveOrder(order);
+                showNotification('🎉 Pedido confirmado!', 'success');
+            } else {
+                showNotification('🎉 Pedido confirmado! (guardado localmente)', 'success');
+            }
         }
         
         cart = [];
