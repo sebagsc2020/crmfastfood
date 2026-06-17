@@ -162,6 +162,36 @@
         .topbar .user-info .name { font-weight: 600; font-size: 0.95rem; }
         .topbar .user-info .role { font-size: 0.8rem; color: var(--gray-500); }
 
+        /* ===== AUTO-REFRESH INDICATOR ===== */
+        .auto-refresh-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--white);
+            padding: 8px 16px;
+            border-radius: 50px;
+            box-shadow: var(--shadow);
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--gray-600);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 9998;
+            border: 1px solid var(--gray-200);
+        }
+        .auto-refresh-indicator .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4caf50;
+            animation: pulse-dot 2s infinite;
+        }
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
         /* ===== STATS (COMPACTOS) ===== */
         .stats-grid {
             display: grid;
@@ -789,7 +819,7 @@
                 </div>
                 <div class="form-group">
                     <label><i class="fas fa-lock"></i> Contraseña</label>
-                    <input type="password" id="loginPass" placeholder="••••••••" value="admin123">
+                    <input type="password" id="loginPass" placeholder="•••••••••••••" value="admin123admin">
                 </div>
                 <button type="submit" class="btn-primary"><i class="fas fa-sign-in-alt"></i> Ingresar</button>
             </form>
@@ -798,6 +828,12 @@
 
     <!-- ===== ADMIN DASHBOARD ===== -->
     <div class="admin-wrapper" id="dashboardScreen">
+
+        <!-- ===== AUTO-REFRESH INDICATOR ===== -->
+        <div class="auto-refresh-indicator" id="autoRefreshIndicator" style="display: none;">
+            <div class="dot"></div>
+            <span>Auto-sync activo</span>
+        </div>
 
         <!-- ===== SIDEBAR ===== -->
         <aside class="sidebar">
@@ -888,10 +924,10 @@
                     <div class="actions">
                         <div class="filters">
                             <select id="orderFilter">
-                                <option value="all">📋 Todos</option>
-                                <option value="pendiente"> Pendientes</option>
-                                <option value="en-preparacion">👨‍ En Preparación</option>
-                                <option value="en-camino">🛵 En Camino</option>
+                                <option value="all"> Todos</option>
+                                <option value="pendiente">⏳ Pendientes</option>
+                                <option value="en-preparacion">👨‍🍳 En Preparación</option>
+                                <option value="en-camino"> En Camino</option>
                                 <option value="entregado">✅ Entregados</option>
                                 <option value="cancelado">❌ Cancelados</option>
                             </select>
@@ -906,11 +942,11 @@
                         <div class="column-body" id="col-pendiente"></div>
                     </div>
                     <div class="column" data-status="en-preparacion">
-                        <div class="column-header"><h3>‍🍳 En Preparación</h3><span class="count" id="count-preparacion">0</span></div>
+                        <div class="column-header"><h3>👨‍🍳 En Preparación</h3><span class="count" id="count-preparacion">0</span></div>
                         <div class="column-body" id="col-preparacion"></div>
                     </div>
                     <div class="column" data-status="en-camino">
-                        <div class="column-header"><h3> En Camino</h3><span class="count" id="count-camino">0</span></div>
+                        <div class="column-header"><h3>🛵 En Camino</h3><span class="count" id="count-camino">0</span></div>
                         <div class="column-body" id="col-camino"></div>
                     </div>
                     <div class="column" data-status="entregado">
@@ -1010,11 +1046,11 @@
                     <input type="tel" id="delivererPhone" required placeholder="11 2222-3333">
                 </div>
                 <div class="form-group">
-                    <label> Vehículo</label>
+                    <label>🛵 Vehículo</label>
                     <input type="text" id="delivererVehicle" placeholder="Ej: Moto, Bicicleta, Auto">
                 </div>
                 <div class="form-group">
-                    <label>📌 Disponible</label>
+                    <label> Disponible</label>
                     <select id="delivererAvailable">
                         <option value="true">✅ Disponible</option>
                         <option value="false">❌ No disponible</option>
@@ -1054,10 +1090,10 @@
                     <label>📂 Categoría</label>
                     <select id="productCategory">
                         <option value="pizzas">🍕 Pizzas</option>
-                        <option value="hamburguesas">🍔 Hamburguesas</option>
-                        <option value="lomitos"> Lomitos</option>
-                        <option value="empanadas">🥟 Empanadas</option>
-                        <option value="papas"> Papas Fritas</option>
+                        <option value="hamburguesas"> Hamburguesas</option>
+                        <option value="lomitos">🥪 Lomitos</option>
+                        <option value="empanadas"> Empanadas</option>
+                        <option value="papas">🍟 Papas Fritas</option>
                         <option value="aderezos">🧂 Aderezos</option>
                         <option value="bebidas">🥤 Bebidas</option>
                     </select>
@@ -1081,6 +1117,7 @@
         let selectedOrderId = null;
         let selectedDelivererId = null;
         let timerInterval = null;
+        let autoRefreshInterval = null; // ⭐ NUEVO: Para auto-refresh
 
         // ===== FECHA =====
         document.getElementById('currentDate').textContent = 
@@ -1103,6 +1140,7 @@
 
         document.getElementById('logoutBtn').addEventListener('click', async () => {
             stopTimerUpdates();
+            stopAutoRefresh(); // ⭐ Detener auto-refresh al salir
             if (window.GoogleSheets) {
                 await window.GoogleSheets.logout();
             }
@@ -1158,6 +1196,7 @@
                         orders = sheetOrders;
                         renderOrders();
                         startTimerUpdates();
+                        startAutoRefresh(); // ⭐ Iniciar auto-refresh
                         return;
                     }
                 }
@@ -1211,6 +1250,58 @@
                 menuItems = JSON.parse(localStorage.getItem('menuItems') || '[]');
                 renderMenuAdmin();
             }
+        }
+
+        // ============================================
+        // ⭐ AUTO-REFRESH (POLLING)
+        // ============================================
+        
+        function startAutoRefresh() {
+            // Limpiar intervalo anterior si existe
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+            }
+            
+            // Mostrar indicador de auto-refresh
+            document.getElementById('autoRefreshIndicator').style.display = 'flex';
+            
+            // Actualizar cada 10 segundos
+            autoRefreshInterval = setInterval(async () => {
+                console.log('🔄 Actualización automática...');
+                
+                try {
+                    if (window.GoogleSheets) {
+                        const sheetOrders = await window.GoogleSheets.getOrders();
+                        
+                        if (sheetOrders && sheetOrders.length > 0) {
+                            // Verificar si hay cambios comparando cantidad
+                            const currentCount = orders.length;
+                            const newCount = sheetOrders.length;
+                            
+                            if (newCount !== currentCount) {
+                                console.log(`📦 Nuevo pedido detectado! (${currentCount} → ${newCount})`);
+                                orders = sheetOrders;
+                                renderOrders();
+                                updateStats();
+                                showNotification('📦 ¡Nuevo pedido recibido!', 'success');
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error en actualización automática:', error);
+                }
+            }, 10000); // 10 segundos (10000 ms)
+            
+            console.log('⏰ Auto-refresh iniciado (cada 10 segundos)');
+        }
+
+        function stopAutoRefresh() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+                autoRefreshInterval = null;
+            }
+            // Ocultar indicador
+            document.getElementById('autoRefreshIndicator').style.display = 'none';
         }
 
         // ============================================
@@ -1280,7 +1371,6 @@
         function parseOrderItems(itemsString) {
             if (!itemsString) return [];
             
-            // Separar por coma y limpiar
             return itemsString
                 .split(',')
                 .map(item => item.trim())
@@ -1317,7 +1407,6 @@
                         const fechaPedido = new Date(order.fecha);
                         const timestamp = fechaPedido.getTime();
                         
-                        // ⭐ Parsear items para mostrar en lista
                         const itemsList = parseOrderItems(order.items);
                         
                         return `
@@ -1394,7 +1483,7 @@
                     <div class="deliverer-option" data-id="${d.id}" onclick="selectDeliverer('${d.id}')">
                         <div class="deliverer-name">${d.nombre}</div>
                         <div class="deliverer-vehicle"><i class="fas fa-motorcycle"></i> ${d.vehiculo || 'Sin vehículo'}</div>
-                        <div class="deliverer-status available">🟢 Disponible</div>
+                        <div class="deliverer-status available"> Disponible</div>
                     </div>
                 `).join('');
             }
@@ -1425,7 +1514,7 @@
             const deliverer = deliverers.find(d => d.id === selectedDelivererId);
             
             if (!order || !deliverer) {
-                showNotification('❌ Error: pedido o entregador no encontrado', 'error');
+                showNotification(' Error: pedido o entregador no encontrado', 'error');
                 return;
             }
             
@@ -1468,7 +1557,7 @@
             const deliveredCount = orders.filter(o => o.estado === 'entregado').length;
             
             if (deliveredCount === 0) {
-                showNotification('️ No hay pedidos entregados para borrar', 'info');
+                showNotification('ℹ️ No hay pedidos entregados para borrar', 'info');
                 return;
             }
             
@@ -1740,7 +1829,7 @@
             
             const estados = [
                 { key: 'pendiente', label: '⏳ Pendientes', class: 'pendiente' },
-                { key: 'en-preparacion', label: '‍🍳 En Preparación', class: 'en-preparacion' },
+                { key: 'en-preparacion', label: '👨‍🍳 En Preparación', class: 'en-preparacion' },
                 { key: 'en-camino', label: '🛵 En Camino', class: 'en-camino' },
                 { key: 'entregado', label: '✅ Entregados', class: 'entregado' },
                 { key: 'cancelado', label: '❌ Cancelados', class: 'cancelado' }
