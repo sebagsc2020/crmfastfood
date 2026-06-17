@@ -20,7 +20,9 @@
             --gray-50: #f8f9fa;
             --gray-100: #f0f2f5;
             --gray-200: #e4e7ec;
+            --gray-400: #9ca3af;
             --gray-500: #6b7280;
+            --gray-600: #4b5563;
             --gray-700: #374151;
             --gray-900: #111827;
             --white: #ffffff;
@@ -48,7 +50,7 @@
             overflow: hidden;
         }
         .login-container::before {
-            content: '🍕';
+            content: '';
             position: absolute;
             font-size: 20rem;
             opacity: 0.05;
@@ -274,8 +276,8 @@
         .order-card .order-time { font-size: 0.7rem; color: var(--gray-400); margin-bottom: 0.3rem; }
         .order-card .order-customer { font-weight: 700; font-size: 0.95rem; }
         .order-card .order-detail { font-size: 0.85rem; color: var(--gray-600); margin: 0.2rem 0; }
-        .order-card .order-address { font-size: 0.8rem; color: var(--gray-400); margin-bottom: 0.5rem; }
-        .order-card .order-total { font-weight: 800; color: var(--primary); font-size: 1.1rem; }
+        .order-card .order-address { font-size: 0.8rem; color: var(--gray-400); margin-bottom: 0.3rem; }
+        .order-card .order-total { font-weight: 800; color: var(--primary); font-size: 1.1rem; margin: 0.3rem 0; }
         .order-card .order-deliverer { font-size: 0.8rem; color: var(--gray-500); margin: 0.3rem 0; }
         .order-card .order-actions { display: flex; gap: 0.4rem; margin-top: 0.6rem; flex-wrap: wrap; }
         .order-card .order-actions button {
@@ -284,6 +286,52 @@
             font-weight: 600; cursor: pointer;
             transition: var(--transition);
         }
+
+        /* ===== NUEVOS CAMPOS: PAGO Y NOTAS ===== */
+        .order-payment {
+            font-size: 0.85rem;
+            color: var(--gray-700);
+            margin: 0.3rem 0;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #f3e5f5;
+            padding: 4px 10px;
+            border-radius: 50px;
+            width: fit-content;
+        }
+        .order-payment i {
+            color: #6a1b9a;
+            width: 16px;
+        }
+
+        .order-notes {
+            font-size: 0.8rem;
+            color: var(--gray-600);
+            margin: 0.3rem 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+            background: #fff3e0;
+            padding: 6px 10px;
+            border-radius: 8px;
+            border-left: 3px solid #f57c00;
+        }
+        .order-notes i {
+            color: #f57c00;
+            width: 16px;
+            margin-top: 2px;
+        }
+        .order-notes .notes-text {
+            font-style: italic;
+            flex: 1;
+        }
+        .order-notes .no-notes {
+            color: var(--gray-400);
+            font-style: italic;
+        }
+
         .btn-status { background: #e3f2fd; color: #1565c0; }
         .btn-status:hover { background: #1565c0; color: white; }
         .btn-assign { background: #e8f5e9; color: #2e7d32; }
@@ -398,6 +446,57 @@
             cursor: pointer; transition: var(--transition);
         }
         .modal .btn-submit:hover { background: var(--primary-dark); }
+
+        /* ===== SELECTOR DE ENTREGADOR ===== */
+        .deliverer-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .deliverer-option {
+            background: var(--gray-50);
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius-sm);
+            padding: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+        }
+        .deliverer-option:hover {
+            border-color: var(--primary);
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        .deliverer-option.selected {
+            border-color: var(--primary);
+            background: #ffebee;
+        }
+        .deliverer-option .deliverer-name {
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin-bottom: 0.3rem;
+        }
+        .deliverer-option .deliverer-vehicle {
+            font-size: 0.8rem;
+            color: var(--gray-500);
+        }
+        .deliverer-option .deliverer-status {
+            font-size: 0.75rem;
+            margin-top: 0.5rem;
+            padding: 2px 8px;
+            border-radius: 50px;
+            display: inline-block;
+        }
+        .deliverer-option .deliverer-status.available {
+            background: #c8e6c9;
+            color: #2e7d32;
+        }
+        .deliverer-option .deliverer-status.unavailable {
+            background: #ffcdd2;
+            color: #c62828;
+        }
 
         .empty-state { text-align: center; padding: 3rem 1rem; color: var(--gray-400); }
         .empty-state i { font-size: 3rem; margin-bottom: 1rem; display: block; }
@@ -555,7 +654,7 @@
                             <select id="orderFilter">
                                 <option value="all">📋 Todos</option>
                                 <option value="pendiente">⏳ Pendientes</option>
-                                <option value="en-preparacion">👨‍ En Preparación</option>
+                                <option value="en-preparacion">👨‍🍳 En Preparación</option>
                                 <option value="en-camino">🛵 En Camino</option>
                                 <option value="entregado">✅ Entregados</option>
                                 <option value="cancelado">❌ Cancelados</option>
@@ -571,11 +670,11 @@
                         <div class="column-body" id="col-pendiente"></div>
                     </div>
                     <div class="column" data-status="en-preparacion">
-                        <div class="column-header"><h3>👨‍🍳 En Preparación</h3><span class="count" id="count-preparacion">0</span></div>
+                        <div class="column-header"><h3>‍🍳 En Preparación</h3><span class="count" id="count-preparacion">0</span></div>
                         <div class="column-body" id="col-preparacion"></div>
                     </div>
                     <div class="column" data-status="en-camino">
-                        <div class="column-header"><h3>🛵 En Camino</h3><span class="count" id="count-camino">0</span></div>
+                        <div class="column-header"><h3> En Camino</h3><span class="count" id="count-camino">0</span></div>
                         <div class="column-body" id="col-camino"></div>
                     </div>
                     <div class="column" data-status="entregado">
@@ -629,7 +728,27 @@
         </main>
     </div>
 
-    <!-- ===== MODALES ===== -->
+    <!-- ===== MODAL: ASIGNAR ENTREGADOR ===== -->
+    <div class="modal-overlay" id="assignDelivererModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2><i class="fas fa-motorcycle" style="color: var(--primary);"></i> Asignar Entregador</h2>
+                <button class="close" onclick="closeAssignDelivererModal()">&times;</button>
+            </div>
+            <p style="color: var(--gray-500); margin-bottom: 1rem;">Seleccioná un entregador disponible:</p>
+            <div class="deliverer-selector" id="delivererSelector"></div>
+            <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+                <button class="btn-submit" onclick="confirmAssignDeliverer()" style="flex: 1;">
+                    <i class="fas fa-check"></i> Confirmar Asignación
+                </button>
+                <button class="btn-secondary-sm" onclick="closeAssignDelivererModal()" style="flex: 1;">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MODAL: ENTREGADOR ===== -->
     <div class="modal-overlay" id="delivererModal">
         <div class="modal">
             <div class="modal-header">
@@ -639,7 +758,7 @@
             <form id="delivererForm">
                 <input type="hidden" id="delivererId">
                 <div class="form-group">
-                    <label>👤 Nombre completo *</label>
+                    <label> Nombre completo *</label>
                     <input type="text" id="delivererName" required placeholder="Ej: Carlos Gómez">
                 </div>
                 <div class="form-group">
@@ -662,6 +781,7 @@
         </div>
     </div>
 
+    <!-- ===== MODAL: PRODUCTO ===== -->
     <div class="modal-overlay" id="productModal">
         <div class="modal">
             <div class="modal-header">
@@ -713,6 +833,8 @@
         let orders = [];
         let deliverers = [];
         let menuItems = [];
+        let selectedOrderId = null;
+        let selectedDelivererId = null;
 
         // ===== FECHA =====
         document.getElementById('currentDate').textContent = 
@@ -729,7 +851,7 @@
                 showNotification('✅ Bienvenido al panel', 'success');
                 loadDashboardData();
             } else {
-                showNotification('❌ Usuario o contraseña incorrectos', 'error');
+                showNotification(' Usuario o contraseña incorrectos', 'error');
             }
         });
 
@@ -842,7 +964,7 @@
         }
 
         // ============================================
-        // RENDER PEDIDOS
+        // RENDER PEDIDOS (CON PAGO Y NOTAS)
         // ============================================
         function renderOrders() {
             const statuses = ['pendiente', 'en-preparacion', 'en-camino', 'entregado'];
@@ -858,24 +980,41 @@
                 
                 container.innerHTML = filtered.length === 0 
                     ? `<div class="empty-state"><i class="fas fa-inbox"></i><p>Sin pedidos</p></div>`
-                    : filtered.map(order => `
+                    : filtered.map(order => {
+                        // Determinar ícono de pago
+                        const pagoLower = (order.pago || '').toLowerCase();
+                        let pagoIcon = 'fa-money-bill-wave';
+                        if (pagoLower.includes('tarjeta') || pagoLower.includes('credito') || pagoLower.includes('crédito')) pagoIcon = 'fa-credit-card';
+                        else if (pagoLower.includes('transferencia') || pagoLower.includes('transfer')) pagoIcon = 'fa-building-columns';
+                        else if (pagoLower.includes('mercado') || pagoLower.includes('mp')) pagoIcon = 'fa-mobile-screen';
+                        
+                        // Determinar texto de notas
+                        const notasText = order.notas && order.notas.trim() !== '' ? order.notas : 'S/N';
+                        const hasNotes = order.notas && order.notas.trim() !== '';
+                        
+                        return `
                         <div class="order-card">
                             <div class="order-time"><i class="far fa-clock"></i> ${new Date(order.fecha).toLocaleTimeString()}</div>
                             <div class="order-customer">${order.cliente}</div>
                             <div class="order-detail">${order.items}</div>
-                            <div class="order-address"><i class="fas fa-map-marker-alt"></i> ${order.direccion}</div>
+                            <div class="order-address"><i class="fas fa-map-marker-alt"></i> ${order.direccion || 'Sin dirección'}</div>
+                            <div class="order-payment"><i class="fas ${pagoIcon}"></i> ${order.pago || 'Efectivo'}</div>
+                            <div class="order-notes">
+                                <i class="fas fa-sticky-note"></i> 
+                                <span class="${hasNotes ? 'notes-text' : 'no-notes'}">${notasText}</span>
+                            </div>
                             <div class="order-total">$${parseInt(order.total).toLocaleString()}</div>
-                            <div class="order-deliverer">${order.entregador !== 'Sin asignar' ? '🛵 ' + order.entregador : '📦 Sin entregador'}</div>
+                            <div class="order-deliverer">${order.entregador && order.entregador !== 'Sin asignar' ? '🛵 ' + order.entregador : '📦 Sin entregador'}</div>
                             <div class="order-actions">
                                 <button class="btn-whatsapp" onclick="contactCustomer('${order.telefono}')"><i class="fab fa-whatsapp"></i></button>
                                 ${status !== 'entregado' && status !== 'cancelado' ? `
                                     <button class="btn-status" onclick="changeOrderStatus('${order.id}')"><i class="fas fa-arrow-right"></i> Avanzar</button>
-                                    <button class="btn-assign" onclick="assignDeliverer('${order.id}')"><i class="fas fa-motorcycle"></i></button>
+                                    <button class="btn-assign" onclick="openAssignDelivererModal('${order.id}')"><i class="fas fa-motorcycle"></i></button>
                                     <button class="btn-cancel" onclick="cancelOrder('${order.id}')"><i class="fas fa-times"></i></button>
                                 ` : ''}
                             </div>
                         </div>
-                    `).join('');
+                    `}).join('');
             });
             
             updateStats();
@@ -904,20 +1043,64 @@
             }
         }
 
-        async function assignDeliverer(id) {
-            const available = deliverers.filter(d => d.disponible);
-            if (available.length === 0) {
-                showNotification('⚠️ No hay entregadores disponibles', 'warning');
+        // ===== MODAL: ASIGNAR ENTREGADOR =====
+        function openAssignDelivererModal(orderId) {
+            selectedOrderId = orderId;
+            selectedDelivererId = null;
+            
+            const availableDeliverers = deliverers.filter(d => d.disponible);
+            const selector = document.getElementById('delivererSelector');
+            
+            if (availableDeliverers.length === 0) {
+                selector.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>No hay entregadores disponibles</p></div>';
+            } else {
+                selector.innerHTML = availableDeliverers.map(d => `
+                    <div class="deliverer-option" data-id="${d.id}" onclick="selectDeliverer('${d.id}')">
+                        <div class="deliverer-name">${d.nombre}</div>
+                        <div class="deliverer-vehicle"><i class="fas fa-motorcycle"></i> ${d.vehiculo || 'Sin vehículo'}</div>
+                        <div class="deliverer-status available">🟢 Disponible</div>
+                    </div>
+                `).join('');
+            }
+            
+            document.getElementById('assignDelivererModal').classList.add('active');
+        }
+
+        function closeAssignDelivererModal() {
+            document.getElementById('assignDelivererModal').classList.remove('active');
+            selectedOrderId = null;
+            selectedDelivererId = null;
+        }
+
+        function selectDeliverer(delivererId) {
+            selectedDelivererId = delivererId;
+            document.querySelectorAll('.deliverer-option').forEach(el => el.classList.remove('selected'));
+            const selectedEl = document.querySelector(`.deliverer-option[data-id="${delivererId}"]`);
+            if (selectedEl) selectedEl.classList.add('selected');
+        }
+
+        async function confirmAssignDeliverer() {
+            if (!selectedOrderId || !selectedDelivererId) {
+                showNotification('⚠️ Seleccioná un entregador', 'warning');
                 return;
             }
-            const order = orders.find(o => o.id === id);
-            if (order) {
-                order.entregador = available[0].nombre;
-                order.estado = 'en-camino';
-                localStorage.setItem('orders', JSON.stringify(orders));
-                renderOrders();
-                showNotification(`✅ Asignado a ${order.entregador}`, 'success');
+            
+            const order = orders.find(o => o.id === selectedOrderId);
+            const deliverer = deliverers.find(d => d.id === selectedDelivererId);
+            
+            if (!order || !deliverer) {
+                showNotification('❌ Error: pedido o entregador no encontrado', 'error');
+                return;
             }
+            
+            order.entregador = deliverer.nombre;
+            order.estado = 'en-camino';
+            
+            localStorage.setItem('orders', JSON.stringify(orders));
+            renderOrders();
+            closeAssignDelivererModal();
+            
+            showNotification(`✅ Pedido asignado a ${deliverer.nombre}`, 'success');
         }
 
         async function cancelOrder(id) {
@@ -1123,7 +1306,6 @@
             
             if (window.GoogleSheets) {
                 try {
-                    // Forzar autenticación antes de guardar
                     if (!window.GoogleSheets.accessToken) {
                         await window.GoogleSheets.authenticate();
                     }
