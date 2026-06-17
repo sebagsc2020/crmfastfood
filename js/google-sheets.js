@@ -34,6 +34,7 @@ class GoogleSheetsManager {
         
         this.tokenClient = null;
         this.accessToken = null;
+        this.tokenExpiresAt = 0; // ⭐ NUEVO: Timestamp de expiración
         this.gapiInitialized = false;
         this.gisLoaded = false;
         
@@ -51,7 +52,6 @@ class GoogleSheetsManager {
                 if (scriptsLoaded === totalScripts) resolve();
             };
 
-            // 1. Cargar gapi (api.js)
             if (typeof gapi !== 'undefined') {
                 checkComplete();
             } else {
@@ -62,7 +62,6 @@ class GoogleSheetsManager {
                 document.head.appendChild(gapiScript);
             }
 
-            // 2. Cargar GIS (accounts.google.com/gsi/client)
             if (typeof google !== 'undefined' && google.accounts) {
                 this.gisLoaded = true;
                 checkComplete();
@@ -120,7 +119,9 @@ class GoogleSheetsManager {
             callback: (tokenResponse) => {
                 if (tokenResponse && tokenResponse.access_token) {
                     this.accessToken = tokenResponse.access_token;
-                    console.log('✅ Token de acceso obtenido');
+                    // ⭐ NUEVO: Los tokens duran ~1 hora, guardamos 55 min por seguridad
+                    this.tokenExpiresAt = Date.now() + (55 * 60 * 1000);
+                    console.log('✅ Token de acceso obtenido (válido por ~55 min)');
                 }
             },
             error_callback: (error) => {
@@ -129,21 +130,20 @@ class GoogleSheetsManager {
         });
     }
 
+    // ===== VERIFICAR SI EL TOKEN ES VÁLIDO =====
+    _isTokenValid() {
+        return this.accessToken && Date.now() < this.tokenExpiresAt;
+    }
+
     // ===== AUTENTICAR =====
-    async authenticate() {
+    async authenticate(forceConsent = false) {
         try {
             console.log('🔐 Iniciando autenticación...');
             
-            // Cargar scripts si no están
             await this._loadScripts();
-            
-            // Inicializar gapi.client
             await this._initGapiClient();
-            
-            // Inicializar token client
             this._initTokenClient();
 
-            // Solicitar token (abre popup de login si es necesario)
             return new Promise((resolve, reject) => {
                 this.tokenClient.callback = (response) => {
                     if (response.error) {
@@ -152,6 +152,8 @@ class GoogleSheetsManager {
                         return;
                     }
                     this.accessToken = response.access_token;
+                    // ⭐ NUEVO: Guardar expiración (55 min)
+                    this.tokenExpiresAt = Date.now() + (55 * 60 * 1000);
                     console.log('✅ Autenticación exitosa');
                     resolve(true);
                 };
@@ -161,8 +163,9 @@ class GoogleSheetsManager {
                     reject(error);
                 };
 
-                // Pedir el token
-                this.tokenClient.requestAccessToken({ prompt: '' });
+                // ⭐ Si forceConsent es true, pide login; si no, usa sesión actual
+                const prompt = forceConsent ? 'consent' : '';
+                this.tokenClient.requestAccessToken({ prompt });
             });
 
         } catch (error) {
@@ -171,10 +174,13 @@ class GoogleSheetsManager {
         }
     }
 
-    // ===== ASEGURAR AUTENTICACIÓN =====
+    // ===== ASEGURAR AUTENTICACIÓN (con verificación de expiración) =====
     async ensureAuthenticated() {
-        if (!this.accessToken) {
-            await this.authenticate();
+        // ⭐ Si no hay token O está expirado, re-autenticar
+        if (!this._isTokenValid()) {
+            console.log('⚠️ Token expirado o ausente. Re-autenticando...');
+            this.accessToken = null;
+            await this.authenticate(false);
         }
         return !!this.accessToken;
     }
@@ -184,8 +190,8 @@ class GoogleSheetsManager {
         return this.accessToken;
     }
 
-    // ===== HACER REQUEST AUTENTICADO =====
-    async _authenticatedFetch(url, options = {}) {
+    // ===== HACER REQUEST AUTENTICADO (con reintento automático) =====
+    async _authenticatedFetch(url, options = {}, isRetry = false) {
         await this.ensureAuthenticated();
         
         const headers = {
@@ -195,6 +201,15 @@ class GoogleSheetsManager {
         };
 
         const response = await fetch(url, { ...options, headers });
+        
+        // ⭐ NUEVO: Si es 401 y no es reintento, re-autenticar y reintentar
+        if (response.status === 401 && !isRetry) {
+            console.warn('⚠️ Token inválido (401). Re-autenticando y reintentando...');
+            this.accessToken = null;
+            this.tokenExpiresAt = 0;
+            await this.authenticate(true); // Forzar consentimiento
+            return this._authenticatedFetch(url, options, true); // Reintentar una vez
+        }
         
         if (!response.ok) {
             const errorText = await response.text();
@@ -368,7 +383,6 @@ class GoogleSheetsManager {
         try {
             console.log('📦 Guardando producto:', product);
             
-            // Asegurar autenticación
             await this.ensureAuthenticated();
             
             const values = [[
@@ -546,6 +560,7 @@ class GoogleSheetsManager {
                 });
             }
             this.accessToken = null;
+            this.tokenExpiresAt = 0;
             console.log('🔴 Sesión cerrada');
             return true;
         } catch (error) {
@@ -563,7 +578,7 @@ const GoogleSheets = new GoogleSheetsManager(SHEETS_CONFIG);
 window.GoogleSheets = GoogleSheets;
 
 // Funciones globales
-window.authenticateGoogle = async () => await GoogleSheets.authenticate();
+window.authenticateGoogle = async () => await GoogleSheets.authenticate(true);
 window.logoutGoogle = async () => await GoogleSheets.logout();
 window.saveOrderToSheets = async (order) => await GoogleSheets.saveOrder(order);
 window.getOrdersFromSheets = async () => await GoogleSheets.getOrders();
