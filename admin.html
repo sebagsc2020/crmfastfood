@@ -49,15 +49,6 @@
             position: relative;
             overflow: hidden;
         }
-        .login-container::before {
-            content: '';
-            position: absolute;
-            font-size: 20rem;
-            opacity: 0.05;
-            bottom: -5%;
-            right: -5%;
-            transform: rotate(-20deg);
-        }
         .login-box {
             background: var(--white);
             border-radius: var(--radius);
@@ -273,7 +264,6 @@
             transition: var(--transition); cursor: pointer;
         }
         .order-card:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
-        .order-card .order-time { font-size: 0.7rem; color: var(--gray-400); margin-bottom: 0.3rem; }
         .order-card .order-customer { font-weight: 700; font-size: 0.95rem; }
         .order-card .order-detail { font-size: 0.85rem; color: var(--gray-600); margin: 0.2rem 0; }
         .order-card .order-address { font-size: 0.8rem; color: var(--gray-400); margin-bottom: 0.3rem; }
@@ -287,7 +277,63 @@
             transition: var(--transition);
         }
 
-        /* ===== NUEVOS CAMPOS: PAGO Y NOTAS ===== */
+        /* ===== ORDER TIME + TIMER ===== */
+        .order-time-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 0.3rem;
+            flex-wrap: wrap;
+        }
+        .order-time {
+            font-size: 0.7rem;
+            color: var(--gray-400);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* ===== TIMER DEL PEDIDO ===== */
+        .order-timer {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: linear-gradient(135deg, #ffebee, #ffcdd2);
+            color: #c62828;
+            padding: 3px 10px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border: 1px solid #ef9a9a;
+            font-family: 'Courier New', monospace;
+            animation: pulse-timer 2s infinite;
+        }
+        .order-timer i { font-size: 0.7rem; }
+
+        .order-timer.urgent {
+            background: linear-gradient(135deg, #c62828, #b71c1c);
+            color: white;
+            border-color: #b71c1c;
+            animation: pulse-urgent 1s infinite;
+        }
+
+        @keyframes pulse-timer {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(198, 40, 40, 0.3); }
+            50% { box-shadow: 0 0 0 4px rgba(198, 40, 40, 0.1); }
+        }
+
+        @keyframes pulse-urgent {
+            0%, 100% { 
+                box-shadow: 0 0 0 0 rgba(198, 40, 40, 0.6);
+                transform: scale(1);
+            }
+            50% { 
+                box-shadow: 0 0 0 6px rgba(198, 40, 40, 0);
+                transform: scale(1.03);
+            }
+        }
+
+        /* ===== PAGO Y NOTAS ===== */
         .order-payment {
             font-size: 0.85rem;
             color: var(--gray-700);
@@ -301,10 +347,7 @@
             border-radius: 50px;
             width: fit-content;
         }
-        .order-payment i {
-            color: #6a1b9a;
-            width: 16px;
-        }
+        .order-payment i { color: #6a1b9a; width: 16px; }
 
         .order-notes {
             font-size: 0.8rem;
@@ -318,19 +361,9 @@
             border-radius: 8px;
             border-left: 3px solid #f57c00;
         }
-        .order-notes i {
-            color: #f57c00;
-            width: 16px;
-            margin-top: 2px;
-        }
-        .order-notes .notes-text {
-            font-style: italic;
-            flex: 1;
-        }
-        .order-notes .no-notes {
-            color: var(--gray-400);
-            font-style: italic;
-        }
+        .order-notes i { color: #f57c00; width: 16px; margin-top: 2px; }
+        .order-notes .notes-text { font-style: italic; flex: 1; }
+        .order-notes .no-notes { color: var(--gray-400); font-style: italic; }
 
         .btn-status { background: #e3f2fd; color: #1565c0; }
         .btn-status:hover { background: #1565c0; color: white; }
@@ -492,10 +525,6 @@
         .deliverer-option .deliverer-status.available {
             background: #c8e6c9;
             color: #2e7d32;
-        }
-        .deliverer-option .deliverer-status.unavailable {
-            background: #ffcdd2;
-            color: #c62828;
         }
 
         .empty-state { text-align: center; padding: 3rem 1rem; color: var(--gray-400); }
@@ -670,11 +699,11 @@
                         <div class="column-body" id="col-pendiente"></div>
                     </div>
                     <div class="column" data-status="en-preparacion">
-                        <div class="column-header"><h3>‍🍳 En Preparación</h3><span class="count" id="count-preparacion">0</span></div>
+                        <div class="column-header"><h3>👨‍🍳 En Preparación</h3><span class="count" id="count-preparacion">0</span></div>
                         <div class="column-body" id="col-preparacion"></div>
                     </div>
                     <div class="column" data-status="en-camino">
-                        <div class="column-header"><h3> En Camino</h3><span class="count" id="count-camino">0</span></div>
+                        <div class="column-header"><h3>🛵 En Camino</h3><span class="count" id="count-camino">0</span></div>
                         <div class="column-body" id="col-camino"></div>
                     </div>
                     <div class="column" data-status="entregado">
@@ -715,7 +744,7 @@
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
                     <div style="background: white; border-radius: var(--radius); padding: 1.5rem; box-shadow: var(--shadow);">
-                        <h3 style="margin-bottom: 1rem;">📊 Pedidos por Estado</h3>
+                        <h3 style="margin-bottom: 1rem;"> Pedidos por Estado</h3>
                         <div id="statusChart"></div>
                     </div>
                     <div style="background: white; border-radius: var(--radius); padding: 1.5rem; box-shadow: var(--shadow);">
@@ -758,7 +787,7 @@
             <form id="delivererForm">
                 <input type="hidden" id="delivererId">
                 <div class="form-group">
-                    <label> Nombre completo *</label>
+                    <label>👤 Nombre completo *</label>
                     <input type="text" id="delivererName" required placeholder="Ej: Carlos Gómez">
                 </div>
                 <div class="form-group">
@@ -791,7 +820,7 @@
             <form id="productForm">
                 <input type="hidden" id="productId">
                 <div class="form-group">
-                    <label>🍽️ Nombre *</label>
+                    <label>️ Nombre *</label>
                     <input type="text" id="productName" required placeholder="Ej: Pizza Muzzarella">
                 </div>
                 <div class="form-group">
@@ -807,14 +836,15 @@
                     <input type="text" id="productImage" placeholder="https://images.unsplash.com/...">
                 </div>
                 <div class="form-group">
-                    <label>📂 Categoría</label>
+                    <label> Categoría</label>
                     <select id="productCategory">
                         <option value="pizzas">🍕 Pizzas</option>
                         <option value="hamburguesas">🍔 Hamburguesas</option>
                         <option value="lomitos">🥪 Lomitos</option>
                         <option value="empanadas">🥟 Empanadas</option>
                         <option value="papas">🍟 Papas Fritas</option>
-                        <option value="aderezos">🧂 Aderezos</option>
+                        <option value="aderezos"> Aderezos</option>
+                        <option value="bebidas">🥤 Bebidas</option>
                     </select>
                 </div>
                 <button type="submit" class="btn-submit"><i class="fas fa-save"></i> Guardar Producto</button>
@@ -835,6 +865,7 @@
         let menuItems = [];
         let selectedOrderId = null;
         let selectedDelivererId = null;
+        let timerInterval = null;
 
         // ===== FECHA =====
         document.getElementById('currentDate').textContent = 
@@ -851,11 +882,12 @@
                 showNotification('✅ Bienvenido al panel', 'success');
                 loadDashboardData();
             } else {
-                showNotification(' Usuario o contraseña incorrectos', 'error');
+                showNotification('❌ Usuario o contraseña incorrectos', 'error');
             }
         });
 
         document.getElementById('logoutBtn').addEventListener('click', async () => {
+            stopTimerUpdates();
             if (window.GoogleSheets) {
                 await window.GoogleSheets.logout();
             }
@@ -910,16 +942,19 @@
                     if (sheetOrders && sheetOrders.length > 0) {
                         orders = sheetOrders;
                         renderOrders();
+                        startTimerUpdates();
                         return;
                     }
                 }
                 const saved = localStorage.getItem('orders');
                 orders = saved ? JSON.parse(saved) : [];
                 renderOrders();
+                startTimerUpdates();
             } catch (error) {
                 console.error('Error cargando pedidos:', error);
                 orders = JSON.parse(localStorage.getItem('orders') || '[]');
                 renderOrders();
+                startTimerUpdates();
             }
         }
 
@@ -964,7 +999,69 @@
         }
 
         // ============================================
-        // RENDER PEDIDOS (CON PAGO Y NOTAS)
+        // ⭐ TIMER DE PEDIDOS EN TIEMPO REAL
+        // ============================================
+
+        function formatElapsedTime(timestamp) {
+            const now = Date.now();
+            const diff = Math.max(0, now - timestamp);
+            
+            const seconds = Math.floor(diff / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const hours = Math.floor(minutes / 60);
+            
+            if (hours > 0) {
+                const mins = minutes % 60;
+                return `${hours}h ${mins.toString().padStart(2, '0')}m`;
+            } else if (minutes > 0) {
+                const secs = seconds % 60;
+                return `${minutes}m ${secs.toString().padStart(2, '0')}s`;
+            } else {
+                return `${seconds}s`;
+            }
+        }
+
+        function updateAllTimers() {
+            const timers = document.querySelectorAll('.order-timer');
+            
+            timers.forEach(timerEl => {
+                const timestamp = parseInt(timerEl.dataset.timestamp);
+                if (!timestamp) return;
+                
+                const now = Date.now();
+                const diffMinutes = Math.floor((now - timestamp) / 60000);
+                
+                const valueSpan = timerEl.querySelector('.timer-value');
+                if (valueSpan) {
+                    valueSpan.textContent = formatElapsedTime(timestamp);
+                }
+                
+                // Modo urgente: más de 30 minutos
+                if (diffMinutes >= 30) {
+                    timerEl.classList.add('urgent');
+                } else {
+                    timerEl.classList.remove('urgent');
+                }
+            });
+        }
+
+        function startTimerUpdates() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+            timerInterval = setInterval(updateAllTimers, 1000);
+            console.log('⏱️ Timers de pedidos iniciados');
+        }
+
+        function stopTimerUpdates() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        // ============================================
+        // RENDER PEDIDOS (CON TIMER)
         // ============================================
         function renderOrders() {
             const statuses = ['pendiente', 'en-preparacion', 'en-camino', 'entregado'];
@@ -981,20 +1078,27 @@
                 container.innerHTML = filtered.length === 0 
                     ? `<div class="empty-state"><i class="fas fa-inbox"></i><p>Sin pedidos</p></div>`
                     : filtered.map(order => {
-                        // Determinar ícono de pago
                         const pagoLower = (order.pago || '').toLowerCase();
                         let pagoIcon = 'fa-money-bill-wave';
                         if (pagoLower.includes('tarjeta') || pagoLower.includes('credito') || pagoLower.includes('crédito')) pagoIcon = 'fa-credit-card';
                         else if (pagoLower.includes('transferencia') || pagoLower.includes('transfer')) pagoIcon = 'fa-building-columns';
                         else if (pagoLower.includes('mercado') || pagoLower.includes('mp')) pagoIcon = 'fa-mobile-screen';
                         
-                        // Determinar texto de notas
                         const notasText = order.notas && order.notas.trim() !== '' ? order.notas : 'S/N';
                         const hasNotes = order.notas && order.notas.trim() !== '';
                         
+                        const fechaPedido = new Date(order.fecha);
+                        const timestamp = fechaPedido.getTime();
+                        
                         return `
                         <div class="order-card">
-                            <div class="order-time"><i class="far fa-clock"></i> ${new Date(order.fecha).toLocaleTimeString()}</div>
+                            <div class="order-time-wrapper">
+                                <span class="order-time"><i class="far fa-clock"></i> ${fechaPedido.toLocaleTimeString()}</span>
+                                <span class="order-timer" data-timestamp="${timestamp}" data-order-id="${order.id}">
+                                    <i class="fas fa-stopwatch"></i>
+                                    <span class="timer-value">${formatElapsedTime(timestamp)}</span>
+                                </span>
+                            </div>
                             <div class="order-customer">${order.cliente}</div>
                             <div class="order-detail">${order.items}</div>
                             <div class="order-address"><i class="fas fa-map-marker-alt"></i> ${order.direccion || 'Sin dirección'}</div>
@@ -1004,7 +1108,7 @@
                                 <span class="${hasNotes ? 'notes-text' : 'no-notes'}">${notasText}</span>
                             </div>
                             <div class="order-total">$${parseInt(order.total).toLocaleString()}</div>
-                            <div class="order-deliverer">${order.entregador && order.entregador !== 'Sin asignar' ? '🛵 ' + order.entregador : '📦 Sin entregador'}</div>
+                            <div class="order-deliverer">${order.entregador && order.entregador !== 'Sin asignar' ? ' ' + order.entregador : '📦 Sin entregador'}</div>
                             <div class="order-actions">
                                 <button class="btn-whatsapp" onclick="contactCustomer('${order.telefono}')"><i class="fab fa-whatsapp"></i></button>
                                 ${status !== 'entregado' && status !== 'cancelado' ? `
@@ -1058,7 +1162,7 @@
                     <div class="deliverer-option" data-id="${d.id}" onclick="selectDeliverer('${d.id}')">
                         <div class="deliverer-name">${d.nombre}</div>
                         <div class="deliverer-vehicle"><i class="fas fa-motorcycle"></i> ${d.vehiculo || 'Sin vehículo'}</div>
-                        <div class="deliverer-status available">🟢 Disponible</div>
+                        <div class="deliverer-status available"> Disponible</div>
                     </div>
                 `).join('');
             }
@@ -1081,7 +1185,7 @@
 
         async function confirmAssignDeliverer() {
             if (!selectedOrderId || !selectedDelivererId) {
-                showNotification('⚠️ Seleccioná un entregador', 'warning');
+                showNotification('️ Seleccioná un entregador', 'warning');
                 return;
             }
             
@@ -1137,7 +1241,7 @@
                     <div class="header">
                         <h4>${d.nombre}</h4>
                         <span class="status-badge ${d.disponible ? 'available' : 'unavailable'}">
-                            ${d.disponible ? '🟢 Disponible' : '🔴 No disponible'}
+                            ${d.disponible ? '🟢 Disponible' : ' No disponible'}
                         </span>
                     </div>
                     <div class="info"><i class="fas fa-phone"></i> ${d.telefono}</div>
@@ -1272,7 +1376,7 @@
                     document.getElementById('productCategory').value = p.categoria;
                 }
             } else {
-                title.textContent = '➕ Agregar Producto';
+                title.textContent = ' Agregar Producto';
                 document.getElementById('productForm').reset();
                 document.getElementById('productId').value = '';
             }
@@ -1346,6 +1450,10 @@
             document.getElementById('statRevenue').textContent = `$${revenue.toLocaleString()}`;
         }
 
+        // ============================================
+        // INICIALIZACIÓN
+        // ============================================
+        startTimerUpdates();
         console.log('🚀 Admin Panel iniciado');
     </script>
 
