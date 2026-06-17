@@ -8,7 +8,7 @@ let isLoggedIn = false;
 // ===== CREDENCIALES (hardcodeadas para demo) =====
 const ADMIN_CREDENTIALS = {
     username: 'admin',
-    password: 'admin123'
+    password: 'admin2409'
 };
 
 // ===== LOGIN =====
