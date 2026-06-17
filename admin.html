@@ -279,6 +279,34 @@
         }
         .column-body { flex: 1; padding: 1rem; overflow-y: auto; max-height: 500px; }
 
+        /* ===== BOTÓN BORRAR ENTREGADOS ===== */
+        .btn-clear-delivered {
+            background: #ffebee;
+            color: #c62828;
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+            padding: 0;
+        }
+        .btn-clear-delivered:hover {
+            background: #c62828;
+            color: white;
+            transform: scale(1.1);
+        }
+        .btn-clear-delivered:active {
+            transform: scale(0.95);
+        }
+        .btn-clear-delivered i {
+            font-size: 0.75rem;
+        }
+
         /* ===== ORDER CARD ===== */
         .order-card {
             background: white; border-radius: var(--radius-sm);
@@ -837,12 +865,12 @@
                     <div class="actions">
                         <div class="filters">
                             <select id="orderFilter">
-                                <option value="all"> Todos</option>
+                                <option value="all">📋 Todos</option>
                                 <option value="pendiente">⏳ Pendientes</option>
-                                <option value="en-preparacion">‍🍳 En Preparación</option>
-                                <option value="en-camino"> En Camino</option>
+                                <option value="en-preparacion">👨‍🍳 En Preparación</option>
+                                <option value="en-camino">🛵 En Camino</option>
                                 <option value="entregado">✅ Entregados</option>
-                                <option value="cancelado">❌ Cancelados</option>
+                                <option value="cancelado"> Cancelados</option>
                             </select>
                             <input type="date" id="dateFilter">
                             <button class="btn-secondary-sm" onclick="clearFilters()"><i class="fas fa-undo"></i> Limpiar</button>
@@ -855,7 +883,7 @@
                         <div class="column-body" id="col-pendiente"></div>
                     </div>
                     <div class="column" data-status="en-preparacion">
-                        <div class="column-header"><h3>👨‍🍳 En Preparación</h3><span class="count" id="count-preparacion">0</span></div>
+                        <div class="column-header"><h3>👨‍ En Preparación</h3><span class="count" id="count-preparacion">0</span></div>
                         <div class="column-body" id="col-preparacion"></div>
                     </div>
                     <div class="column" data-status="en-camino">
@@ -863,7 +891,15 @@
                         <div class="column-body" id="col-camino"></div>
                     </div>
                     <div class="column" data-status="entregado">
-                        <div class="column-header"><h3>✅ Entregados</h3><span class="count" id="count-entregado">0</span></div>
+                        <div class="column-header">
+                            <h3>✅ Entregados</h3>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <button class="btn-clear-delivered" onclick="clearDeliveredOrders()" title="Borrar todos los entregados">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                                <span class="count" id="count-entregado">0</span>
+                            </div>
+                        </div>
                         <div class="column-body" id="col-entregado"></div>
                     </div>
                 </div>
@@ -904,7 +940,7 @@
                         <div id="statusChart"></div>
                     </div>
                     <div class="stats-chart-card">
-                        <h3>📈 Ingresos Diarios (últimos 7 días)</h3>
+                        <h3> Ingresos Diarios (últimos 7 días)</h3>
                         <div id="revenueChart"></div>
                     </div>
                 </div>
@@ -947,7 +983,7 @@
                     <input type="text" id="delivererName" required placeholder="Ej: Carlos Gómez">
                 </div>
                 <div class="form-group">
-                    <label> Teléfono *</label>
+                    <label>📱 Teléfono *</label>
                     <input type="tel" id="delivererPhone" required placeholder="11 2222-3333">
                 </div>
                 <div class="form-group">
@@ -955,7 +991,7 @@
                     <input type="text" id="delivererVehicle" placeholder="Ej: Moto, Bicicleta, Auto">
                 </div>
                 <div class="form-group">
-                    <label>📌 Disponible</label>
+                    <label> Disponible</label>
                     <select id="delivererAvailable">
                         <option value="true">✅ Disponible</option>
                         <option value="false">❌ No disponible</option>
@@ -995,12 +1031,12 @@
                     <label>📂 Categoría</label>
                     <select id="productCategory">
                         <option value="pizzas">🍕 Pizzas</option>
-                        <option value="hamburguesas">🍔 Hamburguesas</option>
+                        <option value="hamburguesas"> Hamburguesas</option>
                         <option value="lomitos">🥪 Lomitos</option>
-                        <option value="empanadas">🥟 Empanadas</option>
+                        <option value="empanadas"> Empanadas</option>
                         <option value="papas">🍟 Papas Fritas</option>
                         <option value="aderezos">🧂 Aderezos</option>
-                        <option value="bebidas"> Bebidas</option>
+                        <option value="bebidas">🥤 Bebidas</option>
                     </select>
                 </div>
                 <button type="submit" class="btn-submit"><i class="fas fa-save"></i> Guardar Producto</button>
@@ -1205,7 +1241,7 @@
                 clearInterval(timerInterval);
             }
             timerInterval = setInterval(updateAllTimers, 1000);
-            console.log('⏱️ Timers de pedidos iniciados');
+            console.log('️ Timers de pedidos iniciados');
         }
 
         function stopTimerUpdates() {
@@ -1263,7 +1299,7 @@
                                 <span class="${hasNotes ? 'notes-text' : 'no-notes'}">${notasText}</span>
                             </div>
                             <div class="order-total">$${parseInt(order.total).toLocaleString()}</div>
-                            <div class="order-deliverer">${order.entregador && order.entregador !== 'Sin asignar' ? '🛵 ' + order.entregador : '📦 Sin entregador'}</div>
+                            <div class="order-deliverer">${order.entregador && order.entregador !== 'Sin asignar' ? '🛵 ' + order.entregador : ' Sin entregador'}</div>
                             <div class="order-actions">
                                 <button class="btn-whatsapp" onclick="contactCustomer('${order.telefono}')"><i class="fab fa-whatsapp"></i></button>
                                 ${status !== 'entregado' && status !== 'cancelado' ? `
@@ -1382,6 +1418,60 @@
             document.getElementById('orderFilter').value = 'all';
             document.getElementById('dateFilter').value = '';
             renderOrders();
+        }
+
+        // ============================================
+        // 🗑️ BORRAR TODOS LOS PEDIDOS ENTREGADOS
+        // ============================================
+        async function clearDeliveredOrders() {
+            const deliveredCount = orders.filter(o => o.estado === 'entregado').length;
+            
+            if (deliveredCount === 0) {
+                showNotification('️ No hay pedidos entregados para borrar', 'info');
+                return;
+            }
+            
+            // Confirmación doble
+            if (!confirm(`¿Estás seguro que querés borrar ${deliveredCount} pedido(s) entregado(s)?\n\nEsta acción no se puede deshacer.`)) {
+                return;
+            }
+            
+            if (!confirm('⚠️ ÚLTIMA CONFIRMACIÓN: Los pedidos serán eliminados permanentemente. ¿Continuar?')) {
+                return;
+            }
+            
+            try {
+                // Filtrar pedidos que NO son entregados
+                const ordersToKeep = orders.filter(o => o.estado !== 'entregado');
+                
+                // Actualizar array local
+                orders = ordersToKeep;
+                localStorage.setItem('orders', JSON.stringify(orders));
+                
+                // Intentar actualizar en Google Sheets
+                if (window.GoogleSheets) {
+                    try {
+                        const sheetOrders = await window.GoogleSheets.getOrders();
+                        const ordersToSave = sheetOrders.filter(o => o.estado !== 'entregado');
+                        
+                        if (ordersToSave.length !== sheetOrders.length) {
+                            console.log('🗑️ Borrando pedidos entregados de Google Sheets...');
+                        }
+                    } catch (error) {
+                        console.warn('Error al sincronizar con Sheets:', error);
+                    }
+                }
+                
+                // Re-renderizar
+                renderOrders();
+                updateStats();
+                
+                showNotification(`✅ ${deliveredCount} pedido(s) entregado(s) eliminado(s)`, 'success');
+                
+            } catch (error) {
+                console.error('Error al borrar pedidos entregados:', error);
+                showNotification('❌ Error al borrar pedidos', 'error');
+            }
         }
 
         // ============================================
@@ -1522,7 +1612,7 @@
             if (id) {
                 const p = menuItems.find(item => parseInt(item.id) === parseInt(id));
                 if (p) {
-                    title.textContent = '️ Editar Producto';
+                    title.textContent = '✏️ Editar Producto';
                     document.getElementById('productId').value = p.id;
                     document.getElementById('productName').value = p.nombre;
                     document.getElementById('productDescription').value = p.descripcion;
@@ -1614,8 +1704,8 @@
             if (!container) return;
             
             const estados = [
-                { key: 'pendiente', label: ' Pendientes', class: 'pendiente' },
-                { key: 'en-preparacion', label: '👨‍🍳 En Preparación', class: 'en-preparacion' },
+                { key: 'pendiente', label: '⏳ Pendientes', class: 'pendiente' },
+                { key: 'en-preparacion', label: '👨‍ En Preparación', class: 'en-preparacion' },
                 { key: 'en-camino', label: '🛵 En Camino', class: 'en-camino' },
                 { key: 'entregado', label: '✅ Entregados', class: 'entregado' },
                 { key: 'cancelado', label: '❌ Cancelados', class: 'cancelado' }
