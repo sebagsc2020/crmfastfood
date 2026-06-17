@@ -94,6 +94,7 @@ let cart = [];
 let totalItems = 0;
 let totalPrice = 0;
 let productosActuales = [];
+let categoriaActual = 'all'; // ⭐ NUEVO: Categoría seleccionada
 
 // ============================================
 // CARGAR PRODUCTOS DESDE GOOGLE SHEETS
@@ -102,7 +103,6 @@ async function loadProductsFromSheets() {
     try {
         console.log('📦 Cargando productos desde Google Sheets...');
         
-        // Esperar a que GoogleSheets esté disponible
         let attempts = 0;
         while (typeof window.GoogleSheets === 'undefined' && attempts < 10) {
             await new Promise(resolve => setTimeout(resolve, 300));
@@ -133,12 +133,69 @@ async function loadProductsFromSheets() {
 }
 
 // ============================================
+// ⭐ FUNCIÓN PARA ORDENAR PRODUCTOS
+// Bebidas al final, el resto alfabéticamente
+// ============================================
+function sortProducts(products) {
+    if (!products || products.length === 0) return [];
+    
+    // Palabras clave para detectar bebidas
+    const palabrasBebida = [
+        'coca', 'sprite', 'fanta', 'agua', 'cerveza', 'vino',
+        'gaseosa', 'jugo', 'pepsi', 'seven', 'schweppes',
+        'fernet', 'ron', 'vodka', 'whisky', 'licor',
+        'energizante', 'monster', 'red bull', 'speed',
+        'latón', 'botella', 'vaso', 'copa', 'trago',
+        'gancia', 'campari', 'cinzano', 'soda'
+    ];
+    
+    // Función para determinar si un producto es bebida
+    const esBebida = (producto) => {
+        const cat = (producto.categoria || '').toLowerCase().trim();
+        const nom = (producto.nombre || '').toLowerCase();
+        
+        // Por categoría
+        if (cat === 'bebidas' || cat === 'bebida' || cat === 'drinks') return true;
+        
+        // Por nombre (palabras clave)
+        return palabrasBebida.some(palabra => nom.includes(palabra));
+    };
+    
+    // Separar en dos grupos
+    const bebidas = products.filter(esBebida);
+    const otros = products.filter(p => !esBebida(p));
+    
+    // Ordenar cada grupo alfabéticamente
+    const comparar = (a, b) => (a.nombre || '').localeCompare(b.nombre || '', 'es', { sensitivity: 'base' });
+    otros.sort(comparar);
+    bebidas.sort(comparar);
+    
+    // Concatenar: primero los demás, luego bebidas al final
+    return [...otros, ...bebidas];
+}
+
+// ============================================
+// ⭐ FUNCIÓN PARA FILTRAR POR CATEGORÍA
+// ============================================
+function filterCategory(category, element) {
+    categoriaActual = category;
+    
+    // Resaltar categoría activa
+    document.querySelectorAll('.category-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    if (element) element.classList.add('active');
+    
+    // Re-renderizar el menú filtrado
+    renderMenu();
+}
+
+// ============================================
 // INICIALIZACIÓN
 // ============================================
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('🚀 Iniciando aplicación...');
     
-    // Mostrar indicador de carga
     const grid = document.getElementById('menuGrid');
     if (grid) {
         grid.innerHTML = `
@@ -149,21 +206,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         `;
     }
     
-    // Cargar productos desde Google Sheets
     productosActuales = await loadProductsFromSheets();
     
-    // Guardar en variable global
+    // ⭐ ORDENAR al cargar
+    productosActuales = sortProducts(productosActuales);
+    
     window.PRODUCTOS_ACTUALES = productosActuales;
     
-    // Renderizar menú
     renderMenu();
     updateCartUI();
     setupEventListeners();
     
-    console.log(`✅ ${productosActuales.length} productos disponibles`);
+    console.log(`✅ ${productosActuales.length} productos disponibles (ordenados)`);
 });
 
-// ===== RENDERIZAR MENÚ =====
+// ===== RENDERIZAR MENÚ (CON FILTRO Y ORDENAMIENTO) =====
 function renderMenu() {
     const grid = document.getElementById('menuGrid');
     if (!grid) {
@@ -171,21 +228,32 @@ function renderMenu() {
         return;
     }
     
-    const items = window.PRODUCTOS_ACTUALES || PRODUCTOS;
+    let items = window.PRODUCTOS_ACTUALES || PRODUCTOS;
+    
+    // ⭐ ORDENAR antes de renderizar
+    items = sortProducts(items);
+    
+    // ⭐ FILTRAR por categoría
+    if (categoriaActual && categoriaActual !== 'all') {
+        items = items.filter(p => {
+            const cat = (p.categoria || '').toLowerCase().trim();
+            return cat === categoriaActual.toLowerCase();
+        });
+    }
     
     if (!items || items.length === 0) {
         grid.innerHTML = `
             <div style="text-align: center; padding: 3rem; grid-column: 1 / -1;">
                 <i class="fas fa-utensils" style="font-size: 3rem; color: #ccc;"></i>
-                <p style="color: #999; margin-top: 1rem;">No hay productos disponibles</p>
-                <p style="color: #ccc; font-size: 0.9rem;">Agregá productos desde el panel de administración</p>
+                <p style="color: #999; margin-top: 1rem;">No hay productos disponibles en esta categoría</p>
+                <p style="color: #ccc; font-size: 0.9rem;">Probá con otra categoría o agregá productos desde el panel</p>
             </div>
         `;
         return;
     }
     
     grid.innerHTML = items.map(producto => `
-        <div class="product-card" data-id="${producto.id}">
+        <div class="product-card" data-id="${producto.id}" data-category="${producto.categoria || ''}">
             <img src="${producto.imagen || 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=300'}" 
                  alt="${producto.nombre}" 
                  class="product-image"
