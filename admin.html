@@ -309,6 +309,13 @@
         .notification.error { background: #c62828; }
         .notification.warning { background: #f57c00; }
 
+        /* ===== GRIDS PARA ENTREGADORES Y MENÚ ===== */
+        .deliverers-grid, .menu-admin-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
         @media (max-width: 1200px) {
             .board-columns { grid-template-columns: repeat(2, 1fr); }
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
@@ -406,10 +413,10 @@
                     <div class="actions">
                         <div class="filters">
                             <select id="orderFilter">
-                                <option value="all"> Todos</option>
-                                <option value="pendiente">⏳ Pendientes</option>
-                                <option value="en-preparacion">‍🍳 En Preparación</option>
-                                <option value="en-camino"> En Camino</option>
+                                <option value="all">📋 Todos</option>
+                                <option value="pendiente"> Pendientes</option>
+                                <option value="en-preparacion">👨‍ En Preparación</option>
+                                <option value="en-camino">🛵 En Camino</option>
                                 <option value="entregado">✅ Entregados</option>
                                 <option value="cancelado">❌ Cancelados</option>
                             </select>
@@ -424,7 +431,7 @@
                         <div class="column-body" id="col-pendiente"></div>
                     </div>
                     <div class="column" data-status="en-preparacion">
-                        <div class="column-header"><h3>👨‍ En Preparación</h3><span class="count" id="count-preparacion">0</span></div>
+                        <div class="column-header"><h3>‍🍳 En Preparación</h3><span class="count" id="count-preparacion">0</span></div>
                         <div class="column-body" id="col-preparacion"></div>
                     </div>
                     <div class="column" data-status="en-camino">
@@ -458,7 +465,7 @@
                 <div class="tab-header"><h2><i class="fas fa-chart-bar" style="color: var(--primary);"></i> Estadísticas</h2></div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
                     <div style="background: white; border-radius: var(--radius); padding: 1.5rem; box-shadow: var(--shadow);">
-                        <h3 style="margin-bottom: 1rem;">📊 Pedidos por Estado</h3>
+                        <h3 style="margin-bottom: 1rem;"> Pedidos por Estado</h3>
                         <div id="statusChart"></div>
                     </div>
                     <div style="background: white; border-radius: var(--radius); padding: 1.5rem; box-shadow: var(--shadow);">
@@ -513,6 +520,8 @@
                 document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
                 document.getElementById(this.dataset.tab + 'Tab').classList.add('active');
                 if (this.dataset.tab === 'orders') renderOrders();
+                if (this.dataset.tab === 'deliverers') renderDeliverers();
+                if (this.dataset.tab === 'menu') renderMenuAdmin();
             });
         });
 
@@ -530,15 +539,20 @@
             }, 4000);
         }
 
-        // ===== CARGAR DATOS =====
+        // ===== CARGAR DATOS EN PARALELO =====
         async function loadDashboardData() {
-            await loadOrders();
-            await loadDeliverers();
-            await loadMenuItems();
+            console.log('🚀 Cargando dashboard...');
+            await Promise.allSettled([
+                loadOrders(),
+                loadDeliverers(),
+                loadMenuItems()
+            ]);
+            console.log('✅ Dashboard cargado');
         }
 
         async function loadOrders() {
             try {
+                console.log('📦 Cargando pedidos...');
                 const res = await fetch(WEB_APP_URL, {
                     method: 'POST',
                     mode: 'cors',
@@ -546,16 +560,19 @@
                     body: JSON.stringify({ accion: 'obtenerPedidos', secret: ADMIN_SECRET })
                 });
                 const data = await res.json();
-                console.log(' Pedidos recibidos:', data);
+                console.log('📥 Pedidos recibidos:', data);
                 if (data.orders && data.orders.length > 0) {
                     orders = data.orders;
                     renderOrders();
                     startTimerUpdates();
                     startAutoRefresh();
+                    console.log(`✅ ${orders.length} pedidos cargados`);
                     return;
                 }
+                console.log('️ No hay pedidos en la base de datos');
             } catch (e) {
-                console.error('Error cargando pedidos:', e);
+                console.error('❌ Error cargando pedidos:', e);
+                showNotification('⚠️ Usando datos locales', 'warning');
             }
             orders = JSON.parse(localStorage.getItem('orders') || '[]');
             renderOrders();
@@ -564,6 +581,7 @@
 
         async function loadDeliverers() {
             try {
+                console.log(' Cargando entregadores...');
                 const res = await fetch(WEB_APP_URL, {
                     method: 'POST',
                     mode: 'cors',
@@ -571,18 +589,24 @@
                     body: JSON.stringify({ accion: 'getDeliverers', secret: ADMIN_SECRET })
                 });
                 const data = await res.json();
+                console.log('📥 Entregadores recibidos:', data);
                 if (data.deliverers) {
                     deliverers = data.deliverers;
                     renderDeliverers();
+                    console.log(`✅ ${deliverers.length} entregadores cargados`);
                     return;
                 }
-            } catch (e) {}
+                console.log('⚠️ No hay entregadores en la base de datos');
+            } catch (e) {
+                console.error(' Error cargando entregadores:', e);
+            }
             deliverers = JSON.parse(localStorage.getItem('deliverers') || '[]');
             renderDeliverers();
         }
 
         async function loadMenuItems() {
             try {
+                console.log('🍕 Cargando menú...');
                 const res = await fetch(WEB_APP_URL, {
                     method: 'POST',
                     mode: 'cors',
@@ -590,12 +614,17 @@
                     body: JSON.stringify({ accion: 'obtenerProductos', secret: ADMIN_SECRET })
                 });
                 const data = await res.json();
-                if (data.products) {
+                console.log('📥 Productos recibidos:', data);
+                if (data.products && data.products.length > 0) {
                     menuItems = data.products;
                     renderMenuAdmin();
+                    console.log(`✅ ${menuItems.length} productos cargados`);
                     return;
                 }
-            } catch (e) {}
+                console.log('️ No hay productos en la base de datos');
+            } catch (e) {
+                console.error('❌ Error cargando menú:', e);
+            }
             menuItems = JSON.parse(localStorage.getItem('menuItems') || '[]');
             renderMenuAdmin();
         }
@@ -618,8 +647,11 @@
                         updateStats();
                         showNotification('📦 ¡Nuevo pedido recibido!', 'success');
                     }
-                } catch (e) {}
+                } catch (e) {
+                    console.error('Error en auto-refresh:', e);
+                }
             }, 10000);
+            console.log('⏰ Auto-refresh iniciado (cada 10 segundos)');
         }
         function stopAutoRefresh() { if (autoRefreshInterval) clearInterval(autoRefreshInterval); }
 
@@ -645,6 +677,7 @@
         function startTimerUpdates() {
             if (timerInterval) clearInterval(timerInterval);
             timerInterval = setInterval(updateAllTimers, 1000);
+            console.log('⏱️ Timers iniciados');
         }
         function stopTimerUpdates() { if (timerInterval) clearInterval(timerInterval); }
 
@@ -679,7 +712,7 @@
                     return estado === st;
                 });
                 
-                console.log(` ${st}: ${filtered.length} pedidos`);
+                console.log(`📊 ${st}: ${filtered.length} pedidos`);
                 
                 if (countEl) countEl.textContent = filtered.length;
                 
@@ -725,7 +758,7 @@
                             </div>
                             <div class="order-total">$${parseInt(o.total || 0).toLocaleString()}</div>
                             <div style="font-size: 0.8rem; color: var(--gray-500); margin: 0.3rem 0;">
-                                ${o.entregador && o.entregador !== 'Sin asignar' ? '🛵 ' + o.entregador : '📦 Sin entregador'}
+                                ${o.entregador && o.entregador !== 'Sin asignar' ? ' ' + o.entregador : '📦 Sin entregador'}
                             </div>
                             <div class="order-actions">
                                 <button class="btn-whatsapp" onclick="contactCustomer('${o.id}')">
@@ -770,6 +803,7 @@
                 renderOrders();
                 showNotification('✅ Estado actualizado', 'success');
             } catch(e) {
+                console.error('Error:', e);
                 showNotification('⚠️ Error al actualizar', 'warning');
             }
         }
@@ -821,11 +855,22 @@
         // ===== ENTREGADORES =====
         function renderDeliverers() {
             const c = document.getElementById('deliverersGrid');
-            if (!c) return;
+            if (!c) {
+                console.error('❌ No encontrado: deliverersGrid');
+                return;
+            }
+            console.log(' Renderizando entregadores:', deliverers);
+            
+            if (deliverers.length === 0) {
+                c.innerHTML = `<div class="empty-state"><i class="fas fa-motorcycle"></i><p>Sin entregadores registrados</p></div>`;
+                document.getElementById('sidebarDeliverersCount').textContent = 0;
+                return;
+            }
+            
             c.innerHTML = deliverers.map(d => `
                 <div class="order-card">
-                    <div class="order-customer">${d.nombre}</div>
-                    <div class="order-payment"><i class="fas fa-phone"></i> ${d.telefono}</div>
+                    <div class="order-customer">${d.nombre || 'Sin nombre'}</div>
+                    <div class="order-payment"><i class="fas fa-phone"></i> ${d.telefono || 'N/A'}</div>
                     <div class="order-notes"><i class="fas fa-bicycle"></i> ${d.vehiculo || 'N/A'}</div>
                     <div style="margin-top:0.5rem;font-size:0.8rem;color:${d.disponible ? '#2e7d32' : '#c62828'}">
                         ${d.disponible ? '🟢 Disponible' : '🔴 No disponible'}
@@ -838,19 +883,30 @@
         // ===== MENÚ =====
         function renderMenuAdmin() {
             const c = document.getElementById('menuAdminGrid');
-            if (!c) return;
-            c.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;">${menuItems.map(p => `
+            if (!c) {
+                console.error('❌ No encontrado: menuAdminGrid');
+                return;
+            }
+            console.log(' Renderizando menú:', menuItems);
+            
+            if (menuItems.length === 0) {
+                c.innerHTML = `<div class="empty-state"><i class="fas fa-utensils"></i><p>Sin productos registrados</p></div>`;
+                document.getElementById('sidebarMenuCount').textContent = 0;
+                return;
+            }
+            
+            c.innerHTML = menuItems.map(p => `
                 <div class="order-card">
-                    <div class="order-customer">${p.nombre}</div>
+                    <div class="order-customer">${p.nombre || 'Sin nombre'}</div>
                     <div class="order-total">$${parseInt(p.precio || 0).toLocaleString()}</div>
                     <div class="order-notes">${p.categoria || ''}</div>
                 </div>
-            `).join('')}</div>`;
+            `).join('');
             document.getElementById('sidebarMenuCount').textContent = menuItems.length;
         }
 
         // ===== MODALES PLACEHOLDER =====
-        function openAssignModal(id) { showNotification('🛵 Asignación rápida (próximamente)', 'info'); }
+        function openAssignModal(id) { showNotification(' Asignación rápida (próximamente)', 'info'); }
         function cancelOrder(id) {
             if (confirm('¿Cancelar pedido?')) {
                 const o = orders.find(x => x.id === id);
