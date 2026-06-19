@@ -4,12 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - Rotisería Delicias</title>
-    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
@@ -46,8 +44,6 @@
             justify-content: center;
             background: linear-gradient(135deg, var(--secondary) 0%, var(--dark) 100%);
             padding: 2rem;
-            position: relative;
-            overflow: hidden;
         }
         .login-box {
             background: var(--white);
@@ -56,8 +52,6 @@
             width: 100%;
             max-width: 420px;
             box-shadow: var(--shadow-xl);
-            position: relative;
-            z-index: 1;
         }
         .login-header { text-align: center; margin-bottom: 2.5rem; }
         .login-header .icon-wrapper {
@@ -66,7 +60,6 @@
             border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             margin: 0 auto 1rem; font-size: 2rem; color: white;
-            box-shadow: 0 8px 30px rgba(230, 57, 70, 0.3);
         }
         .login-header h2 { font-size: 1.8rem; font-weight: 800; color: var(--gray-900); }
         .login-header p { color: var(--gray-500); font-size: 0.95rem; margin-top: 0.3rem; }
@@ -76,26 +69,16 @@
             width: 100%; padding: 12px 16px;
             border: 2px solid var(--gray-200);
             border-radius: var(--radius-sm);
-            font-size: 1rem; transition: var(--transition);
+            font-size: 1rem;
             background: var(--gray-50);
-        }
-        .login-box .form-group input:focus {
-            outline: none; border-color: var(--primary);
-            background: var(--white);
-            box-shadow: 0 0 0 4px rgba(230, 57, 70, 0.1);
         }
         .login-box .btn-primary {
             width: 100%; padding: 14px;
             background: var(--primary); color: white;
             border: none; border-radius: var(--radius-sm);
             font-size: 1rem; font-weight: 700;
-            cursor: pointer; transition: var(--transition);
+            cursor: pointer;
             display: flex; align-items: center; justify-content: center; gap: 10px;
-        }
-        .login-box .btn-primary:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(230, 57, 70, 0.3);
         }
 
         /* ===== ADMIN LAYOUT ===== */
@@ -107,7 +90,7 @@
             width: 260px; height: 100vh;
             background: var(--secondary); color: white;
             padding: 1.5rem 1rem; overflow-y: auto;
-            z-index: 100; transition: var(--transition);
+            z-index: 100;
         }
         .sidebar .brand {
             display: flex; align-items: center; gap: 12px;
@@ -117,28 +100,26 @@
         }
         .sidebar .brand i { font-size: 1.8rem; background: var(--primary); padding: 10px; border-radius: 12px; }
         .sidebar .brand span { font-size: 1.2rem; font-weight: 700; }
-        .sidebar .brand small { display: block; font-size: 0.7rem; opacity: 0.5; font-weight: 400; }
+        .sidebar .brand small { display: block; font-size: 0.7rem; opacity: 0.5; }
         .sidebar .nav-item {
             display: flex; align-items: center; gap: 12px;
             padding: 12px 16px; border-radius: var(--radius-sm);
-            cursor: pointer; transition: var(--transition);
+            cursor: pointer;
             color: rgba(255,255,255,0.6); font-weight: 500;
             font-size: 0.9rem; margin-bottom: 4px;
             border: none; background: transparent;
             width: 100%; text-align: left;
         }
         .sidebar .nav-item:hover { background: rgba(255,255,255,0.06); color: white; }
-        .sidebar .nav-item.active { background: var(--primary); color: white; box-shadow: 0 4px 15px rgba(230, 57, 70, 0.3); }
+        .sidebar .nav-item.active { background: var(--primary); color: white; }
         .sidebar .nav-item i { width: 20px; font-size: 1.1rem; }
         .sidebar .nav-item .badge {
             margin-left: auto; background: rgba(255,255,255,0.1);
             padding: 2px 10px; border-radius: 50px;
             font-size: 0.7rem; font-weight: 600;
         }
-        .sidebar .nav-item.active .badge { background: rgba(255,255,255,0.2); }
         .sidebar .logout-section { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.06); }
         .sidebar .logout-btn { color: rgba(255,255,255,0.5); }
-        .sidebar .logout-btn:hover { color: #ff6b6b; background: rgba(255, 107, 107, 0.1); }
 
         /* ===== MAIN CONTENT ===== */
         .main-content { margin-left: 260px; padding: 2rem; min-height: 100vh; }
@@ -148,7 +129,7 @@
             display: flex; justify-content: space-between;
             align-items: center; padding-bottom: 1.5rem;
             border-bottom: 1px solid var(--gray-200);
-            margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;
+            margin-bottom: 2rem;
         }
         .topbar .page-title { font-size: 1.8rem; font-weight: 800; }
         .topbar .page-title span { color: var(--primary); }
@@ -159,40 +140,8 @@
             display: flex; align-items: center; justify-content: center;
             color: white; font-weight: 700;
         }
-        .topbar .user-info .name { font-weight: 600; font-size: 0.95rem; }
-        .topbar .user-info .role { font-size: 0.8rem; color: var(--gray-500); }
 
-        /* ===== AUTO-REFRESH INDICATOR ===== */
-        .auto-refresh-indicator {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--white);
-            padding: 8px 16px;
-            border-radius: 50px;
-            box-shadow: var(--shadow);
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: var(--gray-600);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            z-index: 9998;
-            border: 1px solid var(--gray-200);
-        }
-        .auto-refresh-indicator .dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #4caf50;
-            animation: pulse-dot 2s infinite;
-        }
-        @keyframes pulse-dot {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
-        }
-
-        /* ===== STATS (COMPACTOS) ===== */
+        /* ===== STATS ===== */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -204,47 +153,172 @@
             border-radius: var(--radius-sm);
             padding: 1rem 1.2rem;
             box-shadow: var(--shadow);
-            transition: var(--transition);
             border: 1px solid var(--gray-100);
             display: flex;
             align-items: center;
             gap: 1rem;
         }
-        .stat-card:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
-        }
         .stat-card .stat-icon {
-            width: 40px;
-            height: 40px;
+            width: 40px; height: 40px;
             border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             font-size: 1.1rem;
-            flex-shrink: 0;
         }
         .stat-card .stat-icon.orange { background: #fff3e0; color: #e65100; }
-        .stat-card .stat-icon.green { background: #e8f5e9; color: #2e7d32; }
         .stat-card .stat-icon.blue { background: #e3f2fd; color: #1565c0; }
+        .stat-card .stat-icon.green { background: #e8f5e9; color: #2e7d32; }
         .stat-card .stat-icon.purple { background: #f3e5f5; color: #6a1b9a; }
-        .stat-card .stat-number {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: var(--gray-900);
-            line-height: 1.1;
+        .stat-card .stat-number { font-size: 1.5rem; font-weight: 800; }
+        .stat-card .stat-label { font-size: 0.75rem; color: var(--gray-500); }
+
+        /* ===== TABS ===== */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .tab-header {
+            display: flex; justify-content: space-between;
+            align-items: center; margin-bottom: 1.5rem;
         }
-        .stat-card .stat-label {
-            font-size: 0.75rem;
-            color: var(--gray-500);
-            font-weight: 500;
+        .tab-header h2 { font-size: 1.4rem; font-weight: 700; }
+        .btn-secondary-sm {
+            padding: 10px 20px; background: var(--gray-100);
+            color: var(--gray-700); border: none;
+            border-radius: var(--radius-sm); font-weight: 600;
+            cursor: pointer;
+        }
+        .filters { display: flex; gap: 0.8rem; align-items: center; }
+        .filters select, .filters input {
+            padding: 8px 14px; border: 2px solid var(--gray-200);
+            border-radius: var(--radius-sm); font-size: 0.9rem;
         }
 
-        /* ===== RESTO DEL CSS (igual que antes) ===== */
-        /* ... (mantené todo el CSS que ya tenés) ... */
-        
-        /* Por simplicidad, te doy solo el JavaScript modificado. 
-           El CSS completo es el mismo que ya tenés en tu admin.html */
+        /* ===== KANBAN ===== */
+        .board-columns {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+        }
+        .column {
+            background: var(--gray-50);
+            border-radius: var(--radius);
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--gray-200);
+        }
+        .column-header {
+            padding: 1rem 1.2rem;
+            border-bottom: 2px solid var(--gray-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            border-radius: var(--radius) var(--radius) 0 0;
+        }
+        .column-header h3 { font-size: 0.9rem; font-weight: 700; }
+        .column-header .count {
+            background: var(--gray-200);
+            padding: 2px 12px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+        .column-body { flex: 1; padding: 1rem; overflow-y: auto; }
+
+        /* ===== ORDER CARD ===== */
+        .order-card {
+            background: white;
+            border-radius: var(--radius-sm);
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            border: 1px solid var(--gray-100);
+        }
+        .order-card .order-customer { font-weight: 700; font-size: 0.95rem; }
+        .order-card .order-total { font-weight: 800; color: var(--primary); font-size: 1.1rem; margin: 0.3rem 0; }
+        .order-card .order-actions { display: flex; gap: 0.4rem; margin-top: 0.6rem; flex-wrap: wrap; }
+        .order-card .order-actions button {
+            padding: 4px 12px; border: none;
+            border-radius: 50px; font-size: 0.7rem;
+            font-weight: 600; cursor: pointer;
+        }
+        .order-time-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 0.3rem;
+        }
+        .order-time { font-size: 0.7rem; color: var(--gray-400); }
+        .order-timer {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: #ffebee;
+            color: #c62828;
+            padding: 3px 10px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+        }
+        .order-items-list { margin: 0.4rem 0; padding: 0; list-style: none; }
+        .order-item-line {
+            font-size: 0.85rem;
+            color: var(--gray-600);
+            padding: 3px 0;
+        }
+        .order-item-line::before {
+            content: '•';
+            color: var(--primary);
+            font-weight: 700;
+            margin-right: 6px;
+        }
+        .order-payment {
+            font-size: 0.85rem;
+            color: var(--gray-700);
+            margin: 0.3rem 0;
+            font-weight: 600;
+            background: #f3e5f5;
+            padding: 4px 10px;
+            border-radius: 50px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .order-notes {
+            font-size: 0.8rem;
+            color: var(--gray-600);
+            margin: 0.3rem 0;
+            background: #fff3e0;
+            padding: 6px 10px;
+            border-radius: 8px;
+            border-left: 3px solid #f57c00;
+        }
+        .btn-status { background: #e3f2fd; color: #1565c0; }
+        .btn-assign { background: #e8f5e9; color: #2e7d32; }
+        .btn-cancel { background: #ffebee; color: #c62828; }
+        .btn-whatsapp { background: #e8f5e9; color: #25d366; }
+        .empty-state { text-align: center; padding: 3rem 1rem; color: var(--gray-400); }
+        .empty-state i { font-size: 3rem; margin-bottom: 1rem; display: block; }
+        .notification {
+            position: fixed; bottom: 20px; right: 20px;
+            padding: 16px 24px; border-radius: var(--radius-sm);
+            color: white; font-weight: 600;
+            box-shadow: var(--shadow-xl); z-index: 9999;
+        }
+        .notification.success { background: #2e7d32; }
+        .notification.error { background: #c62828; }
+        .notification.warning { background: #f57c00; }
+
+        @media (max-width: 1200px) {
+            .board-columns { grid-template-columns: repeat(2, 1fr); }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .board-columns { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .sidebar { width: 72px; }
+            .main-content { margin-left: 72px; }
+        }
     </style>
 </head>
 <body>
@@ -260,11 +334,11 @@
             <form id="loginForm">
                 <div class="form-group">
                     <label><i class="fas fa-user"></i> Usuario</label>
-                    <input type="text" id="loginUser" placeholder="admin" value="admin">
+                    <input type="text" id="loginUser" value="admin">
                 </div>
                 <div class="form-group">
                     <label><i class="fas fa-lock"></i> Contraseña</label>
-                    <input type="password" id="loginPass" placeholder="••••••••" value="">
+                    <input type="password" id="loginPass" value="">
                 </div>
                 <button type="submit" class="btn-primary"><i class="fas fa-sign-in-alt"></i> Ingresar</button>
             </form>
@@ -273,56 +347,33 @@
 
     <!-- ===== ADMIN DASHBOARD ===== -->
     <div class="admin-wrapper" id="dashboardScreen">
-
-        <!-- ===== AUTO-REFRESH INDICATOR ===== -->
-        <div class="auto-refresh-indicator" id="autoRefreshIndicator" style="display: none;">
-            <div class="dot"></div>
-            <span>Auto-sync activo</span>
-        </div>
-
-        <!-- ===== SIDEBAR ===== -->
         <aside class="sidebar">
             <div class="brand">
                 <i class="fas fa-utensils"></i>
                 <div><span>Delicias</span><small>Panel Admin</small></div>
             </div>
             <button class="nav-item active" data-tab="orders">
-                <i class="fas fa-clipboard-list"></i>
-                <span>Pedidos</span>
-                <span class="badge" id="sidebarOrdersCount">0</span>
+                <i class="fas fa-clipboard-list"></i><span>Pedidos</span><span class="badge" id="sidebarOrdersCount">0</span>
             </button>
             <button class="nav-item" data-tab="deliverers">
-                <i class="fas fa-motorcycle"></i>
-                <span>Entregadores</span>
-                <span class="badge" id="sidebarDeliverersCount">0</span>
+                <i class="fas fa-motorcycle"></i><span>Entregadores</span><span class="badge" id="sidebarDeliverersCount">0</span>
             </button>
             <button class="nav-item" data-tab="menu">
-                <i class="fas fa-utensils"></i>
-                <span>Menú</span>
-                <span class="badge" id="sidebarMenuCount">0</span>
+                <i class="fas fa-utensils"></i><span>Menú</span><span class="badge" id="sidebarMenuCount">0</span>
             </button>
             <button class="nav-item" data-tab="stats">
-                <i class="fas fa-chart-bar"></i>
-                <span>Estadísticas</span>
+                <i class="fas fa-chart-bar"></i><span>Estadísticas</span>
             </button>
             <div class="logout-section">
-                <button class="nav-item logout-btn" id="logoutBtn">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span>Salir</span>
-                </button>
+                <button class="nav-item logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i><span>Salir</span></button>
             </div>
         </aside>
 
-        <!-- ===== MAIN CONTENT ===== -->
         <main class="main-content">
-
             <div class="topbar">
                 <div>
                     <h1 class="page-title">Panel de <span>Control</span></h1>
-                    <p style="color: var(--gray-500); font-size: 0.9rem;">
-                        <i class="fas fa-calendar-alt"></i> 
-                        <span id="currentDate"></span>
-                    </p>
+                    <p style="color: var(--gray-500); font-size: 0.9rem;"><i class="fas fa-calendar-alt"></i> <span id="currentDate"></span></p>
                 </div>
                 <div class="user-info">
                     <div><div class="name">Administrador</div><div class="role">Super Admin</div></div>
@@ -330,49 +381,35 @@
                 </div>
             </div>
 
-            <!-- ===== STATS (COMPACTOS) ===== -->
             <div class="stats-grid" id="statsGrid">
                 <div class="stat-card">
                     <div class="stat-icon orange"><i class="fas fa-clipboard-list"></i></div>
-                    <div>
-                        <div class="stat-number" id="statTotal">0</div>
-                        <div class="stat-label">Total Pedidos</div>
-                    </div>
+                    <div><div class="stat-number" id="statTotal">0</div><div class="stat-label">Total Pedidos</div></div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon blue"><i class="fas fa-clock"></i></div>
-                    <div>
-                        <div class="stat-number" id="statPending">0</div>
-                        <div class="stat-label">Pendientes</div>
-                    </div>
+                    <div><div class="stat-number" id="statPending">0</div><div class="stat-label">Pendientes</div></div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
-                    <div>
-                        <div class="stat-number" id="statToday">0</div>
-                        <div class="stat-label">Hoy</div>
-                    </div>
+                    <div><div class="stat-number" id="statToday">0</div><div class="stat-label">Hoy</div></div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon purple"><i class="fas fa-dollar-sign"></i></div>
-                    <div>
-                        <div class="stat-number" id="statRevenue">$0</div>
-                        <div class="stat-label">Ingresos</div>
-                    </div>
+                    <div><div class="stat-number" id="statRevenue">$0</div><div class="stat-label">Ingresos</div></div>
                 </div>
             </div>
 
-            <!-- ===== TAB: PEDIDOS ===== -->
             <div class="tab-content active" id="ordersTab">
                 <div class="tab-header">
                     <h2><i class="fas fa-clipboard-list" style="color: var(--primary);"></i> Gestión de Pedidos</h2>
                     <div class="actions">
                         <div class="filters">
                             <select id="orderFilter">
-                                <option value="all">📋 Todos</option>
+                                <option value="all"> Todos</option>
                                 <option value="pendiente">⏳ Pendientes</option>
-                                <option value="en-preparacion">👨‍🍳 En Preparación</option>
-                                <option value="en-camino">🛵 En Camino</option>
+                                <option value="en-preparacion">‍🍳 En Preparación</option>
+                                <option value="en-camino"> En Camino</option>
                                 <option value="entregado">✅ Entregados</option>
                                 <option value="cancelado">❌ Cancelados</option>
                             </select>
@@ -387,105 +424,71 @@
                         <div class="column-body" id="col-pendiente"></div>
                     </div>
                     <div class="column" data-status="en-preparacion">
-                        <div class="column-header"><h3>👨‍🍳 En Preparación</h3><span class="count" id="count-preparacion">0</span></div>
+                        <div class="column-header"><h3>👨‍ En Preparación</h3><span class="count" id="count-preparacion">0</span></div>
                         <div class="column-body" id="col-preparacion"></div>
                     </div>
                     <div class="column" data-status="en-camino">
-                        <div class="column-header"><h3>🛵 En Camino</h3><span class="count" id="count-camino">0</span></div>
+                        <div class="column-header"><h3> En Camino</h3><span class="count" id="count-camino">0</span></div>
                         <div class="column-body" id="col-camino"></div>
                     </div>
                     <div class="column" data-status="entregado">
-                        <div class="column-header">
-                            <h3>✅ Entregados</h3>
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <button class="btn-clear-delivered" onclick="clearDeliveredOrders()" title="Borrar todos los entregados">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                                <span class="count" id="count-entregado">0</span>
-                            </div>
-                        </div>
+                        <div class="column-header"><h3>✅ Entregados</h3><span class="count" id="count-entregado">0</span></div>
                         <div class="column-body" id="col-entregado"></div>
                     </div>
                 </div>
             </div>
 
-            <!-- ===== TAB: ENTREGADORES ===== -->
             <div class="tab-content" id="deliverersTab">
                 <div class="tab-header">
                     <h2><i class="fas fa-motorcycle" style="color: var(--primary);"></i> Entregadores</h2>
-                    <div class="actions">
-                        <button class="btn-primary-sm" onclick="openDelivererModal()"><i class="fas fa-plus"></i> Agregar Entregador</button>
-                        <button class="btn-secondary-sm" onclick="loadDeliverers()"><i class="fas fa-sync"></i> Sincronizar</button>
-                    </div>
+                    <div class="actions"><button class="btn-secondary-sm" onclick="loadDeliverers()"><i class="fas fa-sync"></i> Sincronizar</button></div>
                 </div>
                 <div class="deliverers-grid" id="deliverersGrid"></div>
             </div>
 
-            <!-- ===== TAB: MENÚ ===== -->
             <div class="tab-content" id="menuTab">
                 <div class="tab-header">
                     <h2><i class="fas fa-utensils" style="color: var(--primary);"></i> Administrar Menú</h2>
-                    <div class="actions">
-                        <button class="btn-primary-sm" onclick="openProductModal()"><i class="fas fa-plus"></i> Agregar Producto</button>
-                        <button class="btn-secondary-sm" onclick="loadMenuItems()"><i class="fas fa-sync"></i> Sincronizar</button>
-                    </div>
+                    <div class="actions"><button class="btn-secondary-sm" onclick="loadMenuItems()"><i class="fas fa-sync"></i> Sincronizar</button></div>
                 </div>
                 <div class="menu-admin-grid" id="menuAdminGrid"></div>
             </div>
 
-            <!-- ===== TAB: ESTADÍSTICAS ===== -->
             <div class="tab-content" id="statsTab">
-                <div class="tab-header">
-                    <h2><i class="fas fa-chart-bar" style="color: var(--primary);"></i> Estadísticas</h2>
-                </div>
-                <div class="stats-charts-grid">
-                    <div class="stats-chart-card">
-                        <h3>📊 Pedidos por Estado</h3>
+                <div class="tab-header"><h2><i class="fas fa-chart-bar" style="color: var(--primary);"></i> Estadísticas</h2></div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                    <div style="background: white; border-radius: var(--radius); padding: 1.5rem; box-shadow: var(--shadow);">
+                        <h3 style="margin-bottom: 1rem;">📊 Pedidos por Estado</h3>
                         <div id="statusChart"></div>
                     </div>
-                    <div class="stats-chart-card">
-                        <h3>📈 Ingresos Diarios (últimos 7 días)</h3>
+                    <div style="background: white; border-radius: var(--radius); padding: 1.5rem; box-shadow: var(--shadow);">
+                        <h3 style="margin-bottom: 1rem;">📈 Ingresos Diarios</h3>
                         <div id="revenueChart"></div>
                     </div>
                 </div>
             </div>
-
         </main>
     </div>
 
-    <!-- ===== MODALES (mantené los mismos que ya tenés) ===== -->
-    <!-- ... (modales de asignar entregador, producto, etc.) ... -->
-
-    <!-- ===== SCRIPTS ===== -->
     <script>
-        // ===== CONFIGURACIÓN DE SEGURIDAD =====
+        // ===== CONFIGURACIÓN =====
         const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzno9_b1xIrGpBB5MZcXvH2XukxAx4inrG-3HIdM0ZSRsnxyR0YrzfQ_sUqibM_1rsWug/exec';
         const ADMIN_SECRET = 'delicias_secret_2026_secure_key';
-        
-        // ===== NUEVA CONTRASEÑA DEL ADMIN =====
         const ADMIN_USER = 'admin';
         const ADMIN_PASS = '2409@dmin';
         
-        // ===== VARIABLES GLOBALES =====
         let orders = [];
         let deliverers = [];
         let menuItems = [];
-        let selectedOrderId = null;
-        let selectedDelivererId = null;
         let timerInterval = null;
         let autoRefreshInterval = null;
 
-        // ===== FECHA =====
-        document.getElementById('currentDate').textContent = 
-            new Date().toLocaleDateString('es-AR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('es-AR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-        // ===== LOGIN (SIN POPUP DE GOOGLE) =====
+        // ===== LOGIN =====
         document.getElementById('loginForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            const user = document.getElementById('loginUser').value;
-            const pass = document.getElementById('loginPass').value;
-            
-            if (user === ADMIN_USER && pass === ADMIN_PASS) {
+            if (document.getElementById('loginUser').value === ADMIN_USER && document.getElementById('loginPass').value === ADMIN_PASS) {
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('dashboardScreen').style.display = 'block';
                 showNotification('✅ Bienvenido al panel', 'success');
@@ -495,26 +498,21 @@
             }
         });
 
-        document.getElementById('logoutBtn').addEventListener('click', async () => {
+        document.getElementById('logoutBtn').addEventListener('click', () => {
             stopTimerUpdates();
             stopAutoRefresh();
             document.getElementById('loginScreen').style.display = 'flex';
             document.getElementById('dashboardScreen').style.display = 'none';
-            showNotification('Sesión cerrada', 'info');
         });
 
         // ===== NAVEGACIÓN =====
         document.querySelectorAll('.sidebar .nav-item[data-tab]').forEach(btn => {
             btn.addEventListener('click', function() {
-                const tab = this.dataset.tab;
                 document.querySelectorAll('.sidebar .nav-item[data-tab]').forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
                 document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                document.getElementById(tab + 'Tab').classList.add('active');
-                if (tab === 'orders') renderOrders();
-                if (tab === 'deliverers') renderDeliverers();
-                if (tab === 'menu') renderMenuAdmin();
-                if (tab === 'stats') updateStats();
+                document.getElementById(this.dataset.tab + 'Tab').classList.add('active');
+                if (this.dataset.tab === 'orders') renderOrders();
             });
         });
 
@@ -532,7 +530,7 @@
             }, 4000);
         }
 
-        // ===== CARGAR DATOS DESDE APPS SCRIPT =====
+        // ===== CARGAR DATOS =====
         async function loadDashboardData() {
             await loadOrders();
             await loadDeliverers();
@@ -541,18 +539,14 @@
 
         async function loadOrders() {
             try {
-                const response = await fetch(WEB_APP_URL, {
+                const res = await fetch(WEB_APP_URL, {
                     method: 'POST',
                     mode: 'cors',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        action: 'getOrders',
-                        secret: ADMIN_SECRET 
-                    })
+                    body: JSON.stringify({ accion: 'obtenerPedidos', secret: ADMIN_SECRET })
                 });
-                
-                const data = await response.json();
-                
+                const data = await res.json();
+                console.log(' Pedidos recibidos:', data);
                 if (data.orders && data.orders.length > 0) {
                     orders = data.orders;
                     renderOrders();
@@ -560,452 +554,316 @@
                     startAutoRefresh();
                     return;
                 }
-            } catch (error) {
-                console.error('Error cargando pedidos:', error);
+            } catch (e) {
+                console.error('Error cargando pedidos:', e);
             }
-            
-            const saved = localStorage.getItem('orders');
-            orders = saved ? JSON.parse(saved) : [];
+            orders = JSON.parse(localStorage.getItem('orders') || '[]');
             renderOrders();
             startTimerUpdates();
         }
 
         async function loadDeliverers() {
             try {
-                const response = await fetch(WEB_APP_URL, {
+                const res = await fetch(WEB_APP_URL, {
                     method: 'POST',
                     mode: 'cors',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        action: 'getDeliverers',
-                        secret: ADMIN_SECRET 
-                    })
+                    body: JSON.stringify({ accion: 'getDeliverers', secret: ADMIN_SECRET })
                 });
-                
-                const data = await response.json();
-                
-                if (data.deliverers && data.deliverers.length > 0) {
+                const data = await res.json();
+                if (data.deliverers) {
                     deliverers = data.deliverers;
                     renderDeliverers();
                     return;
                 }
-            } catch (error) {
-                console.error('Error cargando entregadores:', error);
-            }
-            
-            const saved = localStorage.getItem('deliverers');
-            deliverers = saved ? JSON.parse(saved) : [];
+            } catch (e) {}
+            deliverers = JSON.parse(localStorage.getItem('deliverers') || '[]');
             renderDeliverers();
         }
 
         async function loadMenuItems() {
             try {
-                const response = await fetch(WEB_APP_URL, {
+                const res = await fetch(WEB_APP_URL, {
                     method: 'POST',
                     mode: 'cors',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        action: 'getProducts',
-                        secret: ADMIN_SECRET 
-                    })
+                    body: JSON.stringify({ accion: 'obtenerProductos', secret: ADMIN_SECRET })
                 });
-                
-                const data = await response.json();
-                
-                if (data.products && data.products.length > 0) {
+                const data = await res.json();
+                if (data.products) {
                     menuItems = data.products;
                     renderMenuAdmin();
                     return;
                 }
-            } catch (error) {
-                console.error('Error cargando menú:', error);
-            }
-            
-            const saved = localStorage.getItem('menuItems');
-            menuItems = saved ? JSON.parse(saved) : [];
+            } catch (e) {}
+            menuItems = JSON.parse(localStorage.getItem('menuItems') || '[]');
             renderMenuAdmin();
         }
 
         // ===== AUTO-REFRESH =====
         function startAutoRefresh() {
-            if (autoRefreshInterval) {
-                clearInterval(autoRefreshInterval);
-            }
-            
-            document.getElementById('autoRefreshIndicator').style.display = 'flex';
-            
+            if (autoRefreshInterval) clearInterval(autoRefreshInterval);
             autoRefreshInterval = setInterval(async () => {
-                console.log('🔄 Actualización automática...');
-                
                 try {
-                    const response = await fetch(WEB_APP_URL, {
+                    const res = await fetch(WEB_APP_URL, {
                         method: 'POST',
                         mode: 'cors',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ 
-                            action: 'getOrders',
-                            secret: ADMIN_SECRET 
-                        })
+                        body: JSON.stringify({ accion: 'obtenerPedidos', secret: ADMIN_SECRET })
                     });
-                    
-                    const data = await response.json();
-                    
-                    if (data.orders && data.orders.length > 0) {
-                        const currentCount = orders.length;
-                        const newCount = data.orders.length;
-                        
-                        if (newCount !== currentCount) {
-                            console.log(`📦 Nuevo pedido detectado! (${currentCount} → ${newCount})`);
-                            orders = data.orders;
-                            renderOrders();
-                            updateStats();
-                            showNotification('📦 ¡Nuevo pedido recibido!', 'success');
-                        }
+                    const data = await res.json();
+                    if (data.orders && data.orders.length !== orders.length) {
+                        orders = data.orders;
+                        renderOrders();
+                        updateStats();
+                        showNotification('📦 ¡Nuevo pedido recibido!', 'success');
                     }
-                } catch (error) {
-                    console.error('Error en actualización automática:', error);
-                }
+                } catch (e) {}
             }, 10000);
-            
-            console.log('⏰ Auto-refresh iniciado (cada 10 segundos)');
         }
+        function stopAutoRefresh() { if (autoRefreshInterval) clearInterval(autoRefreshInterval); }
 
-        function stopAutoRefresh() {
-            if (autoRefreshInterval) {
-                clearInterval(autoRefreshInterval);
-                autoRefreshInterval = null;
-            }
-            document.getElementById('autoRefreshIndicator').style.display = 'none';
-        }
-
-        // ===== TIMER DE PEDIDOS =====
-        function formatElapsedTime(timestamp) {
-            const now = Date.now();
-            const diff = Math.max(0, now - timestamp);
-            
-            const seconds = Math.floor(diff / 1000);
-            const minutes = Math.floor(seconds / 60);
-            const hours = Math.floor(minutes / 60);
-            
-            if (hours > 0) {
-                const mins = minutes % 60;
-                return `${hours}h ${mins.toString().padStart(2, '0')}m`;
-            } else if (minutes > 0) {
-                const secs = seconds % 60;
-                return `${minutes}m ${secs.toString().padStart(2, '0')}s`;
-            } else {
-                return `${seconds}s`;
-            }
+        // ===== TIMER =====
+        function formatElapsedTime(ts) {
+            const diff = Math.max(0, Date.now() - ts);
+            const s = Math.floor(diff/1000), m = Math.floor(s/60), h = Math.floor(m/60);
+            if (h>0) return `${h}h ${String(m%60).padStart(2,'0')}m`;
+            if (m>0) return `${m}m ${String(s%60).padStart(2,'0')}s`;
+            return `${s}s`;
         }
 
         function updateAllTimers() {
-            const timers = document.querySelectorAll('.order-timer');
-            
-            timers.forEach(timerEl => {
-                const timestamp = parseInt(timerEl.dataset.timestamp);
-                if (!timestamp) return;
-                
-                const now = Date.now();
-                const diffMinutes = Math.floor((now - timestamp) / 60000);
-                
-                const valueSpan = timerEl.querySelector('.timer-value');
-                if (valueSpan) {
-                    valueSpan.textContent = formatElapsedTime(timestamp);
-                }
-                
-                if (diffMinutes >= 30) {
-                    timerEl.classList.add('urgent');
-                } else {
-                    timerEl.classList.remove('urgent');
-                }
+            document.querySelectorAll('.order-timer').forEach(el => {
+                const ts = parseInt(el.dataset.timestamp);
+                if (!ts) return;
+                const val = el.querySelector('.timer-value');
+                if (val) val.textContent = formatElapsedTime(ts);
+                if (Math.floor((Date.now()-ts)/60000) >= 30) el.classList.add('urgent');
+                else el.classList.remove('urgent');
             });
         }
-
         function startTimerUpdates() {
-            if (timerInterval) {
-                clearInterval(timerInterval);
-            }
+            if (timerInterval) clearInterval(timerInterval);
             timerInterval = setInterval(updateAllTimers, 1000);
-            console.log('⏱️ Timers de pedidos iniciados');
         }
+        function stopTimerUpdates() { if (timerInterval) clearInterval(timerInterval); }
 
-        function stopTimerUpdates() {
-            if (timerInterval) {
-                clearInterval(timerInterval);
-                timerInterval = null;
-            }
-        }
-
-        // ===== PARSEAR ITEMS DEL PEDIDO =====
-        function parseOrderItems(itemsString) {
-            if (!itemsString) return [];
-            return itemsString.split(',').map(item => item.trim()).filter(item => item.length > 0);
+        // ===== PARSEAR ITEMS =====
+        function parseOrderItems(str) {
+            return str ? str.split(',').map(i => i.trim()).filter(i => i) : [];
         }
 
         // ===== RENDER PEDIDOS =====
         function renderOrders() {
-            const statuses = ['pendiente', 'en-preparacion', 'en-camino', 'entregado'];
-            const labels = { 'pendiente': 'pendiente', 'en-preparacion': 'preparacion', 'en-camino': 'camino', 'entregado': 'entregado' };
+            console.log('🎨 Renderizando pedidos...', orders);
             
-            statuses.forEach(status => {
-                const container = document.getElementById(`col-${labels[status]}`);
-                const countEl = document.getElementById(`count-${labels[status]}`);
-                if (!container) return;
+            const statuses = ['pendiente', 'en-preparacion', 'en-camino', 'entregado'];
+            const labels = {
+                'pendiente': 'pendiente',
+                'en-preparacion': 'preparacion',
+                'en-camino': 'camino',
+                'entregado': 'entregado'
+            };
+            
+            statuses.forEach(st => {
+                const container = document.getElementById(`col-${labels[st]}`);
+                const countEl = document.getElementById(`count-${labels[st]}`);
                 
-                const filtered = orders.filter(o => o.estado === status);
+                if (!container) {
+                    console.error(`❌ No encontrado: col-${labels[st]}`);
+                    return;
+                }
+                
+                const filtered = orders.filter(o => {
+                    const estado = (o.estado || '').toString().toLowerCase().trim();
+                    return estado === st;
+                });
+                
+                console.log(` ${st}: ${filtered.length} pedidos`);
+                
                 if (countEl) countEl.textContent = filtered.length;
                 
-                container.innerHTML = filtered.length === 0 
-                    ? `<div class="empty-state"><i class="fas fa-inbox"></i><p>Sin pedidos</p></div>`
-                    : filtered.map(order => {
-                        const pagoLower = (order.pago || '').toLowerCase();
-                        let pagoIcon = 'fa-money-bill-wave';
-                        if (pagoLower.includes('tarjeta') || pagoLower.includes('credito') || pagoLower.includes('crédito')) pagoIcon = 'fa-credit-card';
-                        else if (pagoLower.includes('transferencia') || pagoLower.includes('transfer')) pagoIcon = 'fa-building-columns';
-                        else if (pagoLower.includes('mercado') || pagoLower.includes('mp')) pagoIcon = 'fa-mobile-screen';
-                        
-                        const notasText = order.notas && order.notas.trim() !== '' ? order.notas : 'S/N';
-                        const hasNotes = order.notas && order.notas.trim() !== '';
-                        
-                        const fechaPedido = new Date(order.fecha);
-                        const timestamp = fechaPedido.getTime();
-                        
-                        const itemsList = parseOrderItems(order.items);
-                        
-                        return `
+                if (filtered.length === 0) {
+                    container.innerHTML = `<div class="empty-state"><i class="fas fa-inbox"></i><p>Sin pedidos</p></div>`;
+                    return;
+                }
+                
+                container.innerHTML = filtered.map(o => {
+                    const pagoLower = (o.pago || '').toLowerCase();
+                    let pagoIcon = 'fa-money-bill-wave';
+                    if (pagoLower.includes('tarjeta') || pagoLower.includes('credito') || pagoLower.includes('crédito')) pagoIcon = 'fa-credit-card';
+                    else if (pagoLower.includes('transferencia') || pagoLower.includes('transfer')) pagoIcon = 'fa-building-columns';
+                    else if (pagoLower.includes('mercado') || pagoLower.includes('mp')) pagoIcon = 'fa-mobile-screen';
+                    
+                    const notas = o.notas && o.notas.trim() ? o.notas : 'S/N';
+                    const fecha = new Date(o.fecha);
+                    const timestamp = fecha.getTime();
+                    const itemsList = parseOrderItems(o.items);
+                    
+                    return `
                         <div class="order-card">
                             <div class="order-time-wrapper">
-                                <span class="order-time"><i class="far fa-clock"></i> ${fechaPedido.toLocaleTimeString()}</span>
-                                <span class="order-timer" data-timestamp="${timestamp}" data-order-id="${order.id}">
+                                <span class="order-time"><i class="far fa-clock"></i> ${fecha.toLocaleTimeString()}</span>
+                                <span class="order-timer" data-timestamp="${timestamp}" data-order-id="${o.id}">
                                     <i class="fas fa-stopwatch"></i>
                                     <span class="timer-value">${formatElapsedTime(timestamp)}</span>
                                 </span>
                             </div>
-                            <div class="order-customer">${order.cliente}</div>
+                            <div class="order-customer">${o.cliente || 'Sin cliente'}</div>
                             <div class="order-items-list">
                                 ${itemsList.map(item => `<div class="order-item-line">${item}</div>`).join('')}
                             </div>
-                            <div class="order-address"><i class="fas fa-map-marker-alt"></i> ${order.direccion || 'Sin dirección'}</div>
-                            <div class="order-payment"><i class="fas ${pagoIcon}"></i> ${order.pago || 'Efectivo'}</div>
+                            <div style="font-size: 0.8rem; color: var(--gray-400); margin: 0.3rem 0;">
+                                <i class="fas fa-map-marker-alt"></i> ${o.direccion || 'Sin dirección'}
+                            </div>
+                            <div class="order-payment">
+                                <i class="fas ${pagoIcon}"></i> ${o.pago || 'Efectivo'}
+                            </div>
                             <div class="order-notes">
                                 <i class="fas fa-sticky-note"></i> 
-                                <span class="${hasNotes ? 'notes-text' : 'no-notes'}">${notasText}</span>
+                                <span>${notas}</span>
                             </div>
-                            <div class="order-total">$${parseInt(order.total).toLocaleString()}</div>
-                            <div class="order-deliverer">${order.entregador && order.entregador !== 'Sin asignar' ? '🛵 ' + order.entregador : '📦 Sin entregador'}</div>
+                            <div class="order-total">$${parseInt(o.total || 0).toLocaleString()}</div>
+                            <div style="font-size: 0.8rem; color: var(--gray-500); margin: 0.3rem 0;">
+                                ${o.entregador && o.entregador !== 'Sin asignar' ? '🛵 ' + o.entregador : '📦 Sin entregador'}
+                            </div>
                             <div class="order-actions">
-                                <button class="btn-whatsapp" onclick="contactCustomer('${order.id}')" title="Enviar detalle del pedido por WhatsApp"><i class="fab fa-whatsapp"></i></button>
-                                ${status !== 'entregado' && status !== 'cancelado' ? `
-                                    <button class="btn-status" onclick="changeOrderStatus('${order.id}')"><i class="fas fa-arrow-right"></i> Avanzar</button>
-                                    <button class="btn-assign" onclick="openAssignDelivererModal('${order.id}')"><i class="fas fa-motorcycle"></i></button>
-                                    <button class="btn-cancel" onclick="cancelOrder('${order.id}')"><i class="fas fa-times"></i></button>
+                                <button class="btn-whatsapp" onclick="contactCustomer('${o.id}')">
+                                    <i class="fab fa-whatsapp"></i>
+                                </button>
+                                ${st !== 'entregado' && st !== 'cancelado' ? `
+                                    <button class="btn-status" onclick="changeOrderStatus('${o.id}')">
+                                        <i class="fas fa-arrow-right"></i> Avanzar
+                                    </button>
+                                    <button class="btn-assign" onclick="openAssignModal('${o.id}')">
+                                        <i class="fas fa-motorcycle"></i>
+                                    </button>
+                                    <button class="btn-cancel" onclick="cancelOrder('${o.id}')">
+                                        <i class="fas fa-times"></i>
+                                    </button>
                                 ` : ''}
                             </div>
                         </div>
-                    `}).join('');
+                    `;
+                }).join('');
             });
             
             updateStats();
             document.getElementById('sidebarOrdersCount').textContent = orders.length;
         }
 
-        // ===== ACTUALIZAR ESTADO DE PEDIDO (VIA APPS SCRIPT) =====
+        // ===== ACTUALIZAR ESTADO =====
         async function changeOrderStatus(id) {
-            const order = orders.find(o => o.id === id);
-            if (!order) return;
-            const flow = { 'pendiente': 'en-preparacion', 'en-preparacion': 'en-camino', 'en-camino': 'entregado' };
-            const newStatus = flow[order.estado] || order.estado;
-            
+            const o = orders.find(x => x.id === id);
+            if (!o) return;
+            const flow = {'pendiente':'en-preparacion','en-preparacion':'en-camino','en-camino':'entregado'};
+            const newSt = flow[o.estado] || o.estado;
             try {
                 await fetch(WEB_APP_URL, {
                     method: 'POST',
                     mode: 'cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        action: 'updateOrderStatus',
-                        orderId: id,
-                        newStatus: newStatus,
-                        secret: ADMIN_SECRET 
-                    })
+                    headers: {'Content-Type':'application/json'},
+                    body: JSON.stringify({accion:'actualizarEstadoDelOrden', orderId:id, newStatus:newSt, secret:ADMIN_SECRET})
                 });
-                
-                order.estado = newStatus;
+                o.estado = newSt;
                 localStorage.setItem('orders', JSON.stringify(orders));
                 renderOrders();
                 showNotification('✅ Estado actualizado', 'success');
-                
-            } catch (error) {
-                console.error('Error:', error);
-                order.estado = newStatus;
-                localStorage.setItem('orders', JSON.stringify(orders));
-                renderOrders();
+            } catch(e) {
                 showNotification('⚠️ Error al actualizar', 'warning');
             }
         }
 
-        // ===== BORRAR ENTREGADOS (VIA APPS SCRIPT) =====
-        async function clearDeliveredOrders() {
-            const deliveredCount = orders.filter(o => o.estado === 'entregado').length;
-            
-            if (deliveredCount === 0) {
-                showNotification('ℹ️ No hay pedidos entregados', 'info');
-                return;
-            }
-            
-            if (!confirm(`¿Borrar ${deliveredCount} pedido(s) entregado(s)?`)) return;
-            if (!confirm('⚠️ ÚLTIMA CONFIRMACIÓN')) return;
-            
-            try {
-                await fetch(WEB_APP_URL, {
-                    method: 'POST',
-                    mode: 'cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        action: 'clearDelivered',
-                        secret: ADMIN_SECRET 
-                    })
-                });
-                
-                orders = orders.filter(o => o.estado !== 'entregado');
-                localStorage.setItem('orders', JSON.stringify(orders));
-                renderOrders();
-                updateStats();
-                
-                showNotification(`✅ ${deliveredCount} pedido(s) eliminado(s)`, 'success');
-                
-            } catch (error) {
-                console.error('Error:', error);
-                showNotification('❌ Error al borrar', 'error');
-            }
+        // ===== WHATSAPP =====
+        function contactCustomer(id) {
+            const o = orders.find(x => x.id === id);
+            if (!o) return;
+            const phone = (o.telefono || '').replace(/\D/g, '');
+            if (!phone) return;
+            const msg = encodeURIComponent(`🍕 *DELICIAS*\nPedido: ${o.id}\nCliente: ${o.cliente}\nTotal: $${parseInt(o.total||0).toLocaleString()}\nEstado: ${o.estado}\n${o.items}`);
+            window.open(`https://wa.me/54${phone}?text=${msg}`);
         }
 
-        // ===== CONTACTAR CLIENTE POR WHATSAPP =====
-        function contactCustomer(orderId) {
-            const order = orders.find(o => o.id === orderId);
-            
-            if (!order) {
-                showNotification('❌ Pedido no encontrado', 'error');
-                return;
-            }
-            
-            const phone = (order.telefono || '').replace(/\s/g, '').replace(/-/g, '');
-            
-            if (!phone) {
-                showNotification('⚠️ El pedido no tiene teléfono registrado', 'warning');
-                return;
-            }
-            
-            const fecha = new Date(order.fecha).toLocaleString('es-AR', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-            
-            const estadoEmojis = {
-                'pendiente': '⏳',
-                'en-preparacion': '👨‍🍳',
-                'en-camino': '🛵',
-                'entregado': '✅',
-                'cancelado': '❌'
-            };
-            
-            const estadoLabel = {
-                'pendiente': 'Pendiente',
-                'en-preparacion': 'En Preparación',
-                'en-camino': 'En Camino',
-                'entregado': 'Entregado',
-                'cancelado': 'Cancelado'
-            };
-            
-            const estadoEmoji = estadoEmojis[order.estado] || '📦';
-            const estadoTexto = estadoLabel[order.estado] || order.estado;
-            
-            let mensaje = `🍕 *DELICIAS ROTISERÍA*\n`;
-            mensaje += `━━━━━━━━━━━━━━━━━━\n\n`;
-            mensaje += `📋 *DETALLE DE TU PEDIDO*\n\n`;
-            mensaje += `👤 *Cliente:* ${order.cliente}\n`;
-            mensaje += `📱 *Teléfono:* ${order.telefono}\n`;
-            mensaje += `📍 *Dirección:* ${order.direccion || 'Retira en local'}\n`;
-            mensaje += `🕐 *Fecha:* ${fecha}\n\n`;
-            mensaje += `━━━━━━━━━━━━━━━━━━\n`;
-            mensaje += `🛒 *PRODUCTOS:*\n\n`;
-            
-            const items = order.items || '';
-            const itemsList = items.split(',').map(item => item.trim()).filter(item => item);
-            
-            if (itemsList.length > 0) {
-                itemsList.forEach(item => {
-                    mensaje += `• ${item}\n`;
-                });
-            } else {
-                mensaje += `• Sin detalles\n`;
-            }
-            
-            mensaje += `\n━━━━━━━━━━━━━━━━━━\n`;
-            mensaje += `💰 *TOTAL:* $${parseInt(order.total).toLocaleString()}\n`;
-            mensaje += `💳 *Pago:* ${order.pago || 'Efectivo'}\n`;
-            
-            if (order.notas && order.notas.trim() !== '') {
-                mensaje += `\n📝 *Notas:* ${order.notas}\n`;
-            }
-            
-            mensaje += `\n━━━━━━━━━━━━━━━━━━\n`;
-            mensaje += `📦 *ESTADO DEL PEDIDO:* ${estadoEmoji} ${estadoTexto}\n`;
-            
-            if (order.entregador && order.entregador !== 'Sin asignar') {
-                mensaje += `🛵 *Entregador:* ${order.entregador}\n`;
-            }
-            
-            mensaje += `\n━━━━━━━━━━━━━━━━━━\n`;
-            mensaje += `¡Gracias por tu compra! 🙏\n`;
-            mensaje += `Cualquier consulta, estamos a tu disposición.`;
-            
-            const mensajeCodificado = encodeURIComponent(mensaje);
-            const url = `https://wa.me/54${phone}?text=${mensajeCodificado}`;
-            window.open(url, '_blank');
-            
-            console.log('📱 Mensaje de WhatsApp enviado a:', phone);
-        }
-
-        // ===== RESTO DE FUNCIONES (modales, entregadores, menú, estadísticas) =====
-        // ... (mantené las mismas funciones que ya tenés para modales, entregadores, menú y estadísticas) ...
-        
-        // Por simplicidad, te doy solo las funciones clave modificadas.
-        // El resto (modales, entregadores, menú, estadísticas) son las mismas que ya tenés.
-        
+        // ===== FILTROS =====
         function clearFilters() {
             document.getElementById('orderFilter').value = 'all';
             document.getElementById('dateFilter').value = '';
             renderOrders();
         }
-        
-        // Funciones placeholder para que no dé error (reemplazalas con las que ya tenés)
-        function openAssignDelivererModal(id) { /* tu código existente */ }
-        function closeAssignDelivererModal() { /* tu código existente */ }
-        function selectDeliverer(id) { /* tu código existente */ }
-        function confirmAssignDeliverer() { /* tu código existente */ }
-        function cancelOrder(id) { /* tu código existente */ }
-        function renderDeliverers() { /* tu código existente */ }
-        function openDelivererModal(id) { /* tu código existente */ }
-        function closeDelivererModal() { /* tu código existente */ }
-        function editDeliverer(id) { /* tu código existente */ }
-        function deleteDeliverer(id) { /* tu código existente */ }
-        function toggleDeliverer(id) { /* tu código existente */ }
-        function renderMenuAdmin() { /* tu código existente */ }
-        function openProductModal(id) { /* tu código existente */ }
-        function closeProductModal() { /* tu código existente */ }
-        function editProduct(id) { /* tu código existente */ }
-        function deleteProduct(id) { /* tu código existente */ }
-        function updateStats() { /* tu código existente */ }
-        function renderStatusChart() { /* tu código existente */ }
-        function renderRevenueChart() { /* tu código existente */ }
 
-        // ===== INICIALIZACIÓN =====
-        startTimerUpdates();
-        console.log('🚀 Admin Panel iniciado - Sin popup de Google');
+        // ===== ESTADÍSTICAS =====
+        function updateStats() {
+            console.log('📊 Actualizando estadísticas...', orders);
+            const total = orders.length;
+            const pending = orders.filter(o => {
+                const estado = (o.estado || '').toString().toLowerCase().trim();
+                return ['pendiente', 'en-preparacion', 'en-camino'].includes(estado);
+            }).length;
+            const today = orders.filter(o => {
+                try {
+                    return new Date(o.fecha).toDateString() === new Date().toDateString();
+                } catch (e) { return false; }
+            }).length;
+            const revenue = orders.reduce((sum, o) => {
+                const estado = (o.estado || '').toString().toLowerCase().trim();
+                if (estado !== 'cancelado') return sum + (parseInt(o.total) || 0);
+                return sum;
+            }, 0);
+            
+            document.getElementById('statTotal').textContent = total;
+            document.getElementById('statPending').textContent = pending;
+            document.getElementById('statToday').textContent = today;
+            document.getElementById('statRevenue').textContent = `$${revenue.toLocaleString()}`;
+            
+            console.log(`✅ Stats: Total=${total}, Pendientes=${pending}, Hoy=${today}, Ingresos=$${revenue}`);
+        }
+
+        // ===== ENTREGADORES =====
+        function renderDeliverers() {
+            const c = document.getElementById('deliverersGrid');
+            if (!c) return;
+            c.innerHTML = deliverers.map(d => `
+                <div class="order-card">
+                    <div class="order-customer">${d.nombre}</div>
+                    <div class="order-payment"><i class="fas fa-phone"></i> ${d.telefono}</div>
+                    <div class="order-notes"><i class="fas fa-bicycle"></i> ${d.vehiculo || 'N/A'}</div>
+                    <div style="margin-top:0.5rem;font-size:0.8rem;color:${d.disponible ? '#2e7d32' : '#c62828'}">
+                        ${d.disponible ? '🟢 Disponible' : '🔴 No disponible'}
+                    </div>
+                </div>
+            `).join('');
+            document.getElementById('sidebarDeliverersCount').textContent = deliverers.length;
+        }
+
+        // ===== MENÚ =====
+        function renderMenuAdmin() {
+            const c = document.getElementById('menuAdminGrid');
+            if (!c) return;
+            c.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;">${menuItems.map(p => `
+                <div class="order-card">
+                    <div class="order-customer">${p.nombre}</div>
+                    <div class="order-total">$${parseInt(p.precio || 0).toLocaleString()}</div>
+                    <div class="order-notes">${p.categoria || ''}</div>
+                </div>
+            `).join('')}</div>`;
+            document.getElementById('sidebarMenuCount').textContent = menuItems.length;
+        }
+
+        // ===== MODALES PLACEHOLDER =====
+        function openAssignModal(id) { showNotification('🛵 Asignación rápida (próximamente)', 'info'); }
+        function cancelOrder(id) {
+            if (confirm('¿Cancelar pedido?')) {
+                const o = orders.find(x => x.id === id);
+                if (o) {
+                    o.estado = 'cancelado';
+                    localStorage.setItem('orders', JSON.stringify(orders));
+                    renderOrders();
+                    showNotification('❌ Pedido cancelado', 'info');
+                }
+            }
+        }
+
+        console.log('🚀 Admin Panel listo - Sin popup de Google');
     </script>
-
 </body>
 </html>
