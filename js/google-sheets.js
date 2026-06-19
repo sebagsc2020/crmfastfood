@@ -34,7 +34,7 @@ class GoogleSheetsManager {
         
         this.tokenClient = null;
         this.accessToken = null;
-        this.tokenExpiresAt = 0; // ⭐ NUEVO: Timestamp de expiración
+        this.tokenExpiresAt = 0;
         this.gapiInitialized = false;
         this.gisLoaded = false;
         
@@ -119,7 +119,6 @@ class GoogleSheetsManager {
             callback: (tokenResponse) => {
                 if (tokenResponse && tokenResponse.access_token) {
                     this.accessToken = tokenResponse.access_token;
-                    // ⭐ NUEVO: Los tokens duran ~1 hora, guardamos 55 min por seguridad
                     this.tokenExpiresAt = Date.now() + (55 * 60 * 1000);
                     console.log('✅ Token de acceso obtenido (válido por ~55 min)');
                 }
@@ -152,7 +151,6 @@ class GoogleSheetsManager {
                         return;
                     }
                     this.accessToken = response.access_token;
-                    // ⭐ NUEVO: Guardar expiración (55 min)
                     this.tokenExpiresAt = Date.now() + (55 * 60 * 1000);
                     console.log('✅ Autenticación exitosa');
                     resolve(true);
@@ -163,7 +161,6 @@ class GoogleSheetsManager {
                     reject(error);
                 };
 
-                // ⭐ Si forceConsent es true, pide login; si no, usa sesión actual
                 const prompt = forceConsent ? 'consent' : '';
                 this.tokenClient.requestAccessToken({ prompt });
             });
@@ -174,9 +171,8 @@ class GoogleSheetsManager {
         }
     }
 
-    // ===== ASEGURAR AUTENTICACIÓN (con verificación de expiración) =====
+    // ===== ASEGURAR AUTENTICACIÓN =====
     async ensureAuthenticated() {
-        // ⭐ Si no hay token O está expirado, re-autenticar
         if (!this._isTokenValid()) {
             console.log('⚠️ Token expirado o ausente. Re-autenticando...');
             this.accessToken = null;
@@ -202,13 +198,12 @@ class GoogleSheetsManager {
 
         const response = await fetch(url, { ...options, headers });
         
-        // ⭐ NUEVO: Si es 401 y no es reintento, re-autenticar y reintentar
         if (response.status === 401 && !isRetry) {
             console.warn('⚠️ Token inválido (401). Re-autenticando y reintentando...');
             this.accessToken = null;
             this.tokenExpiresAt = 0;
-            await this.authenticate(true); // Forzar consentimiento
-            return this._authenticatedFetch(url, options, true); // Reintentar una vez
+            await this.authenticate(true);
+            return this._authenticatedFetch(url, options, true);
         }
         
         if (!response.ok) {
@@ -276,12 +271,9 @@ class GoogleSheetsManager {
 
     async getOrders() {
         try {
-            const url = `${this.baseUrl}/Pedidos?key=${this.apiKey}`;
-            const response = await fetch(url);
-            
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-            const data = await response.json();
+            // ⭐ MEJORA: Usa autenticación en lugar de solo API Key
+            const url = `${this.baseUrl}/Pedidos`;
+            const data = await this._authenticatedFetch(url);
             
             if (!data.values || data.values.length < 2) {
                 return this.getFromLocalStorage('orders') || [];
@@ -334,22 +326,16 @@ class GoogleSheetsManager {
     }
 
     // ============================================
-    // PRODUCTOS
+    // PRODUCTOS (CORREGIDO)
     // ============================================
 
     async getProductsFromSheets() {
         try {
             console.log('📦 Obteniendo productos...');
             
-            const url = `${this.baseUrl}/Productos?key=${this.apiKey}`;
-            const response = await fetch(url);
-            
-            if (!response.ok) {
-                console.warn(`⚠️ Error HTTP ${response.status}`);
-                return [];
-            }
-
-            const data = await response.json();
+            // ⭐ MEJORA: Usa autenticación
+            const url = `${this.baseUrl}/Productos`;
+            const data = await this._authenticatedFetch(url);
             
             if (!data.values || data.values.length < 2) {
                 console.log('⚠️ No hay productos');
@@ -366,7 +352,8 @@ class GoogleSheetsManager {
                     product[key] = row[index] || '';
                 });
                 product.precio = parseFloat(product.precio) || 0;
-                product.id = parseInt(product.id) || Date.now();
+                // ⭐ CORRECCIÓN: Mantener ID como string para consistencia
+                product.id = (product.id || Date.now()).toString();
                 return product;
             });
 
@@ -379,33 +366,62 @@ class GoogleSheetsManager {
         }
     }
 
+    // ⭐ NUEVO: Guarda O actualiza producto (busca por ID)
     async saveProductToSheets(product) {
         try {
             console.log('📦 Guardando producto:', product);
             
             await this.ensureAuthenticated();
             
-            const values = [[
-                product.id || Date.now(),
-                product.nombre || '',
-                product.descripcion || '',
-                product.precio || 0,
-                product.imagen || '',
-                product.categoria || ''
-            ]];
+            // Buscar si el producto ya existe
+            const products = await this.getProductsFromSheets();
+            const existingIndex = products.findIndex(p => p.id.toString() === product.id.toString());
             
-            const url = `${this.baseUrl}/Productos:append?valueInputOption=USER_ENTERED`;
-            const data = await this._authenticatedFetch(url, {
-                method: 'POST',
-                body: JSON.stringify({
-                    range: 'Productos',
-                    majorDimension: 'ROWS',
-                    values: values
-                })
-            });
-
-            console.log('✅ Producto guardado:', data);
-            return data;
+            if (existingIndex !== -1) {
+                // ⭐ ACTUALIZAR existente
+                const rowIndex = existingIndex + 2;
+                const url = `${this.baseUrl}/Productos!A${rowIndex}:F${rowIndex}?valueInputOption=USER_ENTERED`;
+                
+                const values = [[
+                    product.id,
+                    product.nombre || '',
+                    product.descripcion || '',
+                    product.precio || 0,
+                    product.imagen || '',
+                    product.categoria || ''
+                ]];
+                
+                const data = await this._authenticatedFetch(url, {
+                    method: 'PUT',
+                    body: JSON.stringify({ values: values })
+                });
+                
+                console.log('✅ Producto actualizado:', data);
+                return data;
+            } else {
+                // ⭐ AGREGAR nuevo
+                const values = [[
+                    product.id || Date.now().toString(),
+                    product.nombre || '',
+                    product.descripcion || '',
+                    product.precio || 0,
+                    product.imagen || '',
+                    product.categoria || ''
+                ]];
+                
+                const url = `${this.baseUrl}/Productos:append?valueInputOption=USER_ENTERED`;
+                const data = await this._authenticatedFetch(url, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        range: 'Productos',
+                        majorDimension: 'ROWS',
+                        values: values
+                    })
+                });
+                
+                console.log('✅ Producto agregado:', data);
+                return data;
+            }
 
         } catch (error) {
             console.error('❌ Error al guardar producto:', error);
@@ -413,23 +429,56 @@ class GoogleSheetsManager {
         }
     }
 
+    // ⭐ NUEVO: Eliminar producto
+    async deleteProductFromSheets(productId) {
+        try {
+            console.log('🗑️ Eliminando producto:', productId);
+            
+            const products = await this.getProductsFromSheets();
+            const index = products.findIndex(p => p.id.toString() === productId.toString());
+            
+            if (index === -1) throw new Error('Producto no encontrado');
+
+            // Google Sheets API necesita el rango de filas a borrar
+            const rowIndex = index + 1; // 0-indexed para batchUpdate
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${this.spreadsheetId}:batchUpdate`;
+            
+            const data = await this._authenticatedFetch(url, {
+                method: 'POST',
+                body: JSON.stringify({
+                    requests: [{
+                        deleteDimension: {
+                            range: {
+                                sheetId: 0, // Asumiendo que Productos es la primera hoja
+                                dimension: 'ROWS',
+                                startIndex: rowIndex,
+                                endIndex: rowIndex + 1
+                            }
+                        }
+                    }]
+                })
+            });
+
+            console.log('✅ Producto eliminado:', data);
+            return data;
+
+        } catch (error) {
+            console.error('❌ Error al eliminar producto:', error);
+            throw error;
+        }
+    }
+
     // ============================================
-    // ENTREGADORES
+    // ENTREGADORES (CORREGIDO)
     // ============================================
 
     async getDeliverersFromSheets() {
         try {
             console.log('📦 Obteniendo entregadores...');
             
-            const url = `${this.baseUrl}/Entregadores?key=${this.apiKey}`;
-            const response = await fetch(url);
-            
-            if (!response.ok) {
-                console.warn(`⚠️ Error HTTP ${response.status}`);
-                return [];
-            }
-
-            const data = await response.json();
+            // ⭐ MEJORA: Usa autenticación
+            const url = `${this.baseUrl}/Entregadores`;
+            const data = await this._authenticatedFetch(url);
             
             if (!data.values || data.values.length < 2) {
                 console.log('⚠️ No hay entregadores');
@@ -445,8 +494,8 @@ class GoogleSheetsManager {
                     const key = this._normalizeHeader(header);
                     deliverer[key] = row[index] || '';
                 });
-                deliverer.disponible = deliverer.disponible === 'Sí' || deliverer.disponible === 'true';
-                deliverer.id = deliverer.id || Date.now().toString();
+                deliverer.disponible = deliverer.disponible === 'Sí' || deliverer.disponible === 'true' || deliverer.disponible === true;
+                deliverer.id = (deliverer.id || Date.now().toString()).toString();
                 return deliverer;
             });
 
@@ -459,35 +508,101 @@ class GoogleSheetsManager {
         }
     }
 
+    // ⭐ NUEVO: Guarda O actualiza entregador (busca por ID)
     async saveDelivererToSheets(deliverer) {
         try {
             console.log('📦 Guardando entregador:', deliverer);
             
             await this.ensureAuthenticated();
             
-            const values = [[
-                deliverer.id || Date.now().toString(),
-                deliverer.nombre || '',
-                deliverer.telefono || '',
-                deliverer.vehiculo || '',
-                deliverer.disponible ? 'Sí' : 'No'
-            ]];
+            // Buscar si el entregador ya existe
+            const deliverers = await this.getDeliverersFromSheets();
+            const existingIndex = deliverers.findIndex(d => d.id.toString() === deliverer.id.toString());
             
-            const url = `${this.baseUrl}/Entregadores:append?valueInputOption=USER_ENTERED`;
-            const data = await this._authenticatedFetch(url, {
-                method: 'POST',
-                body: JSON.stringify({
-                    range: 'Entregadores',
-                    majorDimension: 'ROWS',
-                    values: values
-                })
-            });
-
-            console.log('✅ Entregador guardado:', data);
-            return data;
+            if (existingIndex !== -1) {
+                // ⭐ ACTUALIZAR existente
+                const rowIndex = existingIndex + 2;
+                const url = `${this.baseUrl}/Entregadores!A${rowIndex}:E${rowIndex}?valueInputOption=USER_ENTERED`;
+                
+                const values = [[
+                    deliverer.id,
+                    deliverer.nombre || '',
+                    deliverer.telefono || '',
+                    deliverer.vehiculo || '',
+                    deliverer.disponible ? 'Sí' : 'No'
+                ]];
+                
+                const data = await this._authenticatedFetch(url, {
+                    method: 'PUT',
+                    body: JSON.stringify({ values: values })
+                });
+                
+                console.log('✅ Entregador actualizado:', data);
+                return data;
+            } else {
+                // ⭐ AGREGAR nuevo
+                const values = [[
+                    deliverer.id || Date.now().toString(),
+                    deliverer.nombre || '',
+                    deliverer.telefono || '',
+                    deliverer.vehiculo || '',
+                    deliverer.disponible ? 'Sí' : 'No'
+                ]];
+                
+                const url = `${this.baseUrl}/Entregadores:append?valueInputOption=USER_ENTERED`;
+                const data = await this._authenticatedFetch(url, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        range: 'Entregadores',
+                        majorDimension: 'ROWS',
+                        values: values
+                    })
+                });
+                
+                console.log('✅ Entregador agregado:', data);
+                return data;
+            }
 
         } catch (error) {
             console.error('❌ Error al guardar entregador:', error);
+            throw error;
+        }
+    }
+
+    // ⭐ NUEVO: Eliminar entregador
+    async deleteDelivererFromSheets(delivererId) {
+        try {
+            console.log('🗑️ Eliminando entregador:', delivererId);
+            
+            const deliverers = await this.getDeliverersFromSheets();
+            const index = deliverers.findIndex(d => d.id.toString() === delivererId.toString());
+            
+            if (index === -1) throw new Error('Entregador no encontrado');
+
+            const rowIndex = index + 1;
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${this.spreadsheetId}:batchUpdate`;
+            
+            const data = await this._authenticatedFetch(url, {
+                method: 'POST',
+                body: JSON.stringify({
+                    requests: [{
+                        deleteDimension: {
+                            range: {
+                                sheetId: 0,
+                                dimension: 'ROWS',
+                                startIndex: rowIndex,
+                                endIndex: rowIndex + 1
+                            }
+                        }
+                    }]
+                })
+            });
+
+            console.log('✅ Entregador eliminado:', data);
+            return data;
+
+        } catch (error) {
+            console.error('❌ Error al eliminar entregador:', error);
             throw error;
         }
     }
@@ -585,8 +700,10 @@ window.getOrdersFromSheets = async () => await GoogleSheets.getOrders();
 window.updateOrderStatusInSheets = async (id, status) => await GoogleSheets.updateOrderStatus(id, status);
 window.getProductsFromSheets = async () => await GoogleSheets.getProductsFromSheets();
 window.saveProductToSheets = async (product) => await GoogleSheets.saveProductToSheets(product);
+window.deleteProductFromSheets = async (id) => await GoogleSheets.deleteProductFromSheets(id);
 window.getDeliverersFromSheets = async () => await GoogleSheets.getDeliverersFromSheets();
 window.saveDelivererToSheets = async (deliverer) => await GoogleSheets.saveDelivererToSheets(deliverer);
+window.deleteDelivererFromSheets = async (id) => await GoogleSheets.deleteDelivererFromSheets(id);
 window.updateDelivererInSheets = async (id, data) => await GoogleSheets.updateDelivererInSheets(id, data);
 
 console.log('✅ GoogleSheets disponible globalmente');
