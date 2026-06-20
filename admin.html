@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin--Panel - Rotisería Delicias</title>
+    <title>Admin Panel - Rotisería Delicias</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -299,7 +299,7 @@
                         <div class="filters">
                             <select id="orderFilter">
                                 <option value="all">📋 Todos</option>
-                                <option value="pendiente">⏳ Pendientes</option>
+                                <option value="pendiente"> Pendientes</option>
                                 <option value="en-preparacion">👨‍ En Preparación</option>
                                 <option value="en-camino">🛵 En Camino</option>
                                 <option value="entregado">✅ Entregados</option>
@@ -452,7 +452,7 @@
             </div>
             <form id="addDelivererForm">
                 <div class="form-group">
-                    <label>👤 Nombre completo *</label>
+                    <label> Nombre completo *</label>
                     <input type="text" id="delivererName" required placeholder="Ej: Carlos Gómez">
                 </div>
                 <div class="form-group">
@@ -464,7 +464,7 @@
                     <input type="text" id="delivererVehicle" placeholder="Ej: Moto, Bicicleta, Auto">
                 </div>
                 <div class="form-group">
-                    <label>📌 Disponible</label>
+                    <label> Disponible</label>
                     <select id="delivererAvailable">
                         <option value="true">✅ Disponible</option>
                         <option value="false">❌ No disponible</option>
@@ -505,7 +505,8 @@
                         showNotification('✅ Bienvenido al panel', 'success');
                         loadDashboardData();
                     } catch (error) {
-                        showNotification('❌ Error al autenticar con Google', 'error');
+                        console.error('Error:', error);
+                        showNotification(' Error al autenticar', 'error');
                     }
                 } else {
                     showNotification('❌ Google Sheets no disponible', 'error');
@@ -552,25 +553,32 @@
             await Promise.allSettled([loadOrders(), loadDeliverers(), loadMenuItems()]);
         }
 
+        //  CARGAR PEDIDOS MEJORADO
         async function loadOrders() {
             try {
                 if (window.GoogleSheets) {
                     const sheetOrders = await window.GoogleSheets.getOrders();
+                    console.log(`📦 Pedidos cargados: ${sheetOrders.length}`);
+                    
                     if (sheetOrders && sheetOrders.length > 0) {
                         orders = sheetOrders.map(o => ({
                             ...o,
                             estado: o.estado === 'pendiente_pago' ? 'pendiente' : o.estado
                         }));
-                        renderOrders();
-                        startTimerUpdates();
-                        startAutoRefresh();
-                        return;
+                    } else {
+                        orders = [];
                     }
+                } else {
+                    orders = JSON.parse(localStorage.getItem('orders') || '[]');
                 }
-            } catch (e) { console.error('Error cargando pedidos:', e); }
-            orders = JSON.parse(localStorage.getItem('orders') || '[]');
+            } catch (e) { 
+                console.error('Error cargando pedidos:', e);
+                orders = JSON.parse(localStorage.getItem('orders') || '[]');
+            }
+            
             renderOrders();
             startTimerUpdates();
+            startAutoRefresh();
         }
 
         async function loadDeliverers() {
@@ -595,25 +603,51 @@
             renderMenuAdmin();
         }
 
+        // ⭐ AUTO-REFRESH MEJORADO
         function startAutoRefresh() {
             if (autoRefreshInterval) clearInterval(autoRefreshInterval);
+            
             autoRefreshInterval = setInterval(async () => {
                 try {
                     if (window.GoogleSheets) {
                         const sheetOrders = await window.GoogleSheets.getOrders();
-                        if (sheetOrders && sheetOrders.length !== orders.length) {
-                            orders = sheetOrders.map(o => ({
+                        
+                        if (sheetOrders) {
+                            const newOrders = sheetOrders.map(o => ({
                                 ...o,
                                 estado: o.estado === 'pendiente_pago' ? 'pendiente' : o.estado
                             }));
-                            renderOrders();
-                            updateStats();
-                            showNotification('📦 ¡Nuevo pedido recibido!', 'success');
+                            
+                            if (newOrders.length !== orders.length) {
+                                console.log(`🔄 Nuevo pedido detectado! (${orders.length} → ${newOrders.length})`);
+                                orders = newOrders;
+                                renderOrders();
+                                updateStats();
+                                showNotification('📦 ¡Nuevo pedido recibido!', 'success');
+                            } else {
+                                let changed = false;
+                                for (let i = 0; i < newOrders.length; i++) {
+                                    if (newOrders[i].estado !== orders[i]?.estado) {
+                                        changed = true;
+                                        break;
+                                    }
+                                }
+                                
+                                if (changed) {
+                                    console.log('🔄 Cambios en pedidos detectados');
+                                    orders = newOrders;
+                                    renderOrders();
+                                    updateStats();
+                                }
+                            }
                         }
                     }
                 } catch (e) { console.error('Error auto-refresh:', e); }
             }, 10000);
+            
+            console.log('🔄 Auto-refresh activado (cada 10 segundos)');
         }
+        
         function stopAutoRefresh() { if (autoRefreshInterval) clearInterval(autoRefreshInterval); }
 
         function formatElapsedTime(ts) {
@@ -683,7 +717,7 @@
                             <div class="order-notes"><i class="fas fa-sticky-note"></i> <span>${notas}</span></div>
                             <div class="order-total">$${parseInt(o.total).toLocaleString()}</div>
                             <div class="order-deliverer">
-                                ${o.entregador && o.entregador !== 'Sin asignar' ? '🛵 ' + o.entregador : '📦 Sin entregador'}
+                                ${o.entregador && o.entregador !== 'Sin asignar' ? '🛵 ' + o.entregador : ' Sin entregador'}
                             </div>
                             <div class="order-actions">
                                 <button class="btn-whatsapp" onclick="contactCustomer('${o.id}')"><i class="fab fa-whatsapp"></i></button>
@@ -718,17 +752,17 @@
             const order = orders.find(o => o.id === id); if (!order) return;
             const phone = (order.telefono || '').replace(/\D/g, ''); if (!phone) return;
             const fecha = new Date(order.fecha).toLocaleString('es-AR', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
-            const estadoEmojis = {'pendiente':'⏳','en-preparacion':'👨‍','en-camino':'🛵','entregado':'✅','cancelado':'❌'};
+            const estadoEmojis = {'pendiente':'','en-preparacion':'👨‍','en-camino':'🛵','entregado':'✅','cancelado':''};
             const estadoLabel = {'pendiente':'Pendiente','en-preparacion':'En Preparación','en-camino':'En Camino','entregado':'Entregado','cancelado':'Cancelado'};
             
-            let msg = `🍕 *DELICIAS ROTISERÍA*\n━━━━━━━━━━━━━━━━━━\n\n📋 *DETALLE DE TU PEDIDO*\n\n`;
-            msg += `👤 *Cliente:* ${order.cliente}\n📱 *Teléfono:* ${order.telefono}\n📍 *Dirección:* ${order.direccion || 'Retira en local'}\n🕐 *Fecha:* ${fecha}\n\n`;
+            let msg = ` *DELICIAS ROTISERÍA*\n━━━━━━━━━━━━━━━━━━\n\n📋 *DETALLE DE TU PEDIDO*\n\n`;
+            msg += `👤 *Cliente:* ${order.cliente}\n📱 *Teléfono:* ${order.telefono}\n *Dirección:* ${order.direccion || 'Retira en local'}\n🕐 *Fecha:* ${fecha}\n\n`;
             msg += `━━━━━━━━━━━━━━━━━━\n🛒 *PRODUCTOS:*\n\n`;
             const items = (order.items || '').split(',').map(i => i.trim()).filter(i => i);
             items.forEach(item => { msg += `• ${item}\n`; });
             msg += `\n━━━━━━━━━━━━━━━━━━\n💰 *TOTAL:* $${parseInt(order.total||0).toLocaleString()}\n💳 *Pago:* ${order.pago || 'Efectivo'}\n`;
             if (order.notas && order.notas.trim()) msg += `\n📝 *Notas:* ${order.notas}\n`;
-            msg += `\n━━━━━━━━━━━━━━━━━━\n📦 *ESTADO:* ${estadoEmojis[order.estado]||'📦'} ${estadoLabel[order.estado]||order.estado}\n`;
+            msg += `\n━━━━━━━━━━━━━━━━━━\n *ESTADO:* ${estadoEmojis[order.estado]||'📦'} ${estadoLabel[order.estado]||order.estado}\n`;
             if (order.entregador && order.entregador !== 'Sin asignar') msg += `🛵 *Entregador:* ${order.entregador}\n`;
             msg += `\n━━━━━━━━━━━━━━━━━━\n¡Gracias por tu compra! 🙏`;
             
@@ -753,7 +787,7 @@
                             <div class="deliverer-name">${d.nombre}</div>
                             <div class="deliverer-vehicle"><i class="fas fa-motorcycle"></i> ${d.vehiculo || 'Sin vehículo'}</div>
                         </div>
-                        <span class="deliverer-status available">🟢 Disponible</span>
+                        <span class="deliverer-status available"> Disponible</span>
                     </div>
                 `).join('');
             }
@@ -979,7 +1013,7 @@
                     <div class="order-payment"><i class="fas fa-phone"></i> ${d.telefono}</div>
                     <div class="order-notes"><i class="fas fa-bicycle"></i> ${d.vehiculo || 'N/A'}</div>
                     <div style="margin-top:0.5rem;font-size:0.8rem;color:${d.disponible ? '#2e7d32' : '#c62828'}">
-                        ${d.disponible ? '🟢 Disponible' : '🔴 No disponible'}
+                        ${d.disponible ? ' Disponible' : '🔴 No disponible'}
                     </div>
                 </div>
             `).join('');
@@ -1088,7 +1122,7 @@
                 }
             } catch(err) {
                 console.error('Error eliminando producto:', err);
-                showNotification('❌ Error: ' + err.message, 'error');
+                showNotification(' Error: ' + err.message, 'error');
             }
         }
 
