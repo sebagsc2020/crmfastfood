@@ -760,21 +760,33 @@
             const order = orders.find(o => o.id === id); 
             if (!order) return;
 
+            // 1. Limpiamos el teléfono: dejamos SOLO números
             let rawPhone = (order.telefono || '').replace(/\D/g, '');
             
-            // Lógica Argentina: Si es 11, va 549. Si es otro, va 549.
+            // 2. Lógica inteligente para Argentina:
+            // Si empieza con 11 (CABA/Gran BsAs), agregamos 549 y quitamos el 15 si lo tiene
             if (rawPhone.startsWith('11')) {
-                rawPhone = '549' + rawPhone.substring(2); 
-            } else if (rawPhone.length <= 11 && !rawPhone.startsWith('54')) {
+                // Quitamos '15' si está al principio después del 11 (ej: 111522223333 -> 1122223333)
+                rawPhone = '549' + rawPhone.replace(/^11(15)?/, ''); 
+            } 
+            // Si es otra provincia (empieza con 2, 3, 4, etc.), agregamos 549
+            else if (rawPhone.length <= 11 && !rawPhone.startsWith('54')) {
                 rawPhone = '549' + rawPhone;
+            }
+            // Si ya empieza con 54 pero no tiene el 9 de celular, se lo agregamos
+            else if (rawPhone.startsWith('54') && rawPhone.length === 12) {
+                rawPhone = rawPhone.replace('54', '549');
             }
 
             if (rawPhone.length < 10) {
-                showNotification('⚠️ Número de cliente inválido', 'warning');
+                showNotification('⚠️ El número de teléfono parece incompleto o inválido', 'warning');
+                console.warn('Número original:', order.telefono, '| Número procesado:', rawPhone);
                 return;
             }
 
+            // 3. Preparamos el mensaje profesional
             const fecha = new Date(order.fecha).toLocaleString('es-AR', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'});
+            
             let msg = `Hola ${order.cliente}, te escribimos de *Delicias Rotisería* 🍕\n\n`;
             msg += `📦 *Pedido #${order.id.slice(-6)}*\n`;
             msg += `• Items: ${order.items}\n`;
@@ -782,6 +794,7 @@
             msg += `• Estado: ${order.estado.toUpperCase()}\n\n`;
             msg += `¿Tenés alguna consulta sobre tu pedido? ¡Estamos aquí!`;
 
+            // 4. Abrimos WhatsApp Web/App
             window.open(`https://wa.me/${rawPhone}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
@@ -790,12 +803,16 @@
             const deliverer = deliverers.find(d => d.id.toString() === id.toString());
             if (!deliverer) return;
 
+            // 1. Limpiamos el teléfono
             let rawPhone = (deliverer.telefono || '').replace(/\D/g, '');
             
+            // 2. Aplicamos la misma lógica de Argentina
             if (rawPhone.startsWith('11')) {
-                rawPhone = '549' + rawPhone.substring(2); 
+                rawPhone = '549' + rawPhone.replace(/^11(15)?/, ''); 
             } else if (rawPhone.length <= 11 && !rawPhone.startsWith('54')) {
                 rawPhone = '549' + rawPhone;
+            } else if (rawPhone.startsWith('54') && rawPhone.length === 12) {
+                rawPhone = rawPhone.replace('54', '549');
             }
 
             if (rawPhone.length < 10) {
@@ -803,10 +820,12 @@
                 return;
             }
 
+            // 3. Mensaje para repartidores
             let msg = `🛵 Hola ${deliverer.nombre}, te escribimos de *Delicias Rotisería*.\n\n`;
             msg += `¿Estás disponible para tomar pedidos ahora?\n\n`;
             msg += `¡Avísanos para asignarte rutas! 🗺️`;
 
+            // 4. Abrir WhatsApp
             window.open(`https://wa.me/${rawPhone}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
