@@ -14,17 +14,13 @@ const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzno9_b1xIrGpBB5MZc
 const MP_SANDBOX = true;
 
 // ============================================
-// DATOS DE PRODUCTOS (FALLBACK)
+// DATOS DE PRODUCTOS (FALLBACK MÍNIMO - Solo si falla TODO)
 // ============================================
-const PRODUCTOS = [
+const PRODUCTOS_FALLBACK = [
     { id: 1, nombre: 'Pizza Muzzarella', descripcion: 'Clásica con salsa, muzzarella y orégano', precio: 4500, imagen: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=300', categoria: 'pizzas', disponible: true },
     { id: 2, nombre: 'Pizza Especial', descripcion: 'Muzzarella, jamón, morrones y aceitunas', precio: 5200, imagen: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=300', categoria: 'pizzas', disponible: true },
     { id: 3, nombre: 'Hamburguesa Clásica', descripcion: 'Carne, lechuga, tomate y salsa especial', precio: 3800, imagen: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=300', categoria: 'hamburguesas', disponible: true },
-    { id: 4, nombre: 'Hamburguesa Completa', descripcion: 'Doble carne, cheddar, panceta y huevo', precio: 4800, imagen: 'https://images.unsplash.com/photo-1553979459-d2229ba7433b?w=300', categoria: 'hamburguesas', disponible: true },
-    { id: 5, nombre: 'Lomito Completo', descripcion: 'Lomo, lechuga, tomate, huevo y jamón', precio: 5200, imagen: 'https://images.unsplash.com/photo-1547496502-affa22d38842?w=300', categoria: 'lomitos', disponible: true },
-    { id: 6, nombre: 'Empanada de Carne', descripcion: 'Carne cortada a cuchillo, huevo y aceitunas', precio: 1200, imagen: 'https://images.unsplash.com/photo-1625943553852-b2aa1393c3b5?w=300', categoria: 'empanadas', disponible: true },
-    { id: 7, nombre: 'Empanada de Jamón y Queso', descripcion: 'Jamón cocido y queso cremoso', precio: 1200, imagen: 'https://images.unsplash.com/photo-1625943553852-b2aa1393c3b5?w=300', categoria: 'empanadas', disponible: true },
-    { id: 8, nombre: 'Papas Fritas', descripcion: 'Papas cortadas, fritas y saladas', precio: 2000, imagen: 'https://images.unsplash.com/photo-1630384060421-cb20d0e0649d?w=300', categoria: 'papas', disponible: true }
+    { id: 4, nombre: 'Empanada de Carne', descripcion: 'Carne cortada a cuchillo', precio: 1500, imagen: 'https://images.unsplash.com/photo-1625943553852-b2aa1393c3b5?w=300', categoria: 'empanadas', disponible: true }
 ];
 
 // ============================================
@@ -37,48 +33,35 @@ let productosActuales = [];
 let categoriaActual = 'all';
 
 // ============================================
-// ⭐ CARGAR PRODUCTOS DESDE APPS SCRIPT (USANDO GET)
+// ⭐ CARGAR PRODUCTOS USANDO GET (SIN CORS ISSUES)
 // ============================================
 async function loadProductsFromSheets() {
     try {
-        console.log(' Cargando productos desde Apps Script...');
+        console.log('📦 Cargando productos desde Apps Script (GET)...');
         
-        // ⭐ Usar GET en lugar de POST para evitar problemas de CORS
+        // ⭐ USAR GET EN LUGAR DE POST (evita problemas de CORS)
         const url = `${WEB_APP_URL}?accion=obtenerProductos`;
         const response = await fetch(url, {
             method: 'GET',
-            mode: 'cors',
-            headers: { 'Content-Type': 'application/json' }
+            mode: 'cors'
         });
         
         const data = await response.json();
         
         if (data.products && data.products.length > 0) {
-            console.log(`✅ ${data.products.length} productos cargados desde Apps Script`);
+            console.log(`✅ ${data.products.length} productos cargados desde Google Sheets`);
+            console.log('📊 Productos:', data.products.map(p => p.nombre).join(', '));
             return data.products;
         } else {
-            console.log('⚠️ No hay productos en la API, usando datos locales');
+            console.log('⚠️ No hay productos en Sheets');
         }
     } catch (error) {
         console.error('❌ Error al cargar productos:', error);
-        console.log('⚠️ Intentando con no-cors...');
-        
-        // ⭐ Fallback: intentar con no-cors (no podremos leer la respuesta)
-        try {
-            const url = `${WEB_APP_URL}?accion=obtenerProductos`;
-            await fetch(url, {
-                method: 'GET',
-                mode: 'no-cors'
-            });
-            console.log('⚠️ Petición enviada pero no se puede leer respuesta (no-cors)');
-        } catch (e) {
-            console.error('❌ Error con no-cors:', e);
-        }
     }
     
-    // Fallback: usar datos locales
-    console.log(' Usando productos locales como fallback');
-    return PRODUCTOS;
+    // Fallback: usar datos mínimos locales
+    console.log('⚠️ Usando productos de fallback (mínimo)');
+    return PRODUCTOS_FALLBACK;
 }
 
 // ============================================
@@ -132,7 +115,7 @@ function filterCategory(category, element) {
 // INICIALIZACIÓN
 // ============================================
 document.addEventListener('DOMContentLoaded', async () => {
-    console.log(' Iniciando aplicación...');
+    console.log('🚀 Iniciando aplicación...');
     
     const grid = document.getElementById('menuGrid');
     if (grid) {
@@ -166,7 +149,7 @@ function renderMenu() {
         return;
     }
     
-    let items = window.PRODUCTOS_ACTUALES || PRODUCTOS;
+    let items = window.PRODUCTOS_ACTUALES || PRODUCTOS_FALLBACK;
     items = sortProducts(items);
     
     if (categoriaActual && categoriaActual !== 'all') {
@@ -188,7 +171,6 @@ function renderMenu() {
     }
     
     grid.innerHTML = items.map(producto => {
-        // ⭐ Verificar si está disponible
         const isAvailable = producto.disponible !== false && 
                            producto.disponible !== 'false' && 
                            producto.disponible !== 'No';
@@ -257,7 +239,7 @@ function addToCart(productId) {
         return;
     }
     
-    const products = window.PRODUCTOS_ACTUALES || PRODUCTOS;
+    const products = window.PRODUCTOS_ACTUALES || PRODUCTOS_FALLBACK;
     const product = products.find(p => parseInt(p.id) === parseInt(productId));
     
     if (!product) {
@@ -387,7 +369,7 @@ function closeCheckout() {
 }
 
 // ============================================
-// ⭐ ENVIAR PEDIDO VIA APPS SCRIPT (POST con no-cors)
+// ENVIAR PEDIDO VIA APPS SCRIPT (POST con no-cors)
 // ============================================
 document.getElementById('orderForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -405,7 +387,7 @@ document.getElementById('orderForm')?.addEventListener('submit', async (e) => {
     }
     
     if (deliveryType === 'delivery' && !direccion) {
-        showNotification('️ Ingresá la dirección de entrega', 'warning');
+        showNotification('⚠️ Ingresá la dirección de entrega', 'warning');
         return;
     }
     
@@ -425,7 +407,6 @@ document.getElementById('orderForm')?.addEventListener('submit', async (e) => {
     };
     
     try {
-        // ⭐ Enviar via Google Apps Script con no-cors
         await fetch(WEB_APP_URL, {
             method: 'POST',
             mode: 'no-cors',
@@ -436,7 +417,7 @@ document.getElementById('orderForm')?.addEventListener('submit', async (e) => {
             })
         });
         
-        showNotification(' ¡Pedido confirmado! Lo recibirás en breve.', 'success');
+        showNotification('🎉 ¡Pedido confirmado! Lo recibirás en breve.', 'success');
         
         cart = [];
         updateCartUI();
@@ -536,4 +517,4 @@ function setupEventListeners() {
     console.log('✅ Event listeners configurados');
 }
 
-console.log('🚀 main.js cargado correctamente (SIN OAuth)');
+console.log('🚀 main.js cargado correctamente');
