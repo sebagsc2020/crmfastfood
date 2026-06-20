@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - Rotisería Delicias</title>
+    <title>Admin--Panel - Rotisería Delicias</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -316,7 +316,7 @@
                         <div class="column-body" id="col-pendiente"></div>
                     </div>
                     <div class="column" data-status="en-preparacion">
-                        <div class="column-header"><h3>👨‍ En Preparación</h3><span class="count" id="count-preparacion">0</span></div>
+                        <div class="column-header"><h3>👨‍🍳 En Preparación</h3><span class="count" id="count-preparacion">0</span></div>
                         <div class="column-body" id="col-preparacion"></div>
                     </div>
                     <div class="column" data-status="en-camino">
@@ -702,6 +702,135 @@
             return str ? str.split(',').map(i => i.trim()).filter(i => i) : []; 
         }
 
+        // ===== FUNCIÓN CONTACTAR CLIENTE CORREGIDA =====
+        function contactCustomer(id) {
+            console.log('📱 Intentando contactar cliente con ID:', id);
+            
+            // Buscar el pedido por ID (comparando como string)
+            const order = orders.find(o => String(o.id) === String(id));
+            
+            if (!order) {
+                console.error('❌ Pedido no encontrado para ID:', id);
+                showNotification('⚠️ Error: No se encontró el pedido', 'error');
+                return;
+            }
+
+            console.log('✅ Pedido encontrado:', order);
+            console.log('📱 Teléfono original (columna D):', order.telefono);
+
+            // 1. Limpiar el número: eliminar espacios, guiones, paréntesis, etc.
+            let rawPhone = (order.telefono || '').replace(/[\s\-\(\)\.]/g, '');
+            console.log('🔢 Después de limpiar:', rawPhone);
+            
+            if (!rawPhone || rawPhone.length === 0) {
+                showNotification('⚠️ El cliente no dejó un número de teléfono', 'warning');
+                return;
+            }
+            
+            // 2. Normalizar para WhatsApp (formato internacional)
+            let finalPhone = rawPhone;
+            
+            // Caso: 351158692251 (12 dígitos con 15)
+            if (rawPhone.length === 12 && rawPhone.startsWith('35115')) {
+                const codigoArea = rawPhone.substring(0, 3); // 351
+                const numero = rawPhone.substring(5); // 8692251 (después de 35115)
+                finalPhone = '549' + codigoArea + numero;
+                console.log('📞 Formato: 351 + 15 + número → 549351' + numero);
+            }
+            // Caso: 3518692251 (10 dígitos sin 15)
+            else if (rawPhone.length === 10 && rawPhone.startsWith('351')) {
+                finalPhone = '549' + rawPhone;
+                console.log('📞 Formato: 351 + número → 549' + rawPhone);
+            }
+            // Caso: Ya tiene 549351...
+            else if (rawPhone.startsWith('549351')) {
+                finalPhone = rawPhone;
+                console.log('📞 Formato: Ya tiene 549');
+            }
+            // Caso: Tiene 54351...
+            else if (rawPhone.startsWith('54351')) {
+                finalPhone = rawPhone.replace('54', '549');
+                console.log('📞 Formato: 54 → 549');
+            }
+            // Caso: Empieza con 15 (sin código de área)
+            else if (rawPhone.startsWith('15')) {
+                // Asumimos que es de Buenos Aires (11)
+                const numero = rawPhone.substring(2);
+                finalPhone = '54911' + numero;
+                console.log('📞 Formato: 15 + número → 54911' + numero);
+            }
+            // Caso: Empieza con 9 (código de celular)
+            else if (rawPhone.startsWith('9')) {
+                if (!rawPhone.startsWith('549')) {
+                    finalPhone = '549' + rawPhone;
+                }
+                console.log('📞 Formato: 9 → 549' + rawPhone);
+            }
+            // Caso: Número de 10 dígitos (cualquier código de área)
+            else if (rawPhone.length === 10) {
+                finalPhone = '549' + rawPhone;
+                console.log('📞 Formato: 10 dígitos → 549' + rawPhone);
+            }
+            // Caso: Número de 11 dígitos
+            else if (rawPhone.length === 11) {
+                finalPhone = '549' + rawPhone;
+                console.log('📞 Formato: 11 dígitos → 549' + rawPhone);
+            }
+            // Caso: Cualquier otro formato, intentar normalizar
+            else {
+                // Si tiene menos de 10 dígitos, probablemente está incompleto
+                if (rawPhone.length < 10) {
+                    showNotification('⚠️ Número muy corto: ' + rawPhone, 'warning');
+                    return;
+                }
+                // Si no empieza con 549, agregarlo
+                if (!rawPhone.startsWith('549')) {
+                    finalPhone = '549' + rawPhone;
+                }
+                console.log('📞 Formato: Otro → ' + finalPhone);
+            }
+
+            // 3. Validación final
+            console.log('🌍 Teléfono final para WhatsApp:', finalPhone);
+            
+            // Verificar que el número tenga al menos 12 dígitos para Argentina
+            if (finalPhone.length < 12) {
+                console.warn('⚠️ Número final muy corto:', finalPhone);
+                showNotification('⚠️ Formato de número inválido: ' + finalPhone, 'warning');
+                return;
+            }
+
+            // 4. Construir mensaje
+            let msg = `Hola ${order.cliente}, te escribimos de *Delicias Rotisería* 🍕\n\n`;
+            msg += `📦 *Pedido #${String(order.id).slice(-6)}*\n`;
+            
+            // Items
+            const itemsList = order.items ? order.items.split(',').map(i => i.trim()).filter(i => i) : [];
+            if (itemsList.length > 0) {
+                msg += `📋 *Items:*\n`;
+                itemsList.forEach(item => {
+                    msg += `   • ${item}\n`;
+                });
+            }
+            
+            msg += `💰 *Total:* $${parseInt(order.total || 0).toLocaleString()}\n`;
+            msg += `📍 *Dirección:* ${order.direccion || 'No especificada'}\n`;
+            msg += `📌 *Estado:* ${order.estado ? order.estado.toUpperCase() : 'PENDIENTE'}\n\n`;
+            msg += `¿Tenés alguna consulta? ¡Estamos aquí para ayudarte! 🙌`;
+
+            // 5. Abrir WhatsApp
+            const waUrl = `https://wa.me/${finalPhone}?text=${encodeURIComponent(msg)}`;
+            console.log('🔗 URL de WhatsApp:', waUrl);
+            
+            try {
+                window.open(waUrl, '_blank');
+                showNotification(`📱 Abriendo WhatsApp para ${order.cliente}`, 'success');
+            } catch (error) {
+                console.error('❌ Error al abrir WhatsApp:', error);
+                showNotification('❌ Error al abrir WhatsApp', 'error');
+            }
+        }
+
         function renderOrders() {
             const statuses = ['pendiente', 'en-preparacion', 'en-camino', 'entregado'];
             const labels = { pendiente:'pendiente', 'en-preparacion':'preparacion', 'en-camino':'camino', entregado:'entregado' };
@@ -736,7 +865,6 @@
                     const itemsList = parseOrderItems(o.items);
                     const showAssignButton = (st === 'en-preparacion');
                     
-                    // ⭐ CORRECCIÓN: Escapar correctamente el ID
                     const safeId = String(o.id).replace(/'/g, "\\'").replace(/"/g, '&quot;');
                     
                     return `
@@ -759,7 +887,7 @@
                                 ${o.entregador && o.entregador !== 'Sin asignar' ? '🛵 ' + o.entregador : '📦 Sin entregador'}
                             </div>
                             <div class="order-actions">
-                                <button class="btn-whatsapp" onclick='contactCustomer("${safeId}")'><i class="fab fa-whatsapp"></i></button>
+                                <button class="btn-whatsapp" onclick="contactCustomer('${safeId}')"><i class="fab fa-whatsapp"></i></button>
                                 ${st !== 'entregado' && st !== 'cancelado' ? `
                                     <button class="btn-status" onclick='changeOrderStatus("${safeId}")'><i class="fas fa-arrow-right"></i> Avanzar</button>
                                     ${showAssignButton ? `<button class="btn-assign" onclick='openAssignModal("${safeId}")'><i class="fas fa-motorcycle"></i> Asignar</button>` : ''}
@@ -791,57 +919,6 @@
                 console.error(e); 
                 showNotification('⚠️ Error al actualizar', 'warning'); 
             }
-        }
-
-        function contactCustomer(id) {
-            console.log('📱 Intentando contactar cliente con ID:', id);
-            
-            const order = orders.find(o => String(o.id) === String(id)); 
-            
-            if (!order) {
-                console.error('❌ Pedido no encontrado para ID:', id);
-                showNotification('⚠️ Error: No se encontró el pedido', 'error');
-                return;
-            }
-
-            console.log('✅ Pedido encontrado:', order);
-            console.log('📱 Teléfono original:', order.telefono);
-
-            let rawPhone = (order.telefono || '').replace(/\D/g, '');
-            console.log('🔢 Teléfono limpio:', rawPhone);
-            
-            if (!rawPhone || rawPhone.length === 0) {
-                showNotification('⚠️ El cliente no dejó un número de teléfono', 'warning');
-                return;
-            }
-            
-            if (rawPhone.startsWith('11')) {
-                rawPhone = '549' + rawPhone.replace(/^11(15)?/, ''); 
-            } else if (rawPhone.length <= 11 && !rawPhone.startsWith('54')) {
-                rawPhone = '549' + rawPhone;
-            } else if (rawPhone.startsWith('54') && rawPhone.length === 12) {
-                rawPhone = rawPhone.replace('54', '549');
-            }
-
-            console.log('🌍 Teléfono final:', rawPhone);
-
-            if (rawPhone.length < 10) {
-                showNotification('⚠️ Número incompleto: ' + rawPhone, 'warning');
-                return;
-            }
-
-            let msg = `Hola ${order.cliente}, te escribimos de *Delicias Rotisería* 🍕\n\n`;
-            msg += `📦 *Pedido #${String(order.id).slice(-6)}*\n`;
-            msg += `• Items: ${order.items}\n`;
-            msg += `• Total: $${parseInt(order.total).toLocaleString()}\n`;
-            msg += `• Estado: ${order.estado.toUpperCase()}\n\n`;
-            msg += `¿Tenés alguna consulta? ¡Estamos aquí!`;
-
-            const waUrl = `https://wa.me/${rawPhone}?text=${encodeURIComponent(msg)}`;
-            console.log('🔗 URL:', waUrl);
-            
-            showNotification(`📱 Abriendo WhatsApp: ${rawPhone}`, 'success');
-            window.open(waUrl, '_blank');
         }
 
         function contactDeliverer(id) {
@@ -972,7 +1049,7 @@
             
             const estados = [
                 { key: 'pendiente', label: '⏳ Pendientes', class: 'pendiente' },
-                { key: 'en-preparacion', label: '👨‍ En Preparación', class: 'en-preparacion' },
+                { key: 'en-preparacion', label: '👨‍🍳 En Preparación', class: 'en-preparacion' },
                 { key: 'en-camino', label: '🛵 En Camino', class: 'en-camino' },
                 { key: 'entregado', label: '✅ Entregados', class: 'entregado' },
                 { key: 'cancelado', label: '❌ Cancelados', class: 'cancelado' }
