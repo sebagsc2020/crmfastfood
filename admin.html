@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin+Panel - Rotisería Delicias</title>
+    <title>Admin Panel - Rotisería Delicias</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -131,6 +131,8 @@
         .card-actions button:hover { transform: scale(1.1); }
         .btn-edit-card { background: #2196f3; }
         .btn-delete-card { background: #f44336; }
+        .btn-toggle-stock { background: #ff9800; }
+        .btn-toggle-stock.unavailable { background: #4caf50; }
 
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; }
         .modal-overlay.active { display: flex; }
@@ -143,7 +145,6 @@
         .modal-content .form-group input, .modal-content .form-group select, .modal-content .form-group textarea { width: 100%; padding: 10px 14px; border: 2px solid var(--gray-200); border-radius: var(--radius-sm); font-size: 0.95rem; font-family: inherit; }
         .modal-content .form-group textarea { resize: vertical; min-height: 60px; }
 
-        /* ===== ENTREGADORES EN MODAL ===== */
         .deliverer-list { display: flex; flex-direction: column; gap: 0.8rem; max-height: 400px; overflow-y: auto; }
         .deliverer-option { display: flex; align-items: center; gap: 1rem; padding: 1rem; border: 2px solid var(--gray-200); border-radius: var(--radius-sm); cursor: pointer; transition: var(--transition); }
         .deliverer-option:hover { border-color: var(--primary); background: #fff5f5; }
@@ -161,7 +162,6 @@
         .btn-cancel-modal { background: var(--gray-100); color: var(--gray-700); }
         .btn-cancel-modal:hover { background: var(--gray-200); }
 
-        /* ===== GRÁFICOS ===== */
         .stats-charts-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; }
         .stats-chart-card { background: white; border-radius: var(--radius); padding: 1.5rem; box-shadow: var(--shadow); }
         .stats-chart-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 1.2rem; color: var(--gray-900); }
@@ -181,7 +181,6 @@
         .revenue-bar-value { position: absolute; top: -22px; left: 50%; transform: translateX(-50%); font-size: 0.75rem; font-weight: 700; color: var(--primary); white-space: nowrap; }
         .revenue-bar-label { font-size: 0.7rem; color: var(--gray-500); margin-top: 6px; font-weight: 500; }
         
-        /* ===== TOP PRODUCTS ===== */
         .top-product-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; padding: 8px; background: var(--gray-50); border-radius: 8px; }
         .top-product-rank { width: 28px; height: 28px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; flex-shrink: 0; }
         .top-product-rank.gold { background: #ffd700; color: #333; }
@@ -193,6 +192,29 @@
         .top-product-bar { width: 100px; height: 8px; background: var(--gray-200); border-radius: 50px; overflow: hidden; }
         .top-product-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--primary-dark)); border-radius: 50px; transition: width 0.6s ease; }
         .top-product-count { font-weight: 700; font-size: 0.9rem; color: var(--primary); min-width: 40px; text-align: right; }
+
+        /* ===== STOCK BADGE ===== */
+        .stock-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .stock-badge.available {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .stock-badge.unavailable {
+            background: #ffebee;
+            color: #c62828;
+        }
 
         @media (max-width: 1200px) { .board-columns { grid-template-columns: repeat(2, 1fr); } .stats-grid { grid-template-columns: repeat(2, 1fr); } .stats-charts-grid { grid-template-columns: 1fr; } }
         @media (max-width: 768px) { .board-columns { grid-template-columns: 1fr; } .stats-grid { grid-template-columns: 1fr; } .sidebar { width: 72px; } .main-content { margin-left: 72px; } }
@@ -283,10 +305,10 @@
                     <div class="actions">
                         <div class="filters">
                             <select id="orderFilter">
-                                <option value="all">📋 Todos</option>
+                                <option value="all"> Todos</option>
                                 <option value="pendiente">⏳ Pendientes</option>
-                                <option value="en-preparacion">👨‍🍳 En Preparación</option>
-                                <option value="en-camino">🛵 En Camino</option>
+                                <option value="en-preparacion">‍🍳 En Preparación</option>
+                                <option value="en-camino"> En Camino</option>
                                 <option value="entregado">✅ Entregados</option>
                                 <option value="cancelado">❌ Cancelados</option>
                             </select>
@@ -297,11 +319,11 @@
                 </div>
                 <div class="board-columns" id="orderBoard">
                     <div class="column" data-status="pendiente">
-                        <div class="column-header"><h3>⏳ Pendientes</h3><span class="count" id="count-pendiente">0</span></div>
+                        <div class="column-header"><h3> Pendientes</h3><span class="count" id="count-pendiente">0</span></div>
                         <div class="column-body" id="col-pendiente"></div>
                     </div>
                     <div class="column" data-status="en-preparacion">
-                        <div class="column-header"><h3>👨‍ En Preparación</h3><span class="count" id="count-preparacion">0</span></div>
+                        <div class="column-header"><h3>👨‍🍳 En Preparación</h3><span class="count" id="count-preparacion">0</span></div>
                         <div class="column-body" id="col-preparacion"></div>
                     </div>
                     <div class="column" data-status="en-camino">
@@ -353,7 +375,7 @@
                         <div id="statusChart"></div>
                     </div>
                     <div class="stats-chart-card">
-                        <h3> Ingresos Diarios (últimos 7 días)</h3>
+                        <h3>📈 Ingresos Diarios (últimos 7 días)</h3>
                         <div id="revenueChart"></div>
                     </div>
                     <div class="stats-chart-card">
@@ -390,11 +412,11 @@
             </div>
             <form id="addProductForm">
                 <div class="form-group">
-                    <label>🍽️ Nombre *</label>
+                    <label>️ Nombre *</label>
                     <input type="text" id="productName" required placeholder="Ej: Pizza Muzzarella">
                 </div>
                 <div class="form-group">
-                    <label> Descripción</label>
+                    <label>📝 Descripción</label>
                     <textarea id="productDescription" rows="2" placeholder="Breve descripción del producto"></textarea>
                 </div>
                 <div class="form-group">
@@ -406,7 +428,7 @@
                     <input type="text" id="productImage" placeholder="https://images.unsplash.com/...">
                 </div>
                 <div class="form-group">
-                    <label> Categoría</label>
+                    <label>📂 Categoría</label>
                     <select id="productCategory">
                         <option value="pizzas">🍕 Pizzas</option>
                         <option value="hamburguesas">🍔 Hamburguesas</option>
@@ -414,6 +436,13 @@
                         <option value="empanadas">🥟 Empanadas</option>
                         <option value="papas">🍟 Papas Fritas</option>
                         <option value="bebidas"> Bebidas</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>📦 Stock</label>
+                    <select id="productAvailable">
+                        <option value="true">✅ Disponible</option>
+                        <option value="false">❌ No Disponible</option>
                     </select>
                 </div>
                 <button type="submit" class="btn-primary" style="width:100%;"><i class="fas fa-save"></i> Guardar Producto</button>
@@ -438,14 +467,14 @@
                     <input type="tel" id="delivererPhone" required placeholder="11 2222-3333">
                 </div>
                 <div class="form-group">
-                    <label> Vehículo</label>
+                    <label>🛵 Vehículo</label>
                     <input type="text" id="delivererVehicle" placeholder="Ej: Moto, Bicicleta, Auto">
                 </div>
                 <div class="form-group">
                     <label>📌 Disponible</label>
                     <select id="delivererAvailable">
                         <option value="true">✅ Disponible</option>
-                        <option value="false">❌ No disponible</option>
+                        <option value="false"> No disponible</option>
                     </select>
                 </div>
                 <button type="submit" class="btn-primary" style="width:100%;"><i class="fas fa-save"></i> Guardar Entregador</button>
@@ -485,7 +514,7 @@
                         showNotification('✅ Bienvenido al panel', 'success');
                         loadDashboardData();
                     } catch (error) {
-                        showNotification('❌ Error al autenticar con Google', 'error');
+                        showNotification(' Error al autenticar con Google', 'error');
                     }
                 } else {
                     showNotification('❌ Google Sheets no disponible', 'error');
@@ -592,7 +621,7 @@
                             }));
                             renderOrders();
                             updateStats();
-                            showNotification(' ¡Nuevo pedido recibido!', 'success');
+                            showNotification('📦 ¡Nuevo pedido recibido!', 'success');
                         }
                     }
                 } catch (e) { console.error('Error auto-refresh:', e); }
@@ -707,9 +736,9 @@
             const estadoEmojis = {'pendiente':'⏳','en-preparacion':'👨‍🍳','en-camino':'','entregado':'✅','cancelado':'❌'};
             const estadoLabel = {'pendiente':'Pendiente','en-preparacion':'En Preparación','en-camino':'En Camino','entregado':'Entregado','cancelado':'Cancelado'};
             
-            let msg = `🍕 *DELICIAS ROTISERÍA*\n━━━━━━━━━━━━━━━━━━\n\n📋 *DETALLE DE TU PEDIDO*\n\n`;
-            msg += `👤 *Cliente:* ${order.cliente}\n📱 *Teléfono:* ${order.telefono}\n📍 *Dirección:* ${order.direccion || 'Retira en local'}\n🕐 *Fecha:* ${fecha}\n\n`;
-            msg += `━━━━━━━━━━━━━━━━━━\n *PRODUCTOS:*\n\n`;
+            let msg = ` *DELICIAS ROTISERÍA*\n━━━━━━━━━━━━━━━━━━\n\n📋 *DETALLE DE TU PEDIDO*\n\n`;
+            msg += `👤 *Cliente:* ${order.cliente}\n📱 *Teléfono:* ${order.telefono}\n📍 *Dirección:* ${order.direccion || 'Retira en local'}\n *Fecha:* ${fecha}\n\n`;
+            msg += `━━━━━━━━━━━━━━━━━━\n🛒 *PRODUCTOS:*\n\n`;
             const items = (order.items || '').split(',').map(i => i.trim()).filter(i => i);
             items.forEach(item => { msg += `• ${item}\n`; });
             msg += `\n━━━━━━━━━━━━━━━━━━\n💰 *TOTAL:* $${parseInt(order.total||0).toLocaleString()}\n💳 *Pago:* ${order.pago || 'Efectivo'}\n`;
@@ -776,11 +805,9 @@
             }
             
             try {
-                // Actualizar entregador en el pedido
                 order.entregador = deliverer.nombre;
                 order.estado = 'en-camino';
                 
-                // Guardar en Google Sheets
                 if (window.GoogleSheets) {
                     await window.GoogleSheets.updateOrderStatus(selectedOrderId, 'en-camino');
                 }
@@ -818,7 +845,7 @@
             const estados = [
                 { key: 'pendiente', label: '⏳ Pendientes', class: 'pendiente' },
                 { key: 'en-preparacion', label: '👨‍🍳 En Preparación', class: 'en-preparacion' },
-                { key: 'en-camino', label: '🛵 En Camino', class: 'en-camino' },
+                { key: 'en-camino', label: ' En Camino', class: 'en-camino' },
                 { key: 'entregado', label: '✅ Entregados', class: 'entregado' },
                 { key: 'cancelado', label: '❌ Cancelados', class: 'cancelado' }
             ];
@@ -902,12 +929,10 @@
             `;
         }
 
-        // ===== 🏆 PRODUCTOS MÁS VENDIDOS =====
         function renderTopProductsChart() {
             const container = document.getElementById('topProductsChart');
             if (!container) return;
             
-            // Analizar todos los pedidos para contar productos
             const productCounts = {};
             
             orders.forEach(order => {
@@ -915,24 +940,21 @@
                 
                 const items = (order.items || '').split(',').map(i => i.trim()).filter(i => i);
                 items.forEach(item => {
-                    // Formato: "2x Pizza Muzzarella" o "1x Coca Cola"
                     const match = item.match(/^(\d+)x\s+(.+)$/i);
                     if (match) {
                         const qty = parseInt(match[1]) || 1;
                         const name = match[2].trim();
                         productCounts[name] = (productCounts[name] || 0) + qty;
                     } else {
-                        // Si no tiene formato "Nx", contar como 1
                         productCounts[item] = (productCounts[item] || 0) + 1;
                     }
                 });
             });
             
-            // Ordenar por cantidad vendida
             const sorted = Object.entries(productCounts)
                 .map(([name, count]) => ({ name, count }))
                 .sort((a, b) => b.count - a.count)
-                .slice(0, 5); // Top 5
+                .slice(0, 5);
             
             if (sorted.length === 0) {
                 container.innerHTML = `<div class="empty-state"><i class="fas fa-trophy"></i><p>Aún no hay ventas registradas</p></div>`;
@@ -975,14 +997,14 @@
                     <div class="order-payment"><i class="fas fa-phone"></i> ${d.telefono}</div>
                     <div class="order-notes"><i class="fas fa-bicycle"></i> ${d.vehiculo || 'N/A'}</div>
                     <div style="margin-top:0.5rem;font-size:0.8rem;color:${d.disponible ? '#2e7d32' : '#c62828'}">
-                        ${d.disponible ? '🟢 Disponible' : '🔴 No disponible'}
+                        ${d.disponible ? ' Disponible' : '🔴 No disponible'}
                     </div>
                 </div>
             `).join('');
             document.getElementById('sidebarDeliverersCount').textContent = deliverers.length;
         }
 
-        // ===== RENDER MENÚ =====
+        // ===== RENDER MENÚ CON BOTÓN DE STOCK =====
         function renderMenuAdmin() {
             const c = document.getElementById('menuAdminGrid'); if (!c) return;
             
@@ -992,26 +1014,60 @@
                 return;
             }
             
-            c.innerHTML = menuItems.map(p => `
-                <div class="order-card" style="overflow:hidden; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='none'">
-                    <div class="card-actions">
-                        <button class="btn-edit-card" onclick="editProduct('${p.id}')" title="Editar"><i class="fas fa-edit"></i></button>
-                        <button class="btn-delete-card" onclick="deleteProduct('${p.id}')" title="Eliminar"><i class="fas fa-trash"></i></button>
+            c.innerHTML = menuItems.map(p => {
+                const isAvailable = p.disponible !== false && p.disponible !== 'false' && p.disponible !== 'No';
+                return `
+                    <div class="order-card" style="overflow:hidden; transition: transform 0.2s; ${!isAvailable ? 'opacity: 0.7;' : ''}" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='none'">
+                        <div class="stock-badge ${isAvailable ? 'available' : 'unavailable'}">
+                            ${isAvailable ? '✅ Disponible' : '❌ No Disponible'}
+                        </div>
+                        <div class="card-actions">
+                            <button class="btn-toggle-stock ${!isAvailable ? 'unavailable' : ''}" onclick="toggleProductStock('${p.id}')" title="${isAvailable ? 'Marcar como No Disponible' : 'Marcar como Disponible'}">
+                                <i class="fas fa-${isAvailable ? 'ban' : 'check'}"></i>
+                            </button>
+                            <button class="btn-edit-card" onclick="editProduct('${p.id}')" title="Editar"><i class="fas fa-edit"></i></button>
+                            <button class="btn-delete-card" onclick="deleteProduct('${p.id}')" title="Eliminar"><i class="fas fa-trash"></i></button>
+                        </div>
+                        <img src="${p.imagen || 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=300'}" 
+                             alt="${p.nombre}" 
+                             style="width:calc(100% + 2rem);height:180px;object-fit:cover;border-radius:8px 8px 0 0;margin:-1rem -1rem 0.8rem -1rem;${!isAvailable ? 'filter: grayscale(100%);' : ''}"
+                             onerror="this.src='https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=300'">
+                        <div class="order-customer" style="font-size:1.05rem;margin-bottom:0.3rem;margin-top:0.5rem;">${p.nombre}</div>
+                        <div class="order-notes" style="margin-bottom:0.8rem;font-style:italic;font-size:0.85rem;">${p.descripcion || 'Sin descripción'}</div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <div class="order-total" style="font-size:1.15rem;">$${parseInt(p.precio || 0).toLocaleString()}</div>
+                            <span style="background:var(--gray-100);padding:4px 12px;border-radius:50px;font-size:0.75rem;color:var(--gray-600);text-transform:capitalize;">${p.categoria || 'General'}</span>
+                        </div>
                     </div>
-                    <img src="${p.imagen || 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=300'}" 
-                         alt="${p.nombre}" 
-                         style="width:calc(100% + 2rem);height:180px;object-fit:cover;border-radius:8px 8px 0 0;margin:-1rem -1rem 0.8rem -1rem;"
-                         onerror="this.src='https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=300'">
-                    <div class="order-customer" style="font-size:1.05rem;margin-bottom:0.3rem;margin-top:0.5rem;">${p.nombre}</div>
-                    <div class="order-notes" style="margin-bottom:0.8rem;font-style:italic;font-size:0.85rem;">${p.descripcion || 'Sin descripción'}</div>
-                    <div style="display:flex;justify-content:space-between;align-items:center;">
-                        <div class="order-total" style="font-size:1.15rem;">$${parseInt(p.precio || 0).toLocaleString()}</div>
-                        <span style="background:var(--gray-100);padding:4px 12px;border-radius:50px;font-size:0.75rem;color:var(--gray-600);text-transform:capitalize;">${p.categoria || 'General'}</span>
-                    </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
             
             document.getElementById('sidebarMenuCount').textContent = menuItems.length;
+        }
+
+        // ===== TOGGLE STOCK =====
+        async function toggleProductStock(productId) {
+            const product = menuItems.find(p => p.id.toString() === productId.toString());
+            if (!product) return;
+            
+            const currentStatus = product.disponible !== false && product.disponible !== 'false' && product.disponible !== 'No';
+            const newStatus = !currentStatus;
+            
+            try {
+                // Actualizar en el array local
+                product.disponible = newStatus;
+                
+                // Guardar en Google Sheets
+                if (window.GoogleSheets) {
+                    await window.GoogleSheets.saveProductToSheets(product);
+                }
+                
+                renderMenuAdmin();
+                showNotification(newStatus ? '✅ Producto disponible' : ' Producto no disponible', 'success');
+            } catch (err) {
+                console.error('Error actualizando stock:', err);
+                showNotification('❌ Error: ' + err.message, 'error');
+            }
         }
 
         // ===== MODAL PRODUCTO =====
@@ -1020,6 +1076,7 @@
             delete document.getElementById('addProductForm').dataset.editId;
             delete document.getElementById('addProductForm').dataset.mode;
             document.getElementById('productModalTitle').innerHTML = '<i class="fas fa-utensils" style="color: var(--primary);"></i> Agregar Producto';
+            document.getElementById('productAvailable').value = 'true';
             document.getElementById('addProductModal').classList.add('active'); 
         }
         function closeAddProductModal() { document.getElementById('addProductModal').classList.remove('active'); }
@@ -1035,6 +1092,7 @@
             document.getElementById('productPrice').value = product.precio || '';
             document.getElementById('productImage').value = product.imagen || '';
             document.getElementById('productCategory').value = product.categoria || 'pizzas';
+            document.getElementById('productAvailable').value = (product.disponible !== false && product.disponible !== 'false' && product.disponible !== 'No') ? 'true' : 'false';
             document.getElementById('addProductForm').dataset.editId = productId;
             document.getElementById('addProductForm').dataset.mode = 'edit';
             document.getElementById('productModalTitle').innerHTML = '<i class="fas fa-edit" style="color: var(--primary);"></i> Editar Producto';
@@ -1067,7 +1125,8 @@
                 descripcion: document.getElementById('productDescription').value,
                 precio: parseInt(document.getElementById('productPrice').value),
                 imagen: document.getElementById('productImage').value,
-                categoria: document.getElementById('productCategory').value
+                categoria: document.getElementById('productCategory').value,
+                disponible: document.getElementById('productAvailable').value === 'true'
             };
             try {
                 if (window.GoogleSheets) {
