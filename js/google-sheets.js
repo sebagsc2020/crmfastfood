@@ -124,7 +124,7 @@ class GoogleSheetsManager {
                 }
             },
             error_callback: (error) => {
-                console.error('❌ Error en token client:', error);
+                console.error(' Error en token client:', error);
             }
         });
     }
@@ -157,7 +157,7 @@ class GoogleSheetsManager {
                 };
                 
                 this.tokenClient.error_callback = (error) => {
-                    console.error('❌ Error en callback:', error);
+                    console.error(' Error en callback:', error);
                     reject(error);
                 };
 
@@ -325,7 +325,7 @@ class GoogleSheetsManager {
     }
 
     // ============================================
-    // PRODUCTOS (CON EDITAR Y ELIMINAR)
+    // PRODUCTOS (CON STOCK DISPONIBLE/NO DISPONIBLE)
     // ============================================
 
     async getProductsFromSheets() {
@@ -351,6 +351,11 @@ class GoogleSheetsManager {
                 });
                 product.precio = parseFloat(product.precio) || 0;
                 product.id = (product.id || Date.now()).toString();
+                
+                // ⭐ Normalizar campo disponible (columna 7: Disponible)
+                const disp = (product.disponible || 'Sí').toString().toLowerCase();
+                product.disponible = disp !== 'no' && disp !== 'false' && disp !== '0';
+                
                 return product;
             });
 
@@ -369,14 +374,16 @@ class GoogleSheetsManager {
             
             await this.ensureAuthenticated();
             
-            // Buscar si el producto ya existe
             const products = await this.getProductsFromSheets();
             const existingIndex = products.findIndex(p => p.id.toString() === product.id.toString());
             
+            //  Columna 7: Disponible (Sí/No)
+            const disponibleStr = product.disponible !== false ? 'Sí' : 'No';
+            
             if (existingIndex !== -1) {
-                // ACTUALIZAR existente
+                // ACTUALIZAR existente (columnas A a G)
                 const rowIndex = existingIndex + 2;
-                const url = `${this.baseUrl}/Productos!A${rowIndex}:F${rowIndex}?valueInputOption=USER_ENTERED`;
+                const url = `${this.baseUrl}/Productos!A${rowIndex}:G${rowIndex}?valueInputOption=USER_ENTERED`;
                 
                 const values = [[
                     product.id,
@@ -384,7 +391,8 @@ class GoogleSheetsManager {
                     product.descripcion || '',
                     product.precio || 0,
                     product.imagen || '',
-                    product.categoria || ''
+                    product.categoria || '',
+                    disponibleStr
                 ]];
                 
                 const data = await this._authenticatedFetch(url, {
@@ -402,7 +410,8 @@ class GoogleSheetsManager {
                     product.descripcion || '',
                     product.precio || 0,
                     product.imagen || '',
-                    product.categoria || ''
+                    product.categoria || '',
+                    disponibleStr
                 ]];
                 
                 const url = `${this.baseUrl}/Productos:append?valueInputOption=USER_ENTERED`;
@@ -434,7 +443,6 @@ class GoogleSheetsManager {
             
             if (index === -1) throw new Error('Producto no encontrado');
 
-            // Obtener el ID de la hoja
             const spreadsheet = await this._authenticatedFetch(
                 `https://sheets.googleapis.com/v4/spreadsheets/${this.spreadsheetId}`
             );
@@ -473,7 +481,7 @@ class GoogleSheetsManager {
     }
 
     // ============================================
-    // ENTREGADORES (CON EDITAR Y ELIMINAR)
+    // ENTREGADORES
     // ============================================
 
     async getDeliverersFromSheets() {
@@ -517,12 +525,10 @@ class GoogleSheetsManager {
             
             await this.ensureAuthenticated();
             
-            // Buscar si el entregador ya existe
             const deliverers = await this.getDeliverersFromSheets();
             const existingIndex = deliverers.findIndex(d => d.id.toString() === deliverer.id.toString());
             
             if (existingIndex !== -1) {
-                // ACTUALIZAR existente
                 const rowIndex = existingIndex + 2;
                 const url = `${this.baseUrl}/Entregadores!A${rowIndex}:E${rowIndex}?valueInputOption=USER_ENTERED`;
                 
@@ -542,7 +548,6 @@ class GoogleSheetsManager {
                 console.log('✅ Entregador actualizado:', data);
                 return data;
             } else {
-                // AGREGAR nuevo
                 const values = [[
                     deliverer.id || Date.now().toString(),
                     deliverer.nombre || '',
@@ -573,14 +578,13 @@ class GoogleSheetsManager {
 
     async deleteDelivererFromSheets(delivererId) {
         try {
-            console.log('🗑️ Eliminando entregador:', delivererId);
+            console.log('️ Eliminando entregador:', delivererId);
             
             const deliverers = await this.getDeliverersFromSheets();
             const index = deliverers.findIndex(d => d.id.toString() === delivererId.toString());
             
             if (index === -1) throw new Error('Entregador no encontrado');
 
-            // Obtener el ID de la hoja
             const spreadsheet = await this._authenticatedFetch(
                 `https://sheets.googleapis.com/v4/spreadsheets/${this.spreadsheetId}`
             );
@@ -687,7 +691,7 @@ class GoogleSheetsManager {
             }
             this.accessToken = null;
             this.tokenExpiresAt = 0;
-            console.log('🔴 Sesión cerrada');
+            console.log(' Sesión cerrada');
             return true;
         } catch (error) {
             console.error('Error al cerrar sesión:', error);
@@ -719,7 +723,7 @@ window.updateDelivererInSheets = async (id, data) => await GoogleSheets.updateDe
 
 console.log('✅ GoogleSheets disponible globalmente');
 console.log('🔐 GIS (Google Identity Services) configurado');
-console.log('✨ Funciones disponibles:');
+console.log(' Funciones disponibles:');
 console.log('  - saveProductToSheets(product)');
 console.log('  - deleteProductFromSheets(productId)');
 console.log('  - saveDelivererToSheets(deliverer)');
