@@ -71,7 +71,6 @@
         .topbar .user-info { display: flex; align-items: center; gap: 1rem; }
         .topbar .user-info .avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; }
 
-        /* ⭐ NUEVO: Control de estado del negocio */
         .business-control {
             display: flex;
             align-items: center;
@@ -93,18 +92,9 @@
             border-radius: 50%;
             animation: pulse-status 2s infinite;
         }
-        .status-dot.open {
-            background: #2e7d32;
-            box-shadow: 0 0 8px #2e7d32;
-        }
-        .status-dot.closed {
-            background: #c62828;
-            box-shadow: 0 0 8px #c62828;
-        }
-        @keyframes pulse-status {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
+        .status-dot.open { background: #2e7d32; box-shadow: 0 0 8px #2e7d32; }
+        .status-dot.closed { background: #c62828; box-shadow: 0 0 8px #c62828; }
+        @keyframes pulse-status { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
         .btn-toggle-business {
             padding: 0.5rem 1.2rem;
             border: none;
@@ -115,16 +105,9 @@
             transition: all 0.3s;
             color: white;
         }
-        .btn-toggle-business.open {
-            background: #c62828;
-        }
-        .btn-toggle-business.closed {
-            background: #2e7d32;
-        }
-        .btn-toggle-business:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        }
+        .btn-toggle-business.open { background: #c62828; }
+        .btn-toggle-business.closed { background: #2e7d32; }
+        .btn-toggle-business:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
 
         .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
         .stat-card { background: var(--white); border-radius: var(--radius-sm); padding: 1rem 1.2rem; box-shadow: var(--shadow); border: 1px solid var(--gray-100); display: flex; align-items: center; gap: 1rem; }
@@ -323,7 +306,6 @@
                     <p style="color: var(--gray-500); font-size: 0.9rem;"><i class="fas fa-calendar-alt"></i> <span id="currentDate"></span></p>
                 </div>
                 <div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
-                    <!-- ⭐ NUEVO: Control de estado del negocio -->
                     <div class="business-control">
                         <div class="business-status-indicator" id="adminStatusIndicator">
                             <span class="status-dot closed"></span>
@@ -368,7 +350,7 @@
                             <select id="orderFilter">
                                 <option value="all">📋 Todos</option>
                                 <option value="pendiente">⏳ Pendientes</option>
-                                <option value="en-preparacion">👨‍🍳 En Preparación</option>
+                                <option value="en-preparacion">👨‍ En Preparación</option>
                                 <option value="en-camino">🛵 En Camino</option>
                                 <option value="entregado">✅ Entregados</option>
                                 <option value="cancelado">❌ Cancelados</option>
@@ -543,7 +525,6 @@
         </div>
     </div>
 
-    <!-- ===== SCRIPTS ===== -->
     <script src="js/google-sheets.js"></script>
     
     <script>
@@ -562,7 +543,6 @@
 
         document.getElementById('currentDate').textContent = new Date().toLocaleDateString('es-AR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-        // ===== LOGIN =====
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const user = document.getElementById('loginUser').value;
@@ -576,7 +556,7 @@
                         document.getElementById('dashboardScreen').style.display = 'block';
                         showNotification('✅ Bienvenido al panel', 'success');
                         loadDashboardData();
-                        cargarEstadoNegocioAdmin(); // ⭐ Cargar estado del negocio
+                        cargarEstadoNegocioAdmin();
                     } catch (error) {
                         showNotification('❌ Error al autenticar con Google', 'error');
                     }
@@ -597,7 +577,6 @@
             showNotification('Sesión cerrada', 'info');
         });
 
-        // ===== NAVEGACIÓN =====
         document.querySelectorAll('.sidebar .nav-item[data-tab]').forEach(btn => {
             btn.addEventListener('click', function() {
                 document.querySelectorAll('.sidebar .nav-item[data-tab]').forEach(b => b.classList.remove('active'));
@@ -611,7 +590,6 @@
             });
         });
 
-        // ===== NOTIFICACIONES =====
         function showNotification(message, type = 'info') {
             const div = document.createElement('div');
             div.className = `notification ${type}`;
@@ -623,15 +601,12 @@
             }, 4000);
         }
 
-        // ===== ⭐ CONTROL DE ESTADO DEL NEGOCIO =====
         async function cargarEstadoNegocioAdmin() {
             try {
                 const response = await fetch(`${WEB_APP_URL}?accion=obtenerEstadoNegocio`);
                 const data = await response.json();
-                
                 estadoNegocioActual = data.estado || 'cerrado';
                 actualizarUIEstadoNegocio();
-                
                 console.log('📊 Estado del negocio cargado:', estadoNegocioActual);
             } catch (error) {
                 console.error('Error cargando estado:', error);
@@ -664,9 +639,9 @@
             if (!confirmacion) return;
             
             try {
-                const response = await fetch(WEB_APP_URL, {
+                await fetch(WEB_APP_URL, {
                     method: 'POST',
-                    mode: 'cors',
+                    mode: 'no-cors',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         accion: 'actualizarEstadoNegocio',
@@ -674,25 +649,20 @@
                     })
                 });
                 
-                const data = await response.json();
+                estadoNegocioActual = nuevoEstado;
+                actualizarUIEstadoNegocio();
                 
-                if (data.estado === 'ok') {
-                    estadoNegocioActual = nuevoEstado;
-                    actualizarUIEstadoNegocio();
-                    showNotification(
-                        `✅ Negocio ${nuevoEstado === 'abierto' ? 'ABIERTO' : 'CERRADO'} - Los clientes ${nuevoEstado === 'abierto' ? 'ya pueden hacer pedidos' : 'verán que está cerrado'}`,
-                        'success'
-                    );
-                } else {
-                    showNotification('❌ Error al actualizar el estado', 'error');
-                }
+                showNotification(
+                    `✅ Negocio ${nuevoEstado === 'abierto' ? 'ABIERTO' : 'CERRADO'} - Los clientes ${nuevoEstado === 'abierto' ? 'ya pueden hacer pedidos' : 'verán que está cerrado'}`,
+                    'success'
+                );
+                
             } catch (error) {
                 console.error('Error:', error);
-                showNotification('❌ Error de conexión', 'error');
+                showNotification('❌ Error de conexión. Intentá de nuevo.', 'error');
             }
         }
 
-        // ===== CARGAR DATOS =====
         async function loadDashboardData() {
             await Promise.allSettled([loadOrders(), loadDeliverers(), loadMenuItems()]);
         }
@@ -740,7 +710,6 @@
             renderMenuAdmin();
         }
 
-        // ===== AUTO-REFRESH =====
         function startAutoRefresh() {
             if (autoRefreshInterval) clearInterval(autoRefreshInterval);
             autoRefreshInterval = setInterval(async () => {
@@ -762,7 +731,6 @@
         }
         function stopAutoRefresh() { if (autoRefreshInterval) clearInterval(autoRefreshInterval); }
 
-        // ===== TIMER =====
         function formatElapsedTime(ts) {
             const diff = Math.max(0, Date.now() - ts);
             const s = Math.floor(diff/1000), m = Math.floor(s/60), h = Math.floor(m/60);
@@ -784,7 +752,6 @@
 
         function parseOrderItems(str) { return str ? str.split(',').map(i => i.trim()).filter(i => i) : []; }
 
-        // ===== RENDER PEDIDOS =====
         function renderOrders() {
             const statuses = ['pendiente', 'en-preparacion', 'en-camino', 'entregado'];
             const labels = { pendiente:'pendiente', 'en-preparacion':'preparacion', 'en-camino':'camino', entregado:'entregado' };
@@ -885,7 +852,6 @@
 
         function clearFilters() { document.getElementById('orderFilter').value = 'all'; document.getElementById('dateFilter').value = ''; renderOrders(); }
 
-        // ===== ASIGNAR ENTREGADOR =====
         function openAssignModal(orderId) {
             selectedOrderId = orderId;
             selectedDelivererId = null;
@@ -955,7 +921,6 @@
             }
         }
 
-        // ===== ESTADÍSTICAS =====
         function updateStats() {
             const total = orders.length;
             const pending = orders.filter(o => ['pendiente','en-preparacion','en-camino'].includes(o.estado)).length;
@@ -1112,7 +1077,6 @@
             `).join('');
         }
 
-        // ===== RENDER ENTREGADORES =====
         function renderDeliverers() {
             const c = document.getElementById('deliverersGrid'); if (!c) return;
             if (deliverers.length === 0) {
@@ -1137,7 +1101,6 @@
             document.getElementById('sidebarDeliverersCount').textContent = deliverers.length;
         }
 
-        // ===== RENDER MENÚ CON BOTÓN DE STOCK =====
         function renderMenuAdmin() {
             const c = document.getElementById('menuAdminGrid'); if (!c) return;
             
@@ -1178,7 +1141,6 @@
             document.getElementById('sidebarMenuCount').textContent = menuItems.length;
         }
 
-        // ===== TOGGLE STOCK =====
         async function toggleProductStock(productId) {
             const product = menuItems.find(p => p.id.toString() === productId.toString());
             if (!product) return;
@@ -1201,7 +1163,6 @@
             }
         }
 
-        // ===== MODAL PRODUCTO =====
         function openAddProductModal() { 
             document.getElementById('addProductForm').reset();
             delete document.getElementById('addProductForm').dataset.editId;
@@ -1275,7 +1236,6 @@
             }
         });
 
-        // ===== MODAL ENTREGADOR =====
         function openAddDelivererModal() { 
             document.getElementById('addDelivererForm').reset();
             delete document.getElementById('addDelivererForm').dataset.editId;
