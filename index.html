@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🍕 Rotisería+Delicias - Sabores que enamoran</title>
+    <title>🍕 Rotisería Delicias - Sabores que enamoran</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -172,6 +172,169 @@
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        /* ===== PANEL DE SUGERENCIAS DE COMBOS ===== */
+        .combo-suggestion {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 1.5rem;
+            max-width: 350px;
+            z-index: 1500;
+            animation: slideInRight 0.4s ease-out;
+            border: 2px solid var(--primary);
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .combo-suggestion.fade-out {
+            animation: fadeOut 0.3s ease-out forwards;
+        }
+
+        @keyframes fadeOut {
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+
+        .combo-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .combo-header i {
+            font-size: 1.3rem;
+        }
+
+        .combo-message {
+            color: var(--text);
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .combo-products {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .combo-product {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.8rem;
+            background: var(--cream);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .combo-product:hover {
+            border-color: var(--primary);
+            transform: translateX(5px);
+            background: white;
+        }
+
+        .combo-product img {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .combo-product-info {
+            flex: 1;
+        }
+
+        .combo-product-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text);
+            margin-bottom: 0.2rem;
+        }
+
+        .combo-product-price {
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .combo-add-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+
+        .combo-add-btn:hover {
+            background: var(--primary-dark);
+            transform: scale(1.05);
+        }
+
+        .combo-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-light);
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .combo-close:hover {
+            background: var(--cream);
+            color: var(--primary);
+        }
+
+        .combo-footer {
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-light);
+            margin-top: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .combo-suggestion {
+                bottom: 80px;
+                right: 10px;
+                left: 10px;
+                max-width: none;
+            }
+        }
 
         @media (max-width: 1024px) {
             .hero-text h1 { font-size: 3.5rem; }
