@@ -1,23 +1,16 @@
 // ============================================
 // CONFIGURACIÓN
 // ============================================
-const CONFIG = {
-    SHEET_ID: '14xD_209wbWswASj3uFTBnTPC_NLf3_dKtDoIeP-Q3hE',
-    API_KEY: 'AIzaSyAJgw0PQKO4qhby7mYDkopJPUXJBu79rGk',
-    SHEETS_API: 'https://sheets.googleapis.com/v4/spreadsheets/'
-};
-
-// ⭐ URL DE GOOGLE APPS SCRIPT - ACTUALIZAR CON TU URL
 const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzno9_b1xIrGpBB5MZcXvH2XukxAx4inrG-3HIdM0ZSRsnxyR0YrzfQ_sUqibM_1rsWug/exec';
 
 // ============================================
-// FALLBACK MÍNIMO
+// FALLBACK (solo si falla TODO)
 // ============================================
 const PRODUCTOS_FALLBACK = [
     { id: 1, nombre: 'Pizza Muzzarella', descripcion: 'Clásica con salsa, muzzarella y orégano', precio: 4500, imagen: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=300', categoria: 'pizzas', disponible: true },
-    { id: 2, nombre: 'Hamburguesa Clásica', descripcion: 'Carne, lechuga, tomate y salsa especial', precio: 3800, imagen: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=300', categoria: 'hamburguesas', disponible: true },
+    { id: 2, nombre: 'Hamburguesa Clásica', descripcion: 'Carne, lechuga, tomate', precio: 3800, imagen: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=300', categoria: 'hamburguesas', disponible: true },
     { id: 3, nombre: 'Empanada de Carne', descripcion: 'Carne cortada a cuchillo', precio: 1500, imagen: 'https://images.unsplash.com/photo-1625943553852-b2aa1393c3b5?w=300', categoria: 'empanadas', disponible: true },
-    { id: 4, nombre: 'Papas Fritas', descripcion: 'Papas cortadas, fritas y saladas', precio: 2000, imagen: 'https://images.unsplash.com/photo-1630384060421-cb20d0e0649d?w=300', categoria: 'papas', disponible: true }
+    { id: 4, nombre: 'Papas Fritas', descripcion: 'Papas fritas', precio: 2000, imagen: 'https://images.unsplash.com/photo-1630384060421-cb20d0e0649d?w=300', categoria: 'papas', disponible: true }
 ];
 
 // ============================================
@@ -30,45 +23,34 @@ let productosActuales = [];
 let categoriaActual = 'all';
 
 // ============================================
-// ⭐ CARGAR PRODUCTOS CON MEJOR MANEJO DE ERRORES
+// ⭐ CARGAR PRODUCTOS (VERSIÓN CORREGIDA)
 // ============================================
 async function loadProductsFromSheets() {
     try {
-        console.log('📦 Cargando productos desde Apps Script (GET)...');
+        console.log('📦 Cargando productos desde Apps Script...');
         
         const url = `${WEB_APP_URL}?accion=obtenerProductos`;
         console.log('🔗 URL:', url);
         
-        const response = await fetch(url, {
-            method: 'GET',
-            mode: 'cors'
-        });
-        
-        console.log('📡 Status:', response.status);
+        const response = await fetch(url);
         
         if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            throw new Error(`HTTP ${response.status}`);
         }
         
         const data = await response.json();
         console.log('📊 Respuesta recibida:', data);
         
-        if (data.error) {
-            console.error('❌ Error en la respuesta:', data.error);
-            throw new Error(data.error);
-        }
-        
+        // ⭐ VERIFICACIÓN CORRECTA
         if (data.products && data.products.length > 0) {
             console.log(`✅ ${data.products.length} productos cargados desde Google Sheets`);
             console.log('📋 Productos:', data.products.map(p => p.nombre).join(', '));
             return data.products;
         } else {
             console.log('⚠️ No hay productos en la respuesta');
-            console.log('📄 Respuesta completa:', JSON.stringify(data));
         }
     } catch (error) {
         console.error('❌ Error al cargar productos:', error);
-        console.error('📝 Stack:', error.stack);
     }
     
     console.log('⚠️ Usando productos de fallback');
@@ -76,7 +58,7 @@ async function loadProductsFromSheets() {
 }
 
 // ============================================
-// ORDENAR PRODUCTOS
+// ORDENAR PRODUCTOS (bebidas al final)
 // ============================================
 function sortProducts(products) {
     if (!products || products.length === 0) return [];
@@ -138,6 +120,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         `;
     }
     
+    // ⭐ Cargar productos
     productosActuales = await loadProductsFromSheets();
     productosActuales = sortProducts(productosActuales);
     
@@ -151,7 +134,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // ============================================
-// RENDERIZAR MENÚ
+// ⭐ RENDERIZAR MENÚ (CON STOCK)
 // ============================================
 function renderMenu() {
     const grid = document.getElementById('menuGrid');
@@ -163,6 +146,7 @@ function renderMenu() {
     let items = window.PRODUCTOS_ACTUALES || PRODUCTOS_FALLBACK;
     items = sortProducts(items);
     
+    // Filtrar por categoría
     if (categoriaActual && categoriaActual !== 'all') {
         items = items.filter(p => {
             const cat = (p.categoria || '').toLowerCase().trim();
@@ -174,16 +158,20 @@ function renderMenu() {
         grid.innerHTML = `
             <div style="text-align: center; padding: 3rem; grid-column: 1 / -1;">
                 <i class="fas fa-utensils" style="font-size: 3rem; color: #ccc;"></i>
-                <p style="color: #999; margin-top: 1rem;">No hay productos disponibles</p>
+                <p style="color: #999; margin-top: 1rem;">No hay productos disponibles en esta categoría</p>
             </div>
         `;
         return;
     }
     
+    console.log(`🎨 Renderizando ${items.length} productos...`);
+    
     grid.innerHTML = items.map(producto => {
+        // ⭐ Verificar disponibilidad
         const isAvailable = producto.disponible !== false && 
                            producto.disponible !== 'false' && 
-                           producto.disponible !== 'No';
+                           producto.disponible !== 'No' &&
+                           producto.disponible !== 'no';
         
         return `
             <div class="product-card ${!isAvailable ? 'unavailable' : ''}" 
@@ -223,10 +211,12 @@ function renderMenu() {
             </div>
         `;
     }).join('');
+    
+    console.log(`✅ Menú renderizado con ${items.length} productos`);
 }
 
 // ============================================
-// CANTIDADES Y CARRITO
+// MANEJAR CANTIDADES
 // ============================================
 function changeQuantity(productId, delta) {
     const display = document.getElementById(`qty-${productId}`);
@@ -237,6 +227,9 @@ function changeQuantity(productId, delta) {
     display.textContent = current;
 }
 
+// ============================================
+// AGREGAR AL CARRITO
+// ============================================
 function addToCart(productId) {
     const display = document.getElementById(`qty-${productId}`);
     const quantity = parseInt(display.textContent) || 0;
@@ -279,6 +272,9 @@ function addToCart(productId) {
     showNotification(`✅ ${quantity}x ${product.nombre} agregado al carrito`, 'success');
 }
 
+// ============================================
+// ACTUALIZAR UI DEL CARRITO
+// ============================================
 function updateCartUI() {
     const count = document.getElementById('cartCount');
     const total = document.getElementById('cartTotal');
@@ -311,12 +307,18 @@ function updateCartUI() {
     `).join('');
 }
 
+// ============================================
+// ELIMINAR DEL CARRITO
+// ============================================
 function removeFromCart(productId) {
     cart = cart.filter(item => parseInt(item.id) !== parseInt(productId));
     updateCartUI();
     showNotification('🗑️ Producto eliminado del carrito', 'info');
 }
 
+// ============================================
+// TOGGLE CARRITO
+// ============================================
 function toggleCart() {
     const overlay = document.getElementById('cartOverlay');
     const panel = document.querySelector('.cart-panel');
@@ -327,6 +329,9 @@ function toggleCart() {
     panel.classList.toggle('open');
 }
 
+// ============================================
+// ABRIR CHECKOUT
+// ============================================
 function openCheckout() {
     if (cart.length === 0) {
         showNotification('⚠️ Agregá productos al carrito primero', 'warning');
@@ -355,6 +360,9 @@ function openCheckout() {
     modal.classList.add('active');
 }
 
+// ============================================
+// CERRAR CHECKOUT
+// ============================================
 function closeCheckout() {
     const modal = document.getElementById('checkoutModal');
     if (modal) modal.classList.remove('active');
