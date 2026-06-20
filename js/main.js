@@ -23,7 +23,7 @@ let productosActuales = [];
 let categoriaActual = 'all';
 
 // ============================================
-// ⭐ CARGAR PRODUCTOS DESDE APPS SCRIPT (PÚBLICO)
+// CARGAR PRODUCTOS DESDE APPS SCRIPT
 // ============================================
 async function loadProductsFromSheets() {
     try {
@@ -43,7 +43,16 @@ async function loadProductsFromSheets() {
         
         if (data.products && data.products.length > 0) {
             console.log(`✅ ${data.products.length} productos cargados desde Google Sheets`);
-            console.log('📋 Productos:', data.products.map(p => p.nombre).join(', '));
+            
+            // ⭐ DEBUG: Verificar que todos los productos tengan categoria
+            data.products.forEach((p, i) => {
+                console.log(`Producto ${i + 1}:`, {
+                    nombre: p.nombre,
+                    categoria: p.categoria || '❌ SIN CATEGORÍA',
+                    disponible: p.disponible
+                });
+            });
+            
             return data.products;
         } else {
             console.log('⚠️ No hay productos en la respuesta');
@@ -90,10 +99,12 @@ function sortProducts(products) {
 }
 
 // ============================================
-// FILTRAR POR CATEGORÍA
+// FILTRAR POR CATEGORÍA (MEJORADO)
 // ============================================
 function filterCategory(category, element) {
     categoriaActual = category;
+    
+    console.log(`🔍 Filtrando por categoría: "${category}"`);
     
     document.querySelectorAll('.category-item').forEach(item => {
         item.classList.remove('active');
@@ -132,7 +143,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // ============================================
-// RENDERIZAR MENÚ
+// RENDERIZAR MENÚ (MEJORADO CON DEBUG)
 // ============================================
 function renderMenu() {
     const grid = document.getElementById('menuGrid');
@@ -142,14 +153,33 @@ function renderMenu() {
     }
     
     let items = window.PRODUCTOS_ACTUALES || PRODUCTOS_FALLBACK;
-    items = sortProducts(items);
     
+    console.log(`📋 Total productos disponibles: ${items.length}`);
+    console.log(`🔍 Categoría actual: "${categoriaActual}"`);
+    
+    // ⭐ FILTRADO MEJORADO
     if (categoriaActual && categoriaActual !== 'all') {
+        const categoriaLower = categoriaActual.toLowerCase().trim();
+        
         items = items.filter(p => {
-            const cat = (p.categoria || '').toLowerCase().trim();
-            return cat === categoriaActual.toLowerCase();
+            const cat = (p.categoria || '').toString().toLowerCase().trim();
+            
+            // ⭐ DEBUG: Ver cada comparación
+            console.log(`Comparando: "${cat}" === "${categoriaLower}" → ${cat === categoriaLower}`);
+            
+            return cat === categoriaLower;
         });
+        
+        console.log(`✅ Productos después del filtro: ${items.length}`);
+        
+        if (items.length === 0) {
+            console.warn(`⚠️ No hay productos en la categoría "${categoriaActual}"`);
+            console.log('Categorías disponibles:', 
+                [...new Set((window.PRODUCTOS_ACTUALES || []).map(p => p.categoria))]);
+        }
     }
+    
+    items = sortProducts(items);
     
     if (!items || items.length === 0) {
         grid.innerHTML = `
