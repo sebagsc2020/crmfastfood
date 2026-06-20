@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin+Panel - Rotisería Delicias</title>
+    <title>Admin Panel - Rotisería Delicias</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -65,49 +65,11 @@
         .sidebar .logout-btn { color: rgba(255,255,255,0.5); }
 
         .main-content { margin-left: 260px; padding: 2rem; min-height: 100vh; }
-        .topbar { display: flex; justify-content: space-between; align-items: center; padding-bottom: 1.5rem; border-bottom: 1px solid var(--gray-200); margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; }
+        .topbar { display: flex; justify-content: space-between; align-items: center; padding-bottom: 1.5rem; border-bottom: 1px solid var(--gray-200); margin-bottom: 2rem; }
         .topbar .page-title { font-size: 1.8rem; font-weight: 800; }
         .topbar .page-title span { color: var(--primary); }
         .topbar .user-info { display: flex; align-items: center; gap: 1rem; }
         .topbar .user-info .avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; }
-
-        .business-control {
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-            padding: 0.6rem 1.2rem;
-            border-radius: 50px;
-            background: var(--gray-100);
-        }
-        .business-status-indicator {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-        .status-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            animation: pulse-status 2s infinite;
-        }
-        .status-dot.open { background: #2e7d32; box-shadow: 0 0 8px #2e7d32; }
-        .status-dot.closed { background: #c62828; box-shadow: 0 0 8px #c62828; }
-        @keyframes pulse-status { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-        .btn-toggle-business {
-            padding: 0.5rem 1.2rem;
-            border: none;
-            border-radius: 50px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 0.85rem;
-            transition: all 0.3s;
-            color: white;
-        }
-        .btn-toggle-business.open { background: #c62828; }
-        .btn-toggle-business.closed { background: #2e7d32; }
-        .btn-toggle-business:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
 
         .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
         .stat-card { background: var(--white); border-radius: var(--radius-sm); padding: 1rem 1.2rem; box-shadow: var(--shadow); border: 1px solid var(--gray-100); display: flex; align-items: center; gap: 1rem; }
@@ -248,7 +210,7 @@
         .stock-badge.unavailable { background: #ffebee; color: #c62828; }
 
         @media (max-width: 1200px) { .board-columns { grid-template-columns: repeat(2, 1fr); } .stats-grid { grid-template-columns: repeat(2, 1fr); } .stats-charts-grid { grid-template-columns: 1fr; } }
-        @media (max-width: 768px) { .board-columns { grid-template-columns: 1fr; } .stats-grid { grid-template-columns: 1fr; } .sidebar { width: 72px; } .main-content { margin-left: 72px; } .business-control { flex-wrap: wrap; } }
+        @media (max-width: 768px) { .board-columns { grid-template-columns: 1fr; } .stats-grid { grid-template-columns: 1fr; } .sidebar { width: 72px; } .main-content { margin-left: 72px; } }
     </style>
 </head>
 <body>
@@ -305,21 +267,9 @@
                     <h1 class="page-title">Panel de <span>Control</span></h1>
                     <p style="color: var(--gray-500); font-size: 0.9rem;"><i class="fas fa-calendar-alt"></i> <span id="currentDate"></span></p>
                 </div>
-                <div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
-                    <div class="business-control">
-                        <div class="business-status-indicator" id="adminStatusIndicator">
-                            <span class="status-dot closed"></span>
-                            <span>CERRADO</span>
-                        </div>
-                        <button onclick="toggleEstadoNegocio()" id="btnToggleEstado" class="btn-toggle-business closed">
-                            <i class="fas fa-unlock"></i> Abrir
-                        </button>
-                    </div>
-                    
-                    <div class="user-info">
-                        <div><div class="name">Administrador</div><div class="role">Super Admin</div></div>
-                        <div class="avatar">A</div>
-                    </div>
+                <div class="user-info">
+                    <div><div class="name">Administrador</div><div class="role">Super Admin</div></div>
+                    <div class="avatar">A</div>
                 </div>
             </div>
 
@@ -366,7 +316,7 @@
                         <div class="column-body" id="col-pendiente"></div>
                     </div>
                     <div class="column" data-status="en-preparacion">
-                        <div class="column-header"><h3>👨‍🍳 En Preparación</h3><span class="count" id="count-preparacion">0</span></div>
+                        <div class="column-header"><h3>👨‍ En Preparación</h3><span class="count" id="count-preparacion">0</span></div>
                         <div class="column-body" id="col-preparacion"></div>
                     </div>
                     <div class="column" data-status="en-camino">
@@ -535,11 +485,9 @@
         let autoRefreshInterval = null;
         let selectedOrderId = null;
         let selectedDelivererId = null;
-        let estadoNegocioActual = 'cerrado';
 
         const ADMIN_USER = 'admin';
         const ADMIN_PASS = '2409admin2409';
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzno9_b1xIrGpBB5MZcXvH2XukxAx4inrG-3HIdM0ZSRsnxyR0YrzfQ_sUqibM_1rsWug/exec';
 
         document.getElementById('currentDate').textContent = new Date().toLocaleDateString('es-AR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
@@ -556,7 +504,6 @@
                         document.getElementById('dashboardScreen').style.display = 'block';
                         showNotification('✅ Bienvenido al panel', 'success');
                         loadDashboardData();
-                        cargarEstadoNegocioAdmin();
                     } catch (error) {
                         showNotification('❌ Error al autenticar con Google', 'error');
                     }
@@ -599,68 +546,6 @@
                 div.style.opacity = '0'; div.style.transform = 'translateY(20px)'; div.style.transition = 'all 0.3s';
                 setTimeout(() => div.remove(), 300);
             }, 4000);
-        }
-
-        async function cargarEstadoNegocioAdmin() {
-            try {
-                const response = await fetch(`${WEB_APP_URL}?accion=obtenerEstadoNegocio`);
-                const data = await response.json();
-                estadoNegocioActual = data.estado || 'cerrado';
-                actualizarUIEstadoNegocio();
-                console.log('📊 Estado del negocio cargado:', estadoNegocioActual);
-            } catch (error) {
-                console.error('Error cargando estado:', error);
-                estadoNegocioActual = 'cerrado';
-                actualizarUIEstadoNegocio();
-            }
-        }
-
-        function actualizarUIEstadoNegocio() {
-            const indicator = document.getElementById('adminStatusIndicator');
-            const btnToggle = document.getElementById('btnToggleEstado');
-            
-            if (!indicator || !btnToggle) return;
-            
-            if (estadoNegocioActual === 'abierto') {
-                indicator.innerHTML = '<span class="status-dot open"></span><span>ABIERTO</span>';
-                btnToggle.innerHTML = '<i class="fas fa-lock"></i> Cerrar';
-                btnToggle.className = 'btn-toggle-business open';
-            } else {
-                indicator.innerHTML = '<span class="status-dot closed"></span><span>CERRADO</span>';
-                btnToggle.innerHTML = '<i class="fas fa-unlock"></i> Abrir';
-                btnToggle.className = 'btn-toggle-business closed';
-            }
-        }
-
-        async function toggleEstadoNegocio() {
-            const nuevoEstado = estadoNegocioActual === 'abierto' ? 'cerrado' : 'abierto';
-            
-            const confirmacion = confirm(`¿Estás seguro de ${nuevoEstado === 'abierto' ? 'ABRIR' : 'CERRAR'} el negocio?\n\n${nuevoEstado === 'abierto' ? 'Los clientes podrán hacer pedidos.' : 'Los clientes verán que está cerrado.'}`);
-            if (!confirmacion) return;
-            
-            try {
-                await fetch(WEB_APP_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        accion: 'actualizarEstadoNegocio',
-                        estado: nuevoEstado
-                    })
-                });
-                
-                estadoNegocioActual = nuevoEstado;
-                actualizarUIEstadoNegocio();
-                
-                showNotification(
-                    `✅ Negocio ${nuevoEstado === 'abierto' ? 'ABIERTO' : 'CERRADO'} - Los clientes ${nuevoEstado === 'abierto' ? 'ya pueden hacer pedidos' : 'verán que está cerrado'}`,
-                    'success'
-                );
-                
-            } catch (error) {
-                console.error('Error:', error);
-                showNotification('❌ Error de conexión. Intentá de nuevo.', 'error');
-            }
         }
 
         async function loadDashboardData() {
@@ -833,7 +718,7 @@
             const order = orders.find(o => o.id === id); if (!order) return;
             const phone = (order.telefono || '').replace(/\D/g, ''); if (!phone) return;
             const fecha = new Date(order.fecha).toLocaleString('es-AR', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
-            const estadoEmojis = {'pendiente':'⏳','en-preparacion':'👨‍🍳','en-camino':'🛵','entregado':'✅','cancelado':'❌'};
+            const estadoEmojis = {'pendiente':'⏳','en-preparacion':'👨‍','en-camino':'🛵','entregado':'✅','cancelado':'❌'};
             const estadoLabel = {'pendiente':'Pendiente','en-preparacion':'En Preparación','en-camino':'En Camino','entregado':'Entregado','cancelado':'Cancelado'};
             
             let msg = `🍕 *DELICIAS ROTISERÍA*\n━━━━━━━━━━━━━━━━━━\n\n📋 *DETALLE DE TU PEDIDO*\n\n`;
