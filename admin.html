@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - Rotisería Delicias</title>
+    <title>Admin+Panel - Rotisería Delicias</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -671,6 +671,7 @@
 
         function parseOrderItems(str) { return str ? str.split(',').map(i => i.trim()).filter(i => i) : []; }
 
+        // ⭐ RENDER PEDIDOS CON ASIGNACIÓN SOLO EN PREPARACIÓN
         function renderOrders() {
             const statuses = ['pendiente', 'en-preparacion', 'en-camino', 'entregado'];
             const labels = { pendiente:'pendiente', 'en-preparacion':'preparacion', 'en-camino':'camino', entregado:'entregado' };
@@ -700,6 +701,9 @@
                     const timestamp = fecha.getTime();
                     const itemsList = parseOrderItems(o.items);
                     
+                    // ⭐ LÓGICA CORREGIDA: Solo mostrar botón de asignar si está en "en-preparacion"
+                    const showAssignButton = (st === 'en-preparacion');
+                    
                     return `
                         <div class="order-card">
                             <div class="order-time-wrapper">
@@ -723,7 +727,7 @@
                                 <button class="btn-whatsapp" onclick="contactCustomer('${o.id}')"><i class="fab fa-whatsapp"></i></button>
                                 ${st !== 'entregado' && st !== 'cancelado' ? `
                                     <button class="btn-status" onclick="changeOrderStatus('${o.id}')"><i class="fas fa-arrow-right"></i> Avanzar</button>
-                                    <button class="btn-assign" onclick="openAssignModal('${o.id}')"><i class="fas fa-motorcycle"></i></button>
+                                    ${showAssignButton ? `<button class="btn-assign" onclick="openAssignModal('${o.id}')"><i class="fas fa-motorcycle"></i> Asignar</button>` : ''}
                                     <button class="btn-cancel" onclick="cancelOrder('${o.id}')"><i class="fas fa-times"></i></button>
                                 ` : ''}
                             </div>
