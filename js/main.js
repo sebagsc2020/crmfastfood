@@ -7,14 +7,14 @@ const CONFIG = {
     SHEETS_API: 'https://sheets.googleapis.com/v4/spreadsheets/'
 };
 
-// ⭐ URL DE GOOGLE APPS SCRIPT (para TODO: leer productos y enviar pedidos)
+// ⭐ URL DE GOOGLE APPS SCRIPT
 const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzno9_b1xIrGpBB5MZcXvH2XukxAx4inrG-3HIdM0ZSRsnxyR0YrzfQ_sUqibM_1rsWug/exec';
 
-// ⭐ MODO SANDBOX (true = pruebas, false = producción)
+// ⭐ MODO SANDBOX
 const MP_SANDBOX = true;
 
 // ============================================
-// DATOS DE PRODUCTOS (FALLBACK si falla la API)
+// DATOS DE PRODUCTOS (FALLBACK)
 // ============================================
 const PRODUCTOS = [
     { id: 1, nombre: 'Pizza Muzzarella', descripcion: 'Clásica con salsa, muzzarella y orégano', precio: 4500, imagen: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=300', categoria: 'pizzas', disponible: true },
@@ -37,18 +37,18 @@ let productosActuales = [];
 let categoriaActual = 'all';
 
 // ============================================
-// ⭐ CARGAR PRODUCTOS DESDE APPS SCRIPT (SIN OAUTH)
+// ⭐ CARGAR PRODUCTOS DESDE APPS SCRIPT (USANDO GET)
 // ============================================
 async function loadProductsFromSheets() {
     try {
-        console.log('📦 Cargando productos desde Apps Script...');
+        console.log(' Cargando productos desde Apps Script...');
         
-        // ⭐ Usar Apps Script en lugar de Google Sheets API directa
-        const response = await fetch(WEB_APP_URL, {
-            method: 'POST',
+        // ⭐ Usar GET en lugar de POST para evitar problemas de CORS
+        const url = `${WEB_APP_URL}?accion=obtenerProductos`;
+        const response = await fetch(url, {
+            method: 'GET',
             mode: 'cors',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ accion: 'obtenerProductos' })
+            headers: { 'Content-Type': 'application/json' }
         });
         
         const data = await response.json();
@@ -61,16 +61,28 @@ async function loadProductsFromSheets() {
         }
     } catch (error) {
         console.error('❌ Error al cargar productos:', error);
+        console.log('⚠️ Intentando con no-cors...');
+        
+        // ⭐ Fallback: intentar con no-cors (no podremos leer la respuesta)
+        try {
+            const url = `${WEB_APP_URL}?accion=obtenerProductos`;
+            await fetch(url, {
+                method: 'GET',
+                mode: 'no-cors'
+            });
+            console.log('⚠️ Petición enviada pero no se puede leer respuesta (no-cors)');
+        } catch (e) {
+            console.error('❌ Error con no-cors:', e);
+        }
     }
     
     // Fallback: usar datos locales
-    console.log('📦 Usando productos locales como fallback');
+    console.log(' Usando productos locales como fallback');
     return PRODUCTOS;
 }
 
 // ============================================
 // FUNCIÓN PARA ORDENAR PRODUCTOS
-// Bebidas al final, el resto alfabéticamente
 // ============================================
 function sortProducts(products) {
     if (!products || products.length === 0) return [];
@@ -120,7 +132,7 @@ function filterCategory(category, element) {
 // INICIALIZACIÓN
 // ============================================
 document.addEventListener('DOMContentLoaded', async () => {
-    console.log('🚀 Iniciando aplicación...');
+    console.log(' Iniciando aplicación...');
     
     const grid = document.getElementById('menuGrid');
     if (grid) {
@@ -253,7 +265,6 @@ function addToCart(productId) {
         return;
     }
     
-    // ⭐ Verificar si está disponible
     const isAvailable = product.disponible !== false && 
                        product.disponible !== 'false' && 
                        product.disponible !== 'No';
@@ -376,7 +387,7 @@ function closeCheckout() {
 }
 
 // ============================================
-// ⭐ ENVIAR PEDIDO VIA APPS SCRIPT (SIN OAUTH)
+// ⭐ ENVIAR PEDIDO VIA APPS SCRIPT (POST con no-cors)
 // ============================================
 document.getElementById('orderForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -414,7 +425,7 @@ document.getElementById('orderForm')?.addEventListener('submit', async (e) => {
     };
     
     try {
-        // ⭐ Enviar via Google Apps Script (SIN popup de Google)
+        // ⭐ Enviar via Google Apps Script con no-cors
         await fetch(WEB_APP_URL, {
             method: 'POST',
             mode: 'no-cors',
@@ -425,9 +436,8 @@ document.getElementById('orderForm')?.addEventListener('submit', async (e) => {
             })
         });
         
-        showNotification('🎉 ¡Pedido confirmado! Lo recibirás en breve.', 'success');
+        showNotification(' ¡Pedido confirmado! Lo recibirás en breve.', 'success');
         
-        // Limpiar carrito
         cart = [];
         updateCartUI();
         closeCheckout();
