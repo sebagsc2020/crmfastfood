@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin+Panel - Rotisería Delicias</title>
+    <title>Admin Panel - Rotisería Delicias</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -316,7 +316,7 @@
                         <div class="column-body" id="col-pendiente"></div>
                     </div>
                     <div class="column" data-status="en-preparacion">
-                        <div class="column-header"><h3>👨‍🍳 En Preparación</h3><span class="count" id="count-preparacion">0</span></div>
+                        <div class="column-header"><h3>👨‍ En Preparación</h3><span class="count" id="count-preparacion">0</span></div>
                         <div class="column-body" id="col-preparacion"></div>
                     </div>
                     <div class="column" data-status="en-camino">
@@ -735,7 +735,9 @@
                     const timestamp = fecha.getTime();
                     const itemsList = parseOrderItems(o.items);
                     const showAssignButton = (st === 'en-preparacion');
-                    const safeId = JSON.stringify(o.id);
+                    
+                    // ⭐ CORRECCIÓN: Escapar correctamente el ID
+                    const safeId = String(o.id).replace(/'/g, "\\'").replace(/"/g, '&quot;');
                     
                     return `
                         <div class="order-card">
@@ -757,11 +759,11 @@
                                 ${o.entregador && o.entregador !== 'Sin asignar' ? '🛵 ' + o.entregador : '📦 Sin entregador'}
                             </div>
                             <div class="order-actions">
-                                <button class="btn-whatsapp" onclick="contactCustomer(${safeId})"><i class="fab fa-whatsapp"></i></button>
+                                <button class="btn-whatsapp" onclick='contactCustomer("${safeId}")'><i class="fab fa-whatsapp"></i></button>
                                 ${st !== 'entregado' && st !== 'cancelado' ? `
-                                    <button class="btn-status" onclick="changeOrderStatus(${safeId})"><i class="fas fa-arrow-right"></i> Avanzar</button>
-                                    ${showAssignButton ? `<button class="btn-assign" onclick="openAssignModal(${safeId})"><i class="fas fa-motorcycle"></i> Asignar</button>` : ''}
-                                    <button class="btn-cancel" onclick="cancelOrder(${safeId})"><i class="fas fa-times"></i></button>
+                                    <button class="btn-status" onclick='changeOrderStatus("${safeId}")'><i class="fas fa-arrow-right"></i> Avanzar</button>
+                                    ${showAssignButton ? `<button class="btn-assign" onclick='openAssignModal("${safeId}")'><i class="fas fa-motorcycle"></i> Asignar</button>` : ''}
+                                    <button class="btn-cancel" onclick='cancelOrder("${safeId}")'><i class="fas fa-times"></i></button>
                                 ` : ''}
                             </div>
                         </div>
@@ -970,7 +972,7 @@
             
             const estados = [
                 { key: 'pendiente', label: '⏳ Pendientes', class: 'pendiente' },
-                { key: 'en-preparacion', label: '👨‍🍳 En Preparación', class: 'en-preparacion' },
+                { key: 'en-preparacion', label: '👨‍ En Preparación', class: 'en-preparacion' },
                 { key: 'en-camino', label: '🛵 En Camino', class: 'en-camino' },
                 { key: 'entregado', label: '✅ Entregados', class: 'entregado' },
                 { key: 'cancelado', label: '❌ Cancelados', class: 'cancelado' }
