@@ -6,7 +6,7 @@ const CONFIG = {
 };
 
 // ============================================
-// CLASE PRINCIPAL (SIN OAUTH - USA APPS SCRIPT)
+// CLASE PRINCIPAL (SIN OAUTH)
 // ============================================
 class GoogleSheetsAPI {
     constructor() {
@@ -14,8 +14,7 @@ class GoogleSheetsAPI {
     }
 
     async authenticate() {
-        // ⭐ No requiere OAuth, solo verifica credenciales simples
-        console.log('✅ Autenticación simple completada');
+        console.log('✅ Autenticación completada (sin OAuth)');
         return Promise.resolve();
     }
 
@@ -24,11 +23,11 @@ class GoogleSheetsAPI {
         console.log('🚪 Sesión cerrada');
     }
 
+    // ===== LEER PRODUCTOS =====
     async getProductsFromSheets() {
         try {
             const response = await fetch(`${CONFIG.WEB_APP_URL}?accion=obtenerProductos`);
             const data = await response.json();
-            
             if (data.products) {
                 console.log(`✅ ${data.products.length} productos cargados`);
                 return data.products;
@@ -40,11 +39,11 @@ class GoogleSheetsAPI {
         }
     }
 
+    // ===== LEER ENTREGADORES =====
     async getDeliverersFromSheets() {
         try {
             const response = await fetch(`${CONFIG.WEB_APP_URL}?accion=obtenerEntregadores`);
             const data = await response.json();
-            
             if (data.deliverers) {
                 console.log(`✅ ${data.deliverers.length} entregadores cargados`);
                 return data.deliverers;
@@ -56,11 +55,11 @@ class GoogleSheetsAPI {
         }
     }
 
+    // ===== LEER PEDIDOS =====
     async getOrders() {
         try {
             const response = await fetch(`${CONFIG.WEB_APP_URL}?accion=obtenerPedidos`);
             const data = await response.json();
-            
             if (data.orders) {
                 console.log(`✅ ${data.orders.length} pedidos cargados`);
                 return data.orders;
@@ -72,6 +71,7 @@ class GoogleSheetsAPI {
         }
     }
 
+    // ===== ACTUALIZAR ESTADO PEDIDO =====
     async updateOrderStatus(orderId, newStatus) {
         try {
             await fetch(CONFIG.WEB_APP_URL, {
@@ -84,7 +84,6 @@ class GoogleSheetsAPI {
                     nuevo_estado: newStatus
                 })
             });
-            
             console.log(`✅ Estado actualizado a: ${newStatus}`);
         } catch (error) {
             console.error('❌ Error actualizando estado:', error);
@@ -92,6 +91,7 @@ class GoogleSheetsAPI {
         }
     }
 
+    // ===== GUARDAR PRODUCTO =====
     async saveProductToSheets(product) {
         try {
             await fetch(CONFIG.WEB_APP_URL, {
@@ -103,7 +103,6 @@ class GoogleSheetsAPI {
                     product: product
                 })
             });
-            
             console.log('✅ Producto guardado');
         } catch (error) {
             console.error('❌ Error guardando producto:', error);
@@ -111,25 +110,7 @@ class GoogleSheetsAPI {
         }
     }
 
-    async saveDelivererToSheets(deliverer) {
-        try {
-            await fetch(CONFIG.WEB_APP_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    accion: 'guardarEntregador',
-                    deliverer: deliverer
-                })
-            });
-            
-            console.log('✅ Entregador guardado');
-        } catch (error) {
-            console.error('❌ Error guardando entregador:', error);
-            throw error;
-        }
-    }
-
+    // ===== ELIMINAR PRODUCTO =====
     async deleteProductFromSheets(productId) {
         try {
             await fetch(CONFIG.WEB_APP_URL, {
@@ -141,7 +122,6 @@ class GoogleSheetsAPI {
                     product_id: productId
                 })
             });
-            
             console.log('✅ Producto eliminado');
         } catch (error) {
             console.error('❌ Error eliminando producto:', error);
@@ -149,6 +129,26 @@ class GoogleSheetsAPI {
         }
     }
 
+    // ===== GUARDAR ENTREGADOR =====
+    async saveDelivererToSheets(deliverer) {
+        try {
+            await fetch(CONFIG.WEB_APP_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    accion: 'guardarEntregador',
+                    deliverer: deliverer
+                })
+            });
+            console.log('✅ Entregador guardado');
+        } catch (error) {
+            console.error('❌ Error guardando entregador:', error);
+            throw error;
+        }
+    }
+
+    // ===== ELIMINAR ENTREGADOR =====
     async deleteDelivererFromSheets(delivererId) {
         try {
             await fetch(CONFIG.WEB_APP_URL, {
@@ -160,7 +160,6 @@ class GoogleSheetsAPI {
                     deliverer_id: delivererId
                 })
             });
-            
             console.log('✅ Entregador eliminado');
         } catch (error) {
             console.error('❌ Error eliminando entregador:', error);
@@ -173,3 +172,4 @@ class GoogleSheetsAPI {
 // EXPORTAR
 // ============================================
 window.GoogleSheets = new GoogleSheetsAPI();
+console.log('🚀 google-sheets.js cargado (sin OAuth)');
