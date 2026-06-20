@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - Rotisería Delicias</title>
+    <title>Admin+Panel - Rotisería Delicias</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -112,6 +112,7 @@
         .order-item-line::before { content: '•'; color: var(--primary); font-weight: 700; margin-right: 6px; }
         .order-payment { font-size: 0.85rem; color: var(--gray-700); margin: 0.3rem 0; font-weight: 600; background: #f3e5f5; padding: 4px 10px; border-radius: 50px; display: inline-flex; align-items: center; gap: 6px; }
         .order-notes { font-size: 0.8rem; color: var(--gray-600); margin: 0.3rem 0; background: #fff3e0; padding: 6px 10px; border-radius: 8px; border-left: 3px solid #f57c00; }
+        .order-deliverer { font-size: 0.8rem; color: var(--gray-500); margin: 0.3rem 0; padding: 4px 10px; background: #e3f2fd; border-radius: 50px; display: inline-flex; align-items: center; gap: 6px; }
         .btn-status { background: #e3f2fd; color: #1565c0; }
         .btn-assign { background: #e8f5e9; color: #2e7d32; }
         .btn-cancel { background: #ffebee; color: #c62828; }
@@ -142,7 +143,26 @@
         .modal-content .form-group input, .modal-content .form-group select, .modal-content .form-group textarea { width: 100%; padding: 10px 14px; border: 2px solid var(--gray-200); border-radius: var(--radius-sm); font-size: 0.95rem; font-family: inherit; }
         .modal-content .form-group textarea { resize: vertical; min-height: 60px; }
 
-        .stats-charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        /* ===== ENTREGADORES EN MODAL ===== */
+        .deliverer-list { display: flex; flex-direction: column; gap: 0.8rem; max-height: 400px; overflow-y: auto; }
+        .deliverer-option { display: flex; align-items: center; gap: 1rem; padding: 1rem; border: 2px solid var(--gray-200); border-radius: var(--radius-sm); cursor: pointer; transition: var(--transition); }
+        .deliverer-option:hover { border-color: var(--primary); background: #fff5f5; }
+        .deliverer-option.selected { border-color: var(--primary); background: #ffebee; }
+        .deliverer-option .deliverer-info { flex: 1; }
+        .deliverer-option .deliverer-name { font-weight: 700; font-size: 0.95rem; }
+        .deliverer-option .deliverer-vehicle { font-size: 0.8rem; color: var(--gray-500); }
+        .deliverer-option .deliverer-status { font-size: 0.75rem; padding: 3px 10px; border-radius: 50px; }
+        .deliverer-option .deliverer-status.available { background: #e8f5e9; color: #2e7d32; }
+        .deliverer-option .deliverer-status.unavailable { background: #ffebee; color: #c62828; }
+        .modal-actions { display: flex; gap: 1rem; margin-top: 1.5rem; }
+        .modal-actions button { flex: 1; padding: 12px; border: none; border-radius: var(--radius-sm); font-weight: 600; cursor: pointer; font-size: 0.95rem; }
+        .btn-confirm { background: var(--primary); color: white; }
+        .btn-confirm:hover { background: var(--primary-dark); }
+        .btn-cancel-modal { background: var(--gray-100); color: var(--gray-700); }
+        .btn-cancel-modal:hover { background: var(--gray-200); }
+
+        /* ===== GRÁFICOS ===== */
+        .stats-charts-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; }
         .stats-chart-card { background: white; border-radius: var(--radius); padding: 1.5rem; box-shadow: var(--shadow); }
         .stats-chart-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 1.2rem; color: var(--gray-900); }
         .status-bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
@@ -160,6 +180,19 @@
         .revenue-bar { width: 100%; max-width: 50px; background: linear-gradient(180deg, var(--primary), var(--primary-dark)); border-radius: 6px 6px 0 0; transition: height 0.6s ease; min-height: 4px; position: relative; }
         .revenue-bar-value { position: absolute; top: -22px; left: 50%; transform: translateX(-50%); font-size: 0.75rem; font-weight: 700; color: var(--primary); white-space: nowrap; }
         .revenue-bar-label { font-size: 0.7rem; color: var(--gray-500); margin-top: 6px; font-weight: 500; }
+        
+        /* ===== TOP PRODUCTS ===== */
+        .top-product-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; padding: 8px; background: var(--gray-50); border-radius: 8px; }
+        .top-product-rank { width: 28px; height: 28px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; flex-shrink: 0; }
+        .top-product-rank.gold { background: #ffd700; color: #333; }
+        .top-product-rank.silver { background: #c0c0c0; color: #333; }
+        .top-product-rank.bronze { background: #cd7f32; color: white; }
+        .top-product-info { flex: 1; }
+        .top-product-name { font-weight: 600; font-size: 0.9rem; color: var(--gray-900); }
+        .top-product-qty { font-size: 0.75rem; color: var(--gray-500); }
+        .top-product-bar { width: 100px; height: 8px; background: var(--gray-200); border-radius: 50px; overflow: hidden; }
+        .top-product-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--primary-dark)); border-radius: 50px; transition: width 0.6s ease; }
+        .top-product-count { font-weight: 700; font-size: 0.9rem; color: var(--primary); min-width: 40px; text-align: right; }
 
         @media (max-width: 1200px) { .board-columns { grid-template-columns: repeat(2, 1fr); } .stats-grid { grid-template-columns: repeat(2, 1fr); } .stats-charts-grid { grid-template-columns: 1fr; } }
         @media (max-width: 768px) { .board-columns { grid-template-columns: 1fr; } .stats-grid { grid-template-columns: 1fr; } .sidebar { width: 72px; } .main-content { margin-left: 72px; } }
@@ -264,15 +297,15 @@
                 </div>
                 <div class="board-columns" id="orderBoard">
                     <div class="column" data-status="pendiente">
-                        <div class="column-header"><h3> Pendientes</h3><span class="count" id="count-pendiente">0</span></div>
+                        <div class="column-header"><h3>⏳ Pendientes</h3><span class="count" id="count-pendiente">0</span></div>
                         <div class="column-body" id="col-pendiente"></div>
                     </div>
                     <div class="column" data-status="en-preparacion">
-                        <div class="column-header"><h3>👨‍🍳 En Preparación</h3><span class="count" id="count-preparacion">0</span></div>
+                        <div class="column-header"><h3>👨‍ En Preparación</h3><span class="count" id="count-preparacion">0</span></div>
                         <div class="column-body" id="col-preparacion"></div>
                     </div>
                     <div class="column" data-status="en-camino">
-                        <div class="column-header"><h3> En Camino</h3><span class="count" id="count-camino">0</span></div>
+                        <div class="column-header"><h3>🛵 En Camino</h3><span class="count" id="count-camino">0</span></div>
                         <div class="column-body" id="col-camino"></div>
                     </div>
                     <div class="column" data-status="entregado">
@@ -316,16 +349,36 @@
                 <div class="tab-header"><h2><i class="fas fa-chart-bar" style="color: var(--primary);"></i> Estadísticas</h2></div>
                 <div class="stats-charts-grid">
                     <div class="stats-chart-card">
-                        <h3> Pedidos por Estado</h3>
+                        <h3>📊 Pedidos por Estado</h3>
                         <div id="statusChart"></div>
                     </div>
                     <div class="stats-chart-card">
-                        <h3>📈 Ingresos Diarios (últimos 7 días)</h3>
+                        <h3> Ingresos Diarios (últimos 7 días)</h3>
                         <div id="revenueChart"></div>
+                    </div>
+                    <div class="stats-chart-card">
+                        <h3>🏆 Productos Más Vendidos</h3>
+                        <div id="topProductsChart"></div>
                     </div>
                 </div>
             </div>
         </main>
+    </div>
+
+    <!-- ===== MODAL ASIGNAR ENTREGADOR ===== -->
+    <div class="modal-overlay" id="assignDelivererModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-motorcycle" style="color: var(--primary);"></i> Asignar Entregador</h2>
+                <button class="modal-close" onclick="closeAssignDelivererModal()">&times;</button>
+            </div>
+            <p style="color: var(--gray-500); margin-bottom: 1rem; font-size: 0.9rem;">Seleccioná un entregador disponible:</p>
+            <div class="deliverer-list" id="assignDelivererList"></div>
+            <div class="modal-actions">
+                <button class="btn-cancel-modal" onclick="closeAssignDelivererModal()">Cancelar</button>
+                <button class="btn-confirm" onclick="confirmAssignDeliverer()"><i class="fas fa-check"></i> Confirmar Asignación</button>
+            </div>
+        </div>
     </div>
 
     <!-- ===== MODAL AGREGAR/EDITAR PRODUCTO ===== -->
@@ -355,12 +408,12 @@
                 <div class="form-group">
                     <label> Categoría</label>
                     <select id="productCategory">
-                        <option value="pizzas"> Pizzas</option>
+                        <option value="pizzas">🍕 Pizzas</option>
                         <option value="hamburguesas">🍔 Hamburguesas</option>
                         <option value="lomitos">🥪 Lomitos</option>
                         <option value="empanadas">🥟 Empanadas</option>
                         <option value="papas">🍟 Papas Fritas</option>
-                        <option value="bebidas">🥤 Bebidas</option>
+                        <option value="bebidas"> Bebidas</option>
                     </select>
                 </div>
                 <button type="submit" class="btn-primary" style="width:100%;"><i class="fas fa-save"></i> Guardar Producto</button>
@@ -409,8 +462,9 @@
         let menuItems = [];
         let timerInterval = null;
         let autoRefreshInterval = null;
+        let selectedOrderId = null;
+        let selectedDelivererId = null;
 
-        // 🔑 CONTRASEÑA DEL ADMIN
         const ADMIN_USER = 'admin';
         const ADMIN_PASS = '2409admin2409';
 
@@ -481,13 +535,11 @@
             await Promise.allSettled([loadOrders(), loadDeliverers(), loadMenuItems()]);
         }
 
-        // ⭐ CORREGIDO: Mapear 'pendiente_pago' a 'pendiente'
         async function loadOrders() {
             try {
                 if (window.GoogleSheets) {
                     const sheetOrders = await window.GoogleSheets.getOrders();
                     if (sheetOrders && sheetOrders.length > 0) {
-                        //  Convertir 'pendiente_pago' a 'pendiente'
                         orders = sheetOrders.map(o => ({
                             ...o,
                             estado: o.estado === 'pendiente_pago' ? 'pendiente' : o.estado
@@ -540,7 +592,7 @@
                             }));
                             renderOrders();
                             updateStats();
-                            showNotification('📦 ¡Nuevo pedido recibido!', 'success');
+                            showNotification(' ¡Nuevo pedido recibido!', 'success');
                         }
                     }
                 } catch (e) { console.error('Error auto-refresh:', e); }
@@ -610,11 +662,15 @@
                             </div>
                             <div class="order-customer">${o.cliente}</div>
                             <div class="order-items-list">${itemsList.map(item => `<div class="order-item-line">${item}</div>`).join('')}</div>
-                            <div class="order-address"><i class="fas fa-map-marker-alt"></i> ${o.direccion || 'Sin dirección'}</div>
+                            <div style="font-size: 0.8rem; color: var(--gray-400); margin: 0.3rem 0;">
+                                <i class="fas fa-map-marker-alt"></i> ${o.direccion || 'Sin dirección'}
+                            </div>
                             <div class="order-payment"><i class="fas ${pagoIcon}"></i> ${o.pago || 'Efectivo'}</div>
                             <div class="order-notes"><i class="fas fa-sticky-note"></i> <span>${notas}</span></div>
                             <div class="order-total">$${parseInt(o.total).toLocaleString()}</div>
-                            <div class="order-deliverer">${o.entregador && o.entregador !== 'Sin asignar' ? '🛵 ' + o.entregador : '📦 Sin entregador'}</div>
+                            <div class="order-deliverer">
+                                ${o.entregador && o.entregador !== 'Sin asignar' ? '🛵 ' + o.entregador : '📦 Sin entregador'}
+                            </div>
                             <div class="order-actions">
                                 <button class="btn-whatsapp" onclick="contactCustomer('${o.id}')"><i class="fab fa-whatsapp"></i></button>
                                 ${st !== 'entregado' && st !== 'cancelado' ? `
@@ -641,19 +697,19 @@
                 localStorage.setItem('orders', JSON.stringify(orders));
                 renderOrders();
                 showNotification('✅ Estado actualizado', 'success');
-            } catch (e) { console.error(e); showNotification('⚠️ Error al actualizar', 'warning'); }
+            } catch (e) { console.error(e); showNotification('️ Error al actualizar', 'warning'); }
         }
 
         function contactCustomer(id) {
             const order = orders.find(o => o.id === id); if (!order) return;
             const phone = (order.telefono || '').replace(/\D/g, ''); if (!phone) return;
             const fecha = new Date(order.fecha).toLocaleString('es-AR', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
-            const estadoEmojis = {'pendiente':'⏳','en-preparacion':'‍🍳','en-camino':'🛵','entregado':'✅','cancelado':'❌'};
+            const estadoEmojis = {'pendiente':'⏳','en-preparacion':'👨‍🍳','en-camino':'','entregado':'✅','cancelado':'❌'};
             const estadoLabel = {'pendiente':'Pendiente','en-preparacion':'En Preparación','en-camino':'En Camino','entregado':'Entregado','cancelado':'Cancelado'};
             
             let msg = `🍕 *DELICIAS ROTISERÍA*\n━━━━━━━━━━━━━━━━━━\n\n📋 *DETALLE DE TU PEDIDO*\n\n`;
             msg += `👤 *Cliente:* ${order.cliente}\n📱 *Teléfono:* ${order.telefono}\n📍 *Dirección:* ${order.direccion || 'Retira en local'}\n🕐 *Fecha:* ${fecha}\n\n`;
-            msg += `━━━━━━━━━━━━━━━━━━\n🛒 *PRODUCTOS:*\n\n`;
+            msg += `━━━━━━━━━━━━━━━━━━\n *PRODUCTOS:*\n\n`;
             const items = (order.items || '').split(',').map(i => i.trim()).filter(i => i);
             items.forEach(item => { msg += `• ${item}\n`; });
             msg += `\n━━━━━━━━━━━━━━━━━━\n💰 *TOTAL:* $${parseInt(order.total||0).toLocaleString()}\n💳 *Pago:* ${order.pago || 'Efectivo'}\n`;
@@ -666,6 +722,78 @@
         }
 
         function clearFilters() { document.getElementById('orderFilter').value = 'all'; document.getElementById('dateFilter').value = ''; renderOrders(); }
+
+        // ===== ASIGNAR ENTREGADOR =====
+        function openAssignModal(orderId) {
+            selectedOrderId = orderId;
+            selectedDelivererId = null;
+            
+            const availableDeliverers = deliverers.filter(d => d.disponible);
+            const listContainer = document.getElementById('assignDelivererList');
+            
+            if (availableDeliverers.length === 0) {
+                listContainer.innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>No hay entregadores disponibles</p></div>`;
+            } else {
+                listContainer.innerHTML = availableDeliverers.map(d => `
+                    <div class="deliverer-option" data-id="${d.id}" onclick="selectDelivererOption('${d.id}')">
+                        <div class="deliverer-info">
+                            <div class="deliverer-name">${d.nombre}</div>
+                            <div class="deliverer-vehicle"><i class="fas fa-motorcycle"></i> ${d.vehiculo || 'Sin vehículo'}</div>
+                        </div>
+                        <span class="deliverer-status available">🟢 Disponible</span>
+                    </div>
+                `).join('');
+            }
+            
+            document.getElementById('assignDelivererModal').classList.add('active');
+        }
+
+        function closeAssignDelivererModal() {
+            document.getElementById('assignDelivererModal').classList.remove('active');
+            selectedOrderId = null;
+            selectedDelivererId = null;
+        }
+
+        function selectDelivererOption(delivererId) {
+            selectedDelivererId = delivererId;
+            document.querySelectorAll('.deliverer-option').forEach(el => el.classList.remove('selected'));
+            const selectedEl = document.querySelector(`.deliverer-option[data-id="${delivererId}"]`);
+            if (selectedEl) selectedEl.classList.add('selected');
+        }
+
+        async function confirmAssignDeliverer() {
+            if (!selectedOrderId || !selectedDelivererId) {
+                showNotification('⚠️ Seleccioná un entregador', 'warning');
+                return;
+            }
+            
+            const order = orders.find(o => o.id === selectedOrderId);
+            const deliverer = deliverers.find(d => d.id.toString() === selectedDelivererId.toString());
+            
+            if (!order || !deliverer) {
+                showNotification('❌ Error: pedido o entregador no encontrado', 'error');
+                return;
+            }
+            
+            try {
+                // Actualizar entregador en el pedido
+                order.entregador = deliverer.nombre;
+                order.estado = 'en-camino';
+                
+                // Guardar en Google Sheets
+                if (window.GoogleSheets) {
+                    await window.GoogleSheets.updateOrderStatus(selectedOrderId, 'en-camino');
+                }
+                
+                localStorage.setItem('orders', JSON.stringify(orders));
+                closeAssignDelivererModal();
+                renderOrders();
+                showNotification(`✅ Pedido asignado a ${deliverer.nombre}`, 'success');
+            } catch (err) {
+                console.error('Error asignando entregador:', err);
+                showNotification('❌ Error al asignar: ' + err.message, 'error');
+            }
+        }
 
         // ===== ESTADÍSTICAS =====
         function updateStats() {
@@ -680,6 +808,7 @@
             
             renderStatusChart();
             renderRevenueChart();
+            renderTopProductsChart();
         }
 
         function renderStatusChart() {
@@ -688,7 +817,7 @@
             
             const estados = [
                 { key: 'pendiente', label: '⏳ Pendientes', class: 'pendiente' },
-                { key: 'en-preparacion', label: '👨‍ En Preparación', class: 'en-preparacion' },
+                { key: 'en-preparacion', label: '👨‍🍳 En Preparación', class: 'en-preparacion' },
                 { key: 'en-camino', label: '🛵 En Camino', class: 'en-camino' },
                 { key: 'entregado', label: '✅ Entregados', class: 'entregado' },
                 { key: 'cancelado', label: '❌ Cancelados', class: 'cancelado' }
@@ -773,6 +902,61 @@
             `;
         }
 
+        // ===== 🏆 PRODUCTOS MÁS VENDIDOS =====
+        function renderTopProductsChart() {
+            const container = document.getElementById('topProductsChart');
+            if (!container) return;
+            
+            // Analizar todos los pedidos para contar productos
+            const productCounts = {};
+            
+            orders.forEach(order => {
+                if (order.estado === 'cancelado') return;
+                
+                const items = (order.items || '').split(',').map(i => i.trim()).filter(i => i);
+                items.forEach(item => {
+                    // Formato: "2x Pizza Muzzarella" o "1x Coca Cola"
+                    const match = item.match(/^(\d+)x\s+(.+)$/i);
+                    if (match) {
+                        const qty = parseInt(match[1]) || 1;
+                        const name = match[2].trim();
+                        productCounts[name] = (productCounts[name] || 0) + qty;
+                    } else {
+                        // Si no tiene formato "Nx", contar como 1
+                        productCounts[item] = (productCounts[item] || 0) + 1;
+                    }
+                });
+            });
+            
+            // Ordenar por cantidad vendida
+            const sorted = Object.entries(productCounts)
+                .map(([name, count]) => ({ name, count }))
+                .sort((a, b) => b.count - a.count)
+                .slice(0, 5); // Top 5
+            
+            if (sorted.length === 0) {
+                container.innerHTML = `<div class="empty-state"><i class="fas fa-trophy"></i><p>Aún no hay ventas registradas</p></div>`;
+                return;
+            }
+            
+            const maxCount = sorted[0].count;
+            const rankClasses = ['gold', 'silver', 'bronze', '', ''];
+            
+            container.innerHTML = sorted.map((p, index) => `
+                <div class="top-product-row">
+                    <div class="top-product-rank ${rankClasses[index] || ''}">${index + 1}</div>
+                    <div class="top-product-info">
+                        <div class="top-product-name">${p.name}</div>
+                        <div class="top-product-qty">${p.count} unidades vendidas</div>
+                    </div>
+                    <div class="top-product-bar">
+                        <div class="top-product-fill" style="width: ${(p.count / maxCount) * 100}%"></div>
+                    </div>
+                    <div class="top-product-count">${p.count}</div>
+                </div>
+            `).join('');
+        }
+
         // ===== RENDER ENTREGADORES =====
         function renderDeliverers() {
             const c = document.getElementById('deliverersGrid'); if (!c) return;
@@ -839,7 +1023,6 @@
             document.getElementById('addProductModal').classList.add('active'); 
         }
         function closeAddProductModal() { document.getElementById('addProductModal').classList.remove('active'); }
-        
         document.getElementById('addProductModal')?.addEventListener('click', function(e) {
             if (e.target === this) closeAddProductModal();
         });
@@ -847,23 +1030,19 @@
         function editProduct(productId) {
             const product = menuItems.find(p => p.id.toString() === productId.toString());
             if (!product) { showNotification('❌ Producto no encontrado', 'error'); return; }
-            
             document.getElementById('productName').value = product.nombre || '';
             document.getElementById('productDescription').value = product.descripcion || '';
             document.getElementById('productPrice').value = product.precio || '';
             document.getElementById('productImage').value = product.imagen || '';
             document.getElementById('productCategory').value = product.categoria || 'pizzas';
-            
             document.getElementById('addProductForm').dataset.editId = productId;
             document.getElementById('addProductForm').dataset.mode = 'edit';
             document.getElementById('productModalTitle').innerHTML = '<i class="fas fa-edit" style="color: var(--primary);"></i> Editar Producto';
-            
             document.getElementById('addProductModal').classList.add('active');
         }
 
         async function deleteProduct(productId) {
             if (!confirm('¿Estás seguro de eliminar este producto?')) return;
-            
             try {
                 if (window.GoogleSheets && window.GoogleSheets.deleteProductFromSheets) {
                     await window.GoogleSheets.deleteProductFromSheets(productId);
@@ -880,10 +1059,8 @@
 
         document.getElementById('addProductForm')?.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
             const editId = e.target.dataset.editId;
             const mode = e.target.dataset.mode || 'create';
-            
             const data = {
                 id: editId || Date.now().toString(),
                 nombre: document.getElementById('productName').value,
@@ -892,7 +1069,6 @@
                 imagen: document.getElementById('productImage').value,
                 categoria: document.getElementById('productCategory').value
             };
-            
             try {
                 if (window.GoogleSheets) {
                     await window.GoogleSheets.saveProductToSheets(data);
@@ -905,7 +1081,7 @@
                 e.target.reset();
             } catch(err) {
                 console.error('Error guardando producto:', err);
-                showNotification(' Error: ' + err.message, 'error');
+                showNotification('❌ Error: ' + err.message, 'error');
             }
         });
 
@@ -918,7 +1094,6 @@
             document.getElementById('addDelivererModal').classList.add('active'); 
         }
         function closeAddDelivererModal() { document.getElementById('addDelivererModal').classList.remove('active'); }
-        
         document.getElementById('addDelivererModal')?.addEventListener('click', function(e) {
             if (e.target === this) closeAddDelivererModal();
         });
@@ -926,22 +1101,18 @@
         function editDeliverer(delivererId) {
             const deliverer = deliverers.find(d => d.id.toString() === delivererId.toString());
             if (!deliverer) { showNotification('❌ Entregador no encontrado', 'error'); return; }
-            
             document.getElementById('delivererName').value = deliverer.nombre || '';
             document.getElementById('delivererPhone').value = deliverer.telefono || '';
             document.getElementById('delivererVehicle').value = deliverer.vehiculo || '';
             document.getElementById('delivererAvailable').value = deliverer.disponible ? 'true' : 'false';
-            
             document.getElementById('addDelivererForm').dataset.editId = delivererId;
             document.getElementById('addDelivererForm').dataset.mode = 'edit';
             document.getElementById('delivererModalTitle').innerHTML = '<i class="fas fa-edit" style="color: var(--primary);"></i> Editar Entregador';
-            
             document.getElementById('addDelivererModal').classList.add('active');
         }
 
         async function deleteDeliverer(delivererId) {
             if (!confirm('¿Estás seguro de eliminar este entregador?')) return;
-            
             try {
                 if (window.GoogleSheets && window.GoogleSheets.deleteDelivererFromSheets) {
                     await window.GoogleSheets.deleteDelivererFromSheets(delivererId);
@@ -958,10 +1129,8 @@
 
         document.getElementById('addDelivererForm')?.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
             const editId = e.target.dataset.editId;
             const mode = e.target.dataset.mode || 'create';
-            
             const data = {
                 id: editId || Date.now().toString(),
                 nombre: document.getElementById('delivererName').value,
@@ -969,7 +1138,6 @@
                 vehiculo: document.getElementById('delivererVehicle').value,
                 disponible: document.getElementById('delivererAvailable').value === 'true'
             };
-            
             try {
                 if (window.GoogleSheets) {
                     await window.GoogleSheets.saveDelivererToSheets(data);
@@ -986,7 +1154,6 @@
             }
         });
 
-        function openAssignModal(id) { showNotification(' Asignación (próximamente)', 'info'); }
         function cancelOrder(id) {
             if (confirm('¿Cancelar pedido?')) {
                 const o = orders.find(x => x.id === id);
