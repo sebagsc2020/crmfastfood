@@ -131,7 +131,7 @@ class GoogleSheetsAPI {
             
             for (let i = 0; i < rows.length; i++) {
                 if (rows[i][0] === orderId) {
-                    rowIndex = i + 2; // +2 porque A2 es la primera fila de datos
+                    rowIndex = i + 2;
                     break;
                 }
             }
@@ -265,7 +265,7 @@ class GoogleSheetsAPI {
             
             for (let i = 0; i < rows.length; i++) {
                 if (rows[i][0] === productId) {
-                    rowIndex = i + 1; // 0-based para batchUpdate
+                    rowIndex = i + 1;
                     break;
                 }
             }
