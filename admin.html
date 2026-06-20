@@ -3,12 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admi++Panel - Rotisería Delicias</title>
+    <title>Admin Panel - Rotisería Delicias</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- ⭐ NUEVAS LIBRERÍAS PARA GRÁFICOS Y PDF -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -162,7 +167,7 @@
         .btn-cancel-modal { background: var(--gray-100); color: var(--gray-700); }
         .btn-cancel-modal:hover { background: var(--gray-200); }
 
-        .stats-charts-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; }
+        .stats-charts-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
         .stats-chart-card { background: white; border-radius: var(--radius); padding: 1.5rem; box-shadow: var(--shadow); }
         .stats-chart-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 1.2rem; color: var(--gray-900); }
         .status-bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
@@ -208,6 +213,47 @@
         }
         .stock-badge.available { background: #e8f5e9; color: #2e7d32; }
         .stock-badge.unavailable { background: #ffebee; color: #c62828; }
+
+        /* ⭐ NUEVOS ESTILOS PARA EL GRÁFICO DE 30 DÍAS */
+        .revenue-30days-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            margin-top: 1.5rem;
+        }
+        .revenue-30days-card h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--gray-900);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .btn-download-pdf {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s;
+        }
+        .btn-download-pdf:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        .chart-container-30days {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
 
         @media (max-width: 1200px) { .board-columns { grid-template-columns: repeat(2, 1fr); } .stats-grid { grid-template-columns: repeat(2, 1fr); } .stats-charts-grid { grid-template-columns: 1fr; } }
         @media (max-width: 768px) { .board-columns { grid-template-columns: 1fr; } .stats-grid { grid-template-columns: 1fr; } .sidebar { width: 72px; } .main-content { margin-left: 72px; } }
@@ -362,6 +408,8 @@
 
             <div class="tab-content" id="statsTab">
                 <div class="tab-header"><h2><i class="fas fa-chart-bar" style="color: var(--primary);"></i> Estadísticas</h2></div>
+                
+                <!-- ⭐ GRÁFICOS EXISTENTES -->
                 <div class="stats-charts-grid">
                     <div class="stats-chart-card">
                         <h3>📊 Pedidos por Estado</h3>
@@ -372,8 +420,21 @@
                         <div id="revenueChart"></div>
                     </div>
                     <div class="stats-chart-card">
-                        <h3>🏆 Productos Más Vendidos</h3>
+                        <h3>🏆 Top 3 Productos Más Vendidos</h3>
                         <div id="topProductsChart"></div>
+                    </div>
+                </div>
+
+                <!-- ⭐ NUEVO: GRÁFICO DE 30 DÍAS CON BOTÓN PDF -->
+                <div class="revenue-30days-card" id="revenue30DaysCard">
+                    <h3>
+                        <span>📈 Ganancias - Últimos 30 días</span>
+                        <button class="btn-download-pdf" onclick="downloadRevenuePDF()">
+                            <i class="fas fa-file-pdf"></i> Descargar PDF
+                        </button>
+                    </h3>
+                    <div class="chart-container-30days">
+                        <canvas id="revenue30DaysChart"></canvas>
                     </div>
                 </div>
             </div>
@@ -485,6 +546,7 @@
         let autoRefreshInterval = null;
         let selectedOrderId = null;
         let selectedDelivererId = null;
+        let revenue30DaysChartInstance = null; // ⭐ Instancia del gráfico de 30 días
 
         const ADMIN_USER = 'admin';
         const ADMIN_PASS = '2409admin2409';
@@ -805,7 +867,6 @@
             console.log('✅ Pedido encontrado:', order);
             console.log('📱 Teléfono original:', order.telefono);
 
-            // ⭐ CORRECCIÓN: Convertir a String antes de usar replace
             let rawPhone = String(order.telefono || '').replace(/\D/g, '');
             console.log('🔢 Teléfono limpio:', rawPhone);
             
@@ -963,6 +1024,7 @@
             renderStatusChart();
             renderRevenueChart();
             renderTopProductsChart();
+            renderRevenue30DaysChart(); // ⭐ Renderizar gráfico de 30 días
         }
 
         function renderStatusChart() {
@@ -1084,7 +1146,7 @@
             const sorted = Object.entries(productCounts)
                 .map(([name, count]) => ({ name, count }))
                 .sort((a, b) => b.count - a.count)
-                .slice(0, 5);
+                .slice(0, 3); // ⭐ CAMBIO: De 5 a 3
             
             if (sorted.length === 0) {
                 container.innerHTML = '<div class="empty-state"><i class="fas fa-trophy"></i><p>Aún no hay ventas registradas</p></div>';
@@ -1092,7 +1154,7 @@
             }
             
             const maxCount = sorted[0].count;
-            const rankClasses = ['gold', 'silver', 'bronze', '', ''];
+            const rankClasses = ['gold', 'silver', 'bronze'];
             
             container.innerHTML = sorted.map((p, index) => `
                 <div class="top-product-row">
@@ -1107,6 +1169,177 @@
                     <div class="top-product-count">${p.count}</div>
                 </div>
             `).join('');
+        }
+
+        // ⭐ NUEVA FUNCIÓN: GRÁFICO DE 30 DÍAS CON CHART.JS
+        function renderRevenue30DaysChart() {
+            const canvas = document.getElementById('revenue30DaysChart');
+            if (!canvas) return;
+            
+            // Destruir instancia anterior si existe
+            if (revenue30DaysChartInstance) {
+                revenue30DaysChartInstance.destroy();
+            }
+            
+            const days = [];
+            const hoy = new Date();
+            for (let i = 29; i >= 0; i--) {
+                const d = new Date(hoy);
+                d.setDate(hoy.getDate() - i);
+                days.push({
+                    date: d,
+                    key: d.toDateString(),
+                    label: d.toLocaleDateString('es-AR', { day: 'numeric', month: 'short' })
+                });
+            }
+            
+            const dailyRevenue = days.map(day => {
+                const dayOrders = orders.filter(o => {
+                    try { 
+                        return new Date(o.fecha).toDateString() === day.key && o.estado !== 'cancelado'; 
+                    } catch(e) { 
+                        return false; 
+                    }
+                });
+                const total = dayOrders.reduce((sum, o) => sum + (parseInt(o.total) || 0), 0);
+                return { ...day, total };
+            });
+            
+            const totalRevenue = dailyRevenue.reduce((sum, d) => sum + d.total, 0);
+            
+            const ctx = canvas.getContext('2d');
+            
+            revenue30DaysChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dailyRevenue.map(d => d.label),
+                    datasets: [{
+                        label: 'Ganancias ($)',
+                        data: dailyRevenue.map(d => d.total),
+                        borderColor: '#e63946',
+                        backgroundColor: 'rgba(230, 57, 70, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#e63946',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                font: {
+                                    family: 'Inter',
+                                    size: 12
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0,0,0,0.8)',
+                            titleFont: { family: 'Inter', size: 13 },
+                            bodyFont: { family: 'Inter', size: 12 },
+                            callbacks: {
+                                label: function(context) {
+                                    return '$' + context.parsed.y.toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value.toLocaleString();
+                                },
+                                font: { family: 'Inter', size: 11 }
+                            },
+                            grid: {
+                                color: 'rgba(0,0,0,0.05)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                font: { family: 'Inter', size: 10 },
+                                maxRotation: 45
+                            },
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // ⭐ NUEVA FUNCIÓN: DESCARGAR GRÁFICO EN PDF
+        async function downloadRevenuePDF() {
+            const { jsPDF } = window.jspdf;
+            
+            showNotification('📄 Generando PDF...', 'info');
+            
+            try {
+                // Capturar el contenedor del gráfico
+                const element = document.getElementById('revenue30DaysCard');
+                
+                const canvas = await html2canvas(element, {
+                    scale: 2,
+                    useCORS: true,
+                    backgroundColor: '#ffffff'
+                });
+                
+                const imgData = canvas.toDataURL('image/png');
+                
+                // Crear PDF
+                const pdf = new jsPDF('landscape', 'mm', 'a4');
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+                
+                // Agregar título
+                pdf.setFontSize(18);
+                pdf.setTextColor(230, 57, 70);
+                pdf.text('Rotisería Delicias - Reporte de Ganancias', 14, 20);
+                
+                pdf.setFontSize(12);
+                pdf.setTextColor(100, 100, 100);
+                pdf.text(`Período: Últimos 30 días | Generado: ${new Date().toLocaleDateString('es-AR')}`, 14, 28);
+                
+                // Agregar el gráfico
+                pdf.addImage(imgData, 'PNG', 14, 35, pdfWidth - 28, pdfHeight - 10);
+                
+                // Agregar total
+                const totalRevenue = orders
+                    .filter(o => {
+                        try {
+                            const orderDate = new Date(o.fecha);
+                            const thirtyDaysAgo = new Date();
+                            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                            return orderDate >= thirtyDaysAgo && o.estado !== 'cancelado';
+                        } catch(e) { return false; }
+                    })
+                    .reduce((sum, o) => sum + (parseInt(o.total) || 0), 0);
+                
+                pdf.setFontSize(14);
+                pdf.setTextColor(230, 57, 70);
+                pdf.text(`Total 30 días: $${totalRevenue.toLocaleString()}`, 14, pdfHeight + 45);
+                
+                // Guardar PDF
+                const fileName = `ganancias_30dias_${new Date().toISOString().split('T')[0]}.pdf`;
+                pdf.save(fileName);
+                
+                showNotification('✅ PDF descargado exitosamente', 'success');
+            } catch (error) {
+                console.error('Error generando PDF:', error);
+                showNotification('❌ Error al generar PDF', 'error');
+            }
         }
 
         function renderDeliverers() {
