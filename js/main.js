@@ -7,20 +7,17 @@ const CONFIG = {
     SHEETS_API: 'https://sheets.googleapis.com/v4/spreadsheets/'
 };
 
-// ⭐ URL DE GOOGLE APPS SCRIPT
+// ⭐ URL DE GOOGLE APPS SCRIPT - ACTUALIZAR CON TU URL
 const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzno9_b1xIrGpBB5MZcXvH2XukxAx4inrG-3HIdM0ZSRsnxyR0YrzfQ_sUqibM_1rsWug/exec';
 
-// ⭐ MODO SANDBOX
-const MP_SANDBOX = true;
-
 // ============================================
-// DATOS DE PRODUCTOS (FALLBACK MÍNIMO - Solo si falla TODO)
+// FALLBACK MÍNIMO
 // ============================================
 const PRODUCTOS_FALLBACK = [
     { id: 1, nombre: 'Pizza Muzzarella', descripcion: 'Clásica con salsa, muzzarella y orégano', precio: 4500, imagen: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=300', categoria: 'pizzas', disponible: true },
-    { id: 2, nombre: 'Pizza Especial', descripcion: 'Muzzarella, jamón, morrones y aceitunas', precio: 5200, imagen: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=300', categoria: 'pizzas', disponible: true },
-    { id: 3, nombre: 'Hamburguesa Clásica', descripcion: 'Carne, lechuga, tomate y salsa especial', precio: 3800, imagen: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=300', categoria: 'hamburguesas', disponible: true },
-    { id: 4, nombre: 'Empanada de Carne', descripcion: 'Carne cortada a cuchillo', precio: 1500, imagen: 'https://images.unsplash.com/photo-1625943553852-b2aa1393c3b5?w=300', categoria: 'empanadas', disponible: true }
+    { id: 2, nombre: 'Hamburguesa Clásica', descripcion: 'Carne, lechuga, tomate y salsa especial', precio: 3800, imagen: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=300', categoria: 'hamburguesas', disponible: true },
+    { id: 3, nombre: 'Empanada de Carne', descripcion: 'Carne cortada a cuchillo', precio: 1500, imagen: 'https://images.unsplash.com/photo-1625943553852-b2aa1393c3b5?w=300', categoria: 'empanadas', disponible: true },
+    { id: 4, nombre: 'Papas Fritas', descripcion: 'Papas cortadas, fritas y saladas', precio: 2000, imagen: 'https://images.unsplash.com/photo-1630384060421-cb20d0e0649d?w=300', categoria: 'papas', disponible: true }
 ];
 
 // ============================================
@@ -33,39 +30,53 @@ let productosActuales = [];
 let categoriaActual = 'all';
 
 // ============================================
-// ⭐ CARGAR PRODUCTOS USANDO GET (SIN CORS ISSUES)
+// ⭐ CARGAR PRODUCTOS CON MEJOR MANEJO DE ERRORES
 // ============================================
 async function loadProductsFromSheets() {
     try {
         console.log('📦 Cargando productos desde Apps Script (GET)...');
         
-        // ⭐ USAR GET EN LUGAR DE POST (evita problemas de CORS)
         const url = `${WEB_APP_URL}?accion=obtenerProductos`;
+        console.log('🔗 URL:', url);
+        
         const response = await fetch(url, {
             method: 'GET',
             mode: 'cors'
         });
         
+        console.log('📡 Status:', response.status);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
         const data = await response.json();
+        console.log('📊 Respuesta recibida:', data);
+        
+        if (data.error) {
+            console.error('❌ Error en la respuesta:', data.error);
+            throw new Error(data.error);
+        }
         
         if (data.products && data.products.length > 0) {
             console.log(`✅ ${data.products.length} productos cargados desde Google Sheets`);
-            console.log('📊 Productos:', data.products.map(p => p.nombre).join(', '));
+            console.log('📋 Productos:', data.products.map(p => p.nombre).join(', '));
             return data.products;
         } else {
-            console.log('⚠️ No hay productos en Sheets');
+            console.log('⚠️ No hay productos en la respuesta');
+            console.log('📄 Respuesta completa:', JSON.stringify(data));
         }
     } catch (error) {
         console.error('❌ Error al cargar productos:', error);
+        console.error('📝 Stack:', error.stack);
     }
     
-    // Fallback: usar datos mínimos locales
-    console.log('⚠️ Usando productos de fallback (mínimo)');
+    console.log('⚠️ Usando productos de fallback');
     return PRODUCTOS_FALLBACK;
 }
 
 // ============================================
-// FUNCIÓN PARA ORDENAR PRODUCTOS
+// ORDENAR PRODUCTOS
 // ============================================
 function sortProducts(products) {
     if (!products || products.length === 0) return [];
@@ -98,7 +109,7 @@ function sortProducts(products) {
 }
 
 // ============================================
-// FUNCIÓN PARA FILTRAR POR CATEGORÍA
+// FILTRAR POR CATEGORÍA
 // ============================================
 function filterCategory(category, element) {
     categoriaActual = category;
@@ -140,7 +151,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // ============================================
-// RENDERIZAR MENÚ (CON STOCK DISPONIBLE/NO DISPONIBLE)
+// RENDERIZAR MENÚ
 // ============================================
 function renderMenu() {
     const grid = document.getElementById('menuGrid');
@@ -163,8 +174,7 @@ function renderMenu() {
         grid.innerHTML = `
             <div style="text-align: center; padding: 3rem; grid-column: 1 / -1;">
                 <i class="fas fa-utensils" style="font-size: 3rem; color: #ccc;"></i>
-                <p style="color: #999; margin-top: 1rem;">No hay productos disponibles en esta categoría</p>
-                <p style="color: #ccc; font-size: 0.9rem;">Probá con otra categoría o volvé más tarde</p>
+                <p style="color: #999; margin-top: 1rem;">No hay productos disponibles</p>
             </div>
         `;
         return;
@@ -216,7 +226,7 @@ function renderMenu() {
 }
 
 // ============================================
-// MANEJAR CANTIDADES
+// CANTIDADES Y CARRITO
 // ============================================
 function changeQuantity(productId, delta) {
     const display = document.getElementById(`qty-${productId}`);
@@ -227,9 +237,6 @@ function changeQuantity(productId, delta) {
     display.textContent = current;
 }
 
-// ============================================
-// AGREGAR AL CARRITO
-// ============================================
 function addToCart(productId) {
     const display = document.getElementById(`qty-${productId}`);
     const quantity = parseInt(display.textContent) || 0;
@@ -272,9 +279,6 @@ function addToCart(productId) {
     showNotification(`✅ ${quantity}x ${product.nombre} agregado al carrito`, 'success');
 }
 
-// ============================================
-// ACTUALIZAR UI DEL CARRITO
-// ============================================
 function updateCartUI() {
     const count = document.getElementById('cartCount');
     const total = document.getElementById('cartTotal');
@@ -307,18 +311,12 @@ function updateCartUI() {
     `).join('');
 }
 
-// ============================================
-// ELIMINAR DEL CARRITO
-// ============================================
 function removeFromCart(productId) {
     cart = cart.filter(item => parseInt(item.id) !== parseInt(productId));
     updateCartUI();
     showNotification('🗑️ Producto eliminado del carrito', 'info');
 }
 
-// ============================================
-// TOGGLE CARRITO
-// ============================================
 function toggleCart() {
     const overlay = document.getElementById('cartOverlay');
     const panel = document.querySelector('.cart-panel');
@@ -329,9 +327,6 @@ function toggleCart() {
     panel.classList.toggle('open');
 }
 
-// ============================================
-// ABRIR CHECKOUT
-// ============================================
 function openCheckout() {
     if (cart.length === 0) {
         showNotification('⚠️ Agregá productos al carrito primero', 'warning');
@@ -360,16 +355,13 @@ function openCheckout() {
     modal.classList.add('active');
 }
 
-// ============================================
-// CERRAR CHECKOUT
-// ============================================
 function closeCheckout() {
     const modal = document.getElementById('checkoutModal');
     if (modal) modal.classList.remove('active');
 }
 
 // ============================================
-// ENVIAR PEDIDO VIA APPS SCRIPT (POST con no-cors)
+// ENVIAR PEDIDO
 // ============================================
 document.getElementById('orderForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -429,41 +421,6 @@ document.getElementById('orderForm')?.addEventListener('submit', async (e) => {
         showNotification('❌ Error al procesar el pedido. Intentá de nuevo.', 'error');
     }
 });
-
-// ============================================
-// VERIFICAR ESTADO DEL PAGO AL VOLVER DE MP
-// ============================================
-document.addEventListener('DOMContentLoaded', () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const collectionStatus = urlParams.get('collection_status');
-    const externalReference = urlParams.get('external_reference');
-    
-    if (collectionStatus && externalReference) {
-        handlePaymentReturn(collectionStatus, externalReference);
-    }
-});
-
-function handlePaymentReturn(status, orderId) {
-    const messages = {
-        'approved': '✅ ¡Pago aprobado! Tu pedido está confirmado.',
-        'pending': '⏳ Pago pendiente de aprobación. Te avisaremos cuando se confirme.',
-        'rejected': '❌ Pago rechazado. Intentá con otro método de pago.'
-    };
-    
-    const message = messages[status] || 'Estado de pago desconocido.';
-    showNotification(message, status === 'approved' ? 'success' : status === 'pending' ? 'warning' : 'error');
-    
-    if (status === 'approved') {
-        cart = [];
-        updateCartUI();
-        localStorage.removeItem('pendingOrder');
-        
-        const form = document.getElementById('orderForm');
-        if (form) form.reset();
-        
-        closeCheckout();
-    }
-}
 
 // ============================================
 // NOTIFICACIONES
