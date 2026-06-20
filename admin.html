@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin+Panel - Rotisería Delicias</title>
+    <title>Admin Panel - Rotisería Delicias</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -674,7 +674,7 @@
 
         function parseOrderItems(str) { return str ? str.split(',').map(i => i.trim()).filter(i => i) : []; }
 
-        // ⭐ RENDER PEDIDOS CON LÓGICA CORREGIDA PARA BOTONES Y WHATSAPP
+        // ⭐ RENDER PEDIDOS CON ESCAPE SEGURO PARA IDS
         function renderOrders() {
             const statuses = ['pendiente', 'en-preparacion', 'en-camino', 'entregado'];
             const labels = { pendiente:'pendiente', 'en-preparacion':'preparacion', 'en-camino':'camino', entregado:'entregado' };
@@ -707,6 +707,9 @@
                     // El botón de asignar solo aparece si está en "en-preparacion"
                     const showAssignButton = (st === 'en-preparacion');
                     
+                    // ⭐ ESCAPAR EL ID CORRECTAMENTE PARA EVITAR ERRORES EN ONCLICK
+                    const safeId = JSON.stringify(o.id);
+                    
                     return `
                         <div class="order-card">
                             <div class="order-time-wrapper">
@@ -727,11 +730,11 @@
                                 ${o.entregador && o.entregador !== 'Sin asignar' ? '🛵 ' + o.entregador : ' Sin entregador'}
                             </div>
                             <div class="order-actions">
-                                <button class="btn-whatsapp" onclick="contactCustomer('${o.id}')"><i class="fab fa-whatsapp"></i></button>
+                                <button class="btn-whatsapp" onclick="contactCustomer(${safeId})"><i class="fab fa-whatsapp"></i></button>
                                 ${st !== 'entregado' && st !== 'cancelado' ? `
-                                    <button class="btn-status" onclick="changeOrderStatus('${o.id}')"><i class="fas fa-arrow-right"></i> Avanzar</button>
-                                    ${showAssignButton ? `<button class="btn-assign" onclick="openAssignModal('${o.id}')"><i class="fas fa-motorcycle"></i> Asignar</button>` : ''}
-                                    <button class="btn-cancel" onclick="cancelOrder('${o.id}')"><i class="fas fa-times"></i></button>
+                                    <button class="btn-status" onclick="changeOrderStatus(${safeId})"><i class="fas fa-arrow-right"></i> Avanzar</button>
+                                    ${showAssignButton ? `<button class="btn-assign" onclick="openAssignModal(${safeId})"><i class="fas fa-motorcycle"></i> Asignar</button>` : ''}
+                                    <button class="btn-cancel" onclick="cancelOrder(${safeId})"><i class="fas fa-times"></i></button>
                                 ` : ''}
                             </div>
                         </div>
@@ -743,7 +746,7 @@
         }
 
         async function changeOrderStatus(id) {
-            const order = orders.find(o => o.id === id); if (!order) return;
+            const order = orders.find(o => String(o.id) === String(id)); if (!order) return;
             const flow = {'pendiente':'en-preparacion','en-preparacion':'en-camino','en-camino':'entregado'};
             const newStatus = flow[order.estado] || order.estado;
             try {
@@ -755,32 +758,42 @@
             } catch (e) { console.error(e); showNotification('⚠️ Error al actualizar', 'warning'); }
         }
 
-        // ⭐ WHATSAPP CLIENTES CON FORMATO INTERNACIONAL
+        // ⭐ WHATSAPP CLIENTES CON LOGS Y FORMATO INTERNACIONAL
         function contactCustomer(id) {
-            const order = orders.find(o => o.id === id); 
-            if (!order) return;
+            console.log(' Intentando contactar cliente con ID:', id);
+            
+            const order = orders.find(o => String(o.id) === String(id)); 
+            
+            if (!order) {
+                console.error('❌ Pedido no encontrado para ID:', id);
+                console.log('IDs disponibles:', orders.map(o => o.id));
+                showNotification('⚠️ Error: No se encontró el pedido', 'error');
+                return;
+            }
+
+            console.log('✅ Pedido encontrado:', order);
+            console.log('📱 Teléfono original:', order.telefono);
 
             // 1. Limpiamos el teléfono: dejamos SOLO números
             let rawPhone = (order.telefono || '').replace(/\D/g, '');
             
+            console.log('🔢 Teléfono limpio:', rawPhone);
+            
             // 2. Lógica inteligente para Argentina:
-            // Si empieza con 11 (CABA/Gran BsAs), agregamos 549 y quitamos el 15 si lo tiene
             if (rawPhone.startsWith('11')) {
-                // Quitamos '15' si está al principio después del 11 (ej: 111522223333 -> 1122223333)
                 rawPhone = '549' + rawPhone.replace(/^11(15)?/, ''); 
             } 
-            // Si es otra provincia (empieza con 2, 3, 4, etc.), agregamos 549
             else if (rawPhone.length <= 11 && !rawPhone.startsWith('54')) {
                 rawPhone = '549' + rawPhone;
             }
-            // Si ya empieza con 54 pero no tiene el 9 de celular, se lo agregamos
             else if (rawPhone.startsWith('54') && rawPhone.length === 12) {
                 rawPhone = rawPhone.replace('54', '549');
             }
 
+            console.log('🌍 Teléfono final (formato internacional):', rawPhone);
+
             if (rawPhone.length < 10) {
                 showNotification('⚠️ El número de teléfono parece incompleto o inválido', 'warning');
-                console.warn('Número original:', order.telefono, '| Número procesado:', rawPhone);
                 return;
             }
 
@@ -788,14 +801,17 @@
             const fecha = new Date(order.fecha).toLocaleString('es-AR', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'});
             
             let msg = `Hola ${order.cliente}, te escribimos de *Delicias Rotisería* 🍕\n\n`;
-            msg += `📦 *Pedido #${order.id.slice(-6)}*\n`;
+            msg += `📦 *Pedido #${String(order.id).slice(-6)}*\n`;
             msg += `• Items: ${order.items}\n`;
             msg += `• Total: $${parseInt(order.total).toLocaleString()}\n`;
             msg += `• Estado: ${order.estado.toUpperCase()}\n\n`;
             msg += `¿Tenés alguna consulta sobre tu pedido? ¡Estamos aquí!`;
 
             // 4. Abrimos WhatsApp Web/App
-            window.open(`https://wa.me/${rawPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+            const waUrl = `https://wa.me/${rawPhone}?text=${encodeURIComponent(msg)}`;
+            console.log('🔗 URL de WhatsApp:', waUrl);
+            
+            window.open(waUrl, '_blank');
         }
 
         // ⭐ WHATSAPP ENTREGADORES CON FORMATO INTERNACIONAL
@@ -874,7 +890,7 @@
                 return;
             }
             
-            const order = orders.find(o => o.id === selectedOrderId);
+            const order = orders.find(o => String(o.id) === String(selectedOrderId));
             const deliverer = deliverers.find(d => d.id.toString() === selectedDelivererId.toString());
             
             if (!order || !deliverer) {
@@ -1297,7 +1313,7 @@
 
         function cancelOrder(id) {
             if (confirm('¿Cancelar pedido?')) {
-                const o = orders.find(x => x.id === id);
+                const o = orders.find(x => String(x.id) === String(id));
                 if (o) { o.estado = 'cancelado'; localStorage.setItem('orders', JSON.stringify(orders)); renderOrders(); showNotification('❌ Pedido cancelado', 'info'); }
             }
         }
