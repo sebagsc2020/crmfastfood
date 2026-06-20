@@ -7,88 +7,24 @@ const CONFIG = {
     SHEETS_API: 'https://sheets.googleapis.com/v4/spreadsheets/'
 };
 
-// ⭐ URL DE GOOGLE APPS SCRIPT (para enviar pedidos sin popup de Google)
+// ⭐ URL DE GOOGLE APPS SCRIPT (para TODO: leer productos y enviar pedidos)
 const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzno9_b1xIrGpBB5MZcXvH2XukxAx4inrG-3HIdM0ZSRsnxyR0YrzfQ_sUqibM_1rsWug/exec';
 
 // ⭐ MODO SANDBOX (true = pruebas, false = producción)
 const MP_SANDBOX = true;
 
 // ============================================
-// DATOS DE PRODUCTOS (FALLBACK)
+// DATOS DE PRODUCTOS (FALLBACK si falla la API)
 // ============================================
 const PRODUCTOS = [
-    {
-        id: 1,
-        nombre: 'Pizza Muzzarella',
-        descripcion: 'Clásica con salsa, muzzarella y orégano',
-        precio: 4500,
-        imagen: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=300',
-        categoria: 'pizzas',
-        disponible: true
-    },
-    {
-        id: 2,
-        nombre: 'Pizza Especial',
-        descripcion: 'Muzzarella, jamón, morrones y aceitunas',
-        precio: 5200,
-        imagen: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=300',
-        categoria: 'pizzas',
-        disponible: true
-    },
-    {
-        id: 3,
-        nombre: 'Hamburguesa Clásica',
-        descripcion: 'Carne, lechuga, tomate y salsa especial',
-        precio: 3800,
-        imagen: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=300',
-        categoria: 'hamburguesas',
-        disponible: true
-    },
-    {
-        id: 4,
-        nombre: 'Hamburguesa Completa',
-        descripcion: 'Doble carne, cheddar, panceta y huevo',
-        precio: 4800,
-        imagen: 'https://images.unsplash.com/photo-1553979459-d2229ba7433b?w=300',
-        categoria: 'hamburguesas',
-        disponible: true
-    },
-    {
-        id: 5,
-        nombre: 'Lomito Completo',
-        descripcion: 'Lomo, lechuga, tomate, huevo y jamón',
-        precio: 5200,
-        imagen: 'https://images.unsplash.com/photo-1547496502-affa22d38842?w=300',
-        categoria: 'lomitos',
-        disponible: true
-    },
-    {
-        id: 6,
-        nombre: 'Empanada de Carne',
-        descripcion: 'Carne cortada a cuchillo, huevo y aceitunas',
-        precio: 1200,
-        imagen: 'https://images.unsplash.com/photo-1625943553852-b2aa1393c3b5?w=300',
-        categoria: 'empanadas',
-        disponible: true
-    },
-    {
-        id: 7,
-        nombre: 'Empanada de Jamón y Queso',
-        descripcion: 'Jamón cocido y queso cremoso',
-        precio: 1200,
-        imagen: 'https://images.unsplash.com/photo-1625943553852-b2aa1393c3b5?w=300',
-        categoria: 'empanadas',
-        disponible: true
-    },
-    {
-        id: 8,
-        nombre: 'Papas Fritas',
-        descripcion: 'Papas cortadas, fritas y saladas',
-        precio: 2000,
-        imagen: 'https://images.unsplash.com/photo-1630384060421-cb20d0e0649d?w=300',
-        categoria: 'papas',
-        disponible: true
-    }
+    { id: 1, nombre: 'Pizza Muzzarella', descripcion: 'Clásica con salsa, muzzarella y orégano', precio: 4500, imagen: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=300', categoria: 'pizzas', disponible: true },
+    { id: 2, nombre: 'Pizza Especial', descripcion: 'Muzzarella, jamón, morrones y aceitunas', precio: 5200, imagen: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=300', categoria: 'pizzas', disponible: true },
+    { id: 3, nombre: 'Hamburguesa Clásica', descripcion: 'Carne, lechuga, tomate y salsa especial', precio: 3800, imagen: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=300', categoria: 'hamburguesas', disponible: true },
+    { id: 4, nombre: 'Hamburguesa Completa', descripcion: 'Doble carne, cheddar, panceta y huevo', precio: 4800, imagen: 'https://images.unsplash.com/photo-1553979459-d2229ba7433b?w=300', categoria: 'hamburguesas', disponible: true },
+    { id: 5, nombre: 'Lomito Completo', descripcion: 'Lomo, lechuga, tomate, huevo y jamón', precio: 5200, imagen: 'https://images.unsplash.com/photo-1547496502-affa22d38842?w=300', categoria: 'lomitos', disponible: true },
+    { id: 6, nombre: 'Empanada de Carne', descripcion: 'Carne cortada a cuchillo, huevo y aceitunas', precio: 1200, imagen: 'https://images.unsplash.com/photo-1625943553852-b2aa1393c3b5?w=300', categoria: 'empanadas', disponible: true },
+    { id: 7, nombre: 'Empanada de Jamón y Queso', descripcion: 'Jamón cocido y queso cremoso', precio: 1200, imagen: 'https://images.unsplash.com/photo-1625943553852-b2aa1393c3b5?w=300', categoria: 'empanadas', disponible: true },
+    { id: 8, nombre: 'Papas Fritas', descripcion: 'Papas cortadas, fritas y saladas', precio: 2000, imagen: 'https://images.unsplash.com/photo-1630384060421-cb20d0e0649d?w=300', categoria: 'papas', disponible: true }
 ];
 
 // ============================================
@@ -101,39 +37,35 @@ let productosActuales = [];
 let categoriaActual = 'all';
 
 // ============================================
-// CARGAR PRODUCTOS DESDE GOOGLE SHEETS
+// ⭐ CARGAR PRODUCTOS DESDE APPS SCRIPT (SIN OAUTH)
 // ============================================
 async function loadProductsFromSheets() {
     try {
-        console.log('📦 Cargando productos desde Google Sheets...');
+        console.log('📦 Cargando productos desde Apps Script...');
         
-        let attempts = 0;
-        while (typeof window.GoogleSheets === 'undefined' && attempts < 10) {
-            await new Promise(resolve => setTimeout(resolve, 300));
-            attempts++;
-            console.log(`⏳ Esperando GoogleSheets... (${attempts}/10)`);
-        }
+        // ⭐ Usar Apps Script en lugar de Google Sheets API directa
+        const response = await fetch(WEB_APP_URL, {
+            method: 'POST',
+            mode: 'cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ accion: 'obtenerProductos' })
+        });
         
-        if (typeof window.GoogleSheets !== 'undefined') {
-            console.log('✅ GoogleSheets disponible, obteniendo productos...');
-            const sheetProducts = await window.GoogleSheets.getProductsFromSheets();
-            
-            if (sheetProducts && sheetProducts.length > 0) {
-                console.log(`✅ ${sheetProducts.length} productos cargados desde Sheets`);
-                return sheetProducts;
-            } else {
-                console.log('⚠️ No hay productos en Sheets, usando datos locales');
-            }
+        const data = await response.json();
+        
+        if (data.products && data.products.length > 0) {
+            console.log(`✅ ${data.products.length} productos cargados desde Apps Script`);
+            return data.products;
         } else {
-            console.warn('⚠️ GoogleSheets no disponible después de esperar, usando datos locales');
+            console.log('⚠️ No hay productos en la API, usando datos locales');
         }
-        
-        return PRODUCTOS;
-        
     } catch (error) {
         console.error('❌ Error al cargar productos:', error);
-        return PRODUCTOS;
     }
+    
+    // Fallback: usar datos locales
+    console.log('📦 Usando productos locales como fallback');
+    return PRODUCTOS;
 }
 
 // ============================================
@@ -327,7 +259,7 @@ function addToCart(productId) {
                        product.disponible !== 'No';
     
     if (!isAvailable) {
-        showNotification(' Este producto no está disponible', 'error');
+        showNotification('❌ Este producto no está disponible', 'error');
         return;
     }
     
@@ -444,7 +376,7 @@ function closeCheckout() {
 }
 
 // ============================================
-// ENVIAR PEDIDO (SIN POPUP DE GOOGLE)
+// ⭐ ENVIAR PEDIDO VIA APPS SCRIPT (SIN OAUTH)
 // ============================================
 document.getElementById('orderForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -483,30 +415,17 @@ document.getElementById('orderForm')?.addEventListener('submit', async (e) => {
     
     try {
         // ⭐ Enviar via Google Apps Script (SIN popup de Google)
-        if (WEB_APP_URL && WEB_APP_URL.includes('script.google.com')) {
-            await fetch(WEB_APP_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    accion: 'crearPedido',
-                    ...order
-                })
-            });
-            
-            showNotification('🎉 ¡Pedido confirmado! Lo recibirás en breve.', 'success');
-            
-        } else {
-            // Fallback: usar Google Sheets API con OAuth
-            if (window.GoogleSheets) {
-                await window.GoogleSheets.saveOrder(order);
-                showNotification('🎉 Pedido confirmado!', 'success');
-            } else {
-                showNotification('🎉 Pedido confirmado! (guardado localmente)', 'success');
-            }
-        }
+        await fetch(WEB_APP_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                accion: 'crearPedido',
+                ...order
+            })
+        });
+        
+        showNotification('🎉 ¡Pedido confirmado! Lo recibirás en breve.', 'success');
         
         // Limpiar carrito
         cart = [];
@@ -607,4 +526,4 @@ function setupEventListeners() {
     console.log('✅ Event listeners configurados');
 }
 
-console.log(' main.js cargado correctamente');
+console.log('🚀 main.js cargado correctamente (SIN OAuth)');
