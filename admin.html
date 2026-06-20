@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin+Panel - Rotisería Delicias</title>
+    <title>Admi++Panel - Rotisería Delicias</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -300,7 +300,7 @@
                             <select id="orderFilter">
                                 <option value="all">📋 Todos</option>
                                 <option value="pendiente">⏳ Pendientes</option>
-                                <option value="en-preparacion">👨‍🍳 En Preparación</option>
+                                <option value="en-preparacion">👨‍ En Preparación</option>
                                 <option value="en-camino">🛵 En Camino</option>
                                 <option value="entregado">✅ Entregados</option>
                                 <option value="cancelado">❌ Cancelados</option>
@@ -735,8 +735,6 @@
                     const timestamp = fecha.getTime();
                     const itemsList = parseOrderItems(o.items);
                     const showAssignButton = (st === 'en-preparacion');
-                    
-                    // ⭐ CORRECCIÓN: Usar el mismo método que funciona para entregadores
                     const orderId = o.id;
                     
                     return `
@@ -807,7 +805,8 @@
             console.log('✅ Pedido encontrado:', order);
             console.log('📱 Teléfono original:', order.telefono);
 
-            let rawPhone = (order.telefono || '').replace(/\D/g, '');
+            // ⭐ CORRECCIÓN: Convertir a String antes de usar replace
+            let rawPhone = String(order.telefono || '').replace(/\D/g, '');
             console.log('🔢 Teléfono limpio:', rawPhone);
             
             if (!rawPhone || rawPhone.length === 0) {
@@ -848,7 +847,7 @@
             const deliverer = deliverers.find(d => d.id.toString() === id.toString());
             if (!deliverer) return;
 
-            let rawPhone = (deliverer.telefono || '').replace(/\D/g, '');
+            let rawPhone = String(deliverer.telefono || '').replace(/\D/g, '');
             
             if (rawPhone.startsWith('11')) {
                 rawPhone = '549' + rawPhone.replace(/^11(15)?/, ''); 
