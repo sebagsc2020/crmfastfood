@@ -316,7 +316,7 @@
                         <div class="column-body" id="col-pendiente"></div>
                     </div>
                     <div class="column" data-status="en-preparacion">
-                        <div class="column-header"><h3>👨‍🍳 En Preparación</h3><span class="count" id="count-preparacion">0</span></div>
+                        <div class="column-header"><h3>👨‍ En Preparación</h3><span class="count" id="count-preparacion">0</span></div>
                         <div class="column-body" id="col-preparacion"></div>
                     </div>
                     <div class="column" data-status="en-camino">
@@ -475,18 +475,9 @@
         </div>
     </div>
 
+    <script src="js/google-sheets.js"></script>
+    
     <script>
-        // ============================================================
-        // CONFIGURACIÓN - ID DE GOOGLE SHEETS
-        // ============================================================
-        const SHEET_ID = '14xD_209wbWswASj3uFTBnTPC_NLf3_dKtDoIeP-Q3hE';
-        const SHEET_ORDERS = 'Pedidos';
-        const SHEET_PRODUCTS = 'Productos';
-        const SHEET_DELIVERERS = 'Entregadores';
-
-        // ============================================================
-        // VARIABLES GLOBALES
-        // ============================================================
         let orders = [];
         let deliverers = [];
         let menuItems = [];
@@ -498,190 +489,6 @@
         const ADMIN_USER = 'admin';
         const ADMIN_PASS = '2409admin2409';
 
-        // ============================================================
-        // FUNCIÓN PARA NORMALIZAR TELÉFONOS (ARREGLADO)
-        // ============================================================
-        function normalizePhone(phone) {
-            if (!phone) return '';
-            
-            // Convertir a string y eliminar todo excepto dígitos
-            let raw = String(phone).replace(/\D/g, '');
-            console.log('📞 Normalizando teléfono:', raw);
-            
-            if (!raw || raw.length < 10) return raw;
-            
-            // Si ya tiene 549, devolverlo
-            if (raw.startsWith('549')) return raw;
-            
-            // Si tiene 54, reemplazar por 549
-            if (raw.startsWith('54')) {
-                return '549' + raw.substring(2);
-            }
-            
-            // Caso ESPECÍFICO: 351158692251 (12 dígitos con 15)
-            if (raw.length === 12 && raw.startsWith('35115')) {
-                const numero = raw.substring(5); // 8692251
-                return '549351' + numero;
-            }
-            
-            // Caso: 3518692251 (10 dígitos sin 15)
-            if (raw.length === 10 && raw.startsWith('351')) {
-                return '549' + raw;
-            }
-            
-            // Caso: Empieza con 15 (sin código de área)
-            if (raw.startsWith('15') && raw.length === 10) {
-                return '54911' + raw.substring(2);
-            }
-            
-            // Caso: Número de 10 dígitos (cualquier código de área)
-            if (raw.length === 10) {
-                return '549' + raw;
-            }
-            
-            // Caso: Número de 11 dígitos
-            if (raw.length === 11) {
-                return '549' + raw;
-            }
-            
-            // Caso: Si tiene 9 al inicio (código de celular)
-            if (raw.startsWith('9') && raw.length === 10) {
-                return '549' + raw;
-            }
-            
-            // Si no coincide con ningún patrón, agregar 549
-            return '549' + raw;
-        }
-
-        // ============================================================
-        // FUNCIONES DE GOOGLE SHEETS (SIN DEPENDENCIAS EXTERNAS)
-        // ============================================================
-        const GoogleSheets = {
-            apiUrl: `https://script.google.com/macros/s/AKfycbz8S77Y-M3qO5RteMwnSQJ0pBZWmY1BMSDnPqYRuTpOCm98q-g0gxVNKJHyJ9Jfyf3T/exec`,
-
-            async getOrders() {
-                try {
-                    const url = `${this.apiUrl}?sheet=${SHEET_ORDERS}&action=get`;
-                    const response = await fetch(url);
-                    const data = await response.json();
-                    
-                    if (data && data.data) {
-                        // Normalizar teléfonos al cargar
-                        return data.data.map(row => ({
-                            ...row,
-                            telefono: normalizePhone(row.telefono)
-                        }));
-                    }
-                    return [];
-                } catch (error) {
-                    console.error('Error obteniendo pedidos:', error);
-                    return [];
-                }
-            },
-
-            async getProducts() {
-                try {
-                    const url = `${this.apiUrl}?sheet=${SHEET_PRODUCTS}&action=get`;
-                    const response = await fetch(url);
-                    const data = await response.json();
-                    return data && data.data ? data.data : [];
-                } catch (error) {
-                    console.error('Error obteniendo productos:', error);
-                    return [];
-                }
-            },
-
-            async getDeliverers() {
-                try {
-                    const url = `${this.apiUrl}?sheet=${SHEET_DELIVERERS}&action=get`;
-                    const response = await fetch(url);
-                    const data = await response.json();
-                    return data && data.data ? data.data : [];
-                } catch (error) {
-                    console.error('Error obteniendo entregadores:', error);
-                    return [];
-                }
-            },
-
-            async updateOrderStatus(orderId, newStatus) {
-                try {
-                    const url = `${this.apiUrl}?sheet=${SHEET_ORDERS}&action=update`;
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ id: orderId, estado: newStatus })
-                    });
-                    return await response.json();
-                } catch (error) {
-                    console.error('Error actualizando estado:', error);
-                    throw error;
-                }
-            },
-
-            async saveProduct(product) {
-                try {
-                    const url = `${this.apiUrl}?sheet=${SHEET_PRODUCTS}&action=save`;
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(product)
-                    });
-                    return await response.json();
-                } catch (error) {
-                    console.error('Error guardando producto:', error);
-                    throw error;
-                }
-            },
-
-            async deleteProduct(productId) {
-                try {
-                    const url = `${this.apiUrl}?sheet=${SHEET_PRODUCTS}&action=delete`;
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ id: productId })
-                    });
-                    return await response.json();
-                } catch (error) {
-                    console.error('Error eliminando producto:', error);
-                    throw error;
-                }
-            },
-
-            async saveDeliverer(deliverer) {
-                try {
-                    const url = `${this.apiUrl}?sheet=${SHEET_DELIVERERS}&action=save`;
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(deliverer)
-                    });
-                    return await response.json();
-                } catch (error) {
-                    console.error('Error guardando entregador:', error);
-                    throw error;
-                }
-            },
-
-            async deleteDeliverer(delivererId) {
-                try {
-                    const url = `${this.apiUrl}?sheet=${SHEET_DELIVERERS}&action=delete`;
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ id: delivererId })
-                    });
-                    return await response.json();
-                } catch (error) {
-                    console.error('Error eliminando entregador:', error);
-                    throw error;
-                }
-            }
-        };
-
-        // ============================================================
-        // FUNCIONES DE UI Y EVENTOS
-        // ============================================================
         document.getElementById('currentDate').textContent = new Date().toLocaleDateString('es-AR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
@@ -690,18 +497,29 @@
             const pass = document.getElementById('loginPass').value;
             
             if (user === ADMIN_USER && pass === ADMIN_PASS) {
-                document.getElementById('loginScreen').style.display = 'none';
-                document.getElementById('dashboardScreen').style.display = 'block';
-                showNotification('✅ Bienvenido al panel', 'success');
-                await loadDashboardData();
+                if (window.GoogleSheets) {
+                    try {
+                        await window.GoogleSheets.authenticate();
+                        document.getElementById('loginScreen').style.display = 'none';
+                        document.getElementById('dashboardScreen').style.display = 'block';
+                        showNotification('✅ Bienvenido al panel', 'success');
+                        loadDashboardData();
+                    } catch (error) {
+                        console.error('Error:', error);
+                        showNotification('❌ Error al autenticar', 'error');
+                    }
+                } else {
+                    showNotification('❌ Google Sheets no disponible', 'error');
+                }
             } else {
                 showNotification('❌ Usuario o contraseña incorrectos', 'error');
             }
         });
 
-        document.getElementById('logoutBtn').addEventListener('click', () => {
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
             stopTimerUpdates();
             stopAutoRefresh();
+            if (window.GoogleSheets) await window.GoogleSheets.logout();
             document.getElementById('loginScreen').style.display = 'flex';
             document.getElementById('dashboardScreen').style.display = 'none';
             showNotification('Sesión cerrada', 'info');
@@ -726,37 +544,38 @@
             div.innerHTML = message;
             document.body.appendChild(div);
             setTimeout(() => {
-                div.style.opacity = '0';
-                div.style.transform = 'translateY(20px)';
+                div.style.opacity = '0'; 
+                div.style.transform = 'translateY(20px)'; 
                 div.style.transition = 'all 0.3s';
                 setTimeout(() => div.remove(), 300);
             }, 4000);
         }
 
-        // ============================================================
-        // CARGA DE DATOS
-        // ============================================================
         async function loadDashboardData() {
             await Promise.allSettled([loadOrders(), loadDeliverers(), loadMenuItems()]);
         }
 
         async function loadOrders() {
             try {
-                const sheetOrders = await GoogleSheets.getOrders();
-                console.log(`📦 Pedidos cargados: ${sheetOrders.length}`);
-                
-                if (sheetOrders && sheetOrders.length > 0) {
-                    orders = sheetOrders.map(o => {
-                        let cleanStatus = (o.estado || '').toString().trim().toLowerCase();
-                        if (cleanStatus.includes('pendiente')) cleanStatus = 'pendiente';
-                        return { ...o, estado: cleanStatus };
-                    });
+                if (window.GoogleSheets) {
+                    const sheetOrders = await window.GoogleSheets.getOrders();
+                    console.log(`📦 Pedidos cargados: ${sheetOrders.length}`);
+                    
+                    if (sheetOrders && sheetOrders.length > 0) {
+                        orders = sheetOrders.map(o => {
+                            let cleanStatus = (o.estado || '').toString().trim().toLowerCase();
+                            if(cleanStatus.includes('pendiente')) cleanStatus = 'pendiente';
+                            return { ...o, estado: cleanStatus };
+                        });
+                    } else {
+                        orders = [];
+                    }
                 } else {
-                    orders = [];
+                    orders = JSON.parse(localStorage.getItem('orders') || '[]');
                 }
-            } catch (e) {
+            } catch (e) { 
                 console.error('Error cargando pedidos:', e);
-                orders = [];
+                orders = JSON.parse(localStorage.getItem('orders') || '[]');
             }
             
             renderOrders();
@@ -766,79 +585,86 @@
 
         async function loadDeliverers() {
             try {
-                const sheetDeliverers = await GoogleSheets.getDeliverers();
-                if (sheetDeliverers) {
-                    deliverers = sheetDeliverers;
-                    renderDeliverers();
-                    return;
+                if (window.GoogleSheets) {
+                    const sheetDeliverers = await window.GoogleSheets.getDeliverersFromSheets();
+                    if (sheetDeliverers) { 
+                        deliverers = sheetDeliverers; 
+                        renderDeliverers(); 
+                        return; 
+                    }
                 }
-            } catch (e) {
-                console.error('Error cargando entregadores:', e);
+            } catch (e) { 
+                console.error('Error cargando entregadores:', e); 
             }
-            deliverers = [];
+            deliverers = JSON.parse(localStorage.getItem('deliverers') || '[]');
             renderDeliverers();
         }
 
         async function loadMenuItems() {
             try {
-                const sheetProducts = await GoogleSheets.getProducts();
-                if (sheetProducts) {
-                    menuItems = sheetProducts;
-                    renderMenuAdmin();
-                    return;
+                if (window.GoogleSheets) {
+                    const sheetProducts = await window.GoogleSheets.getProductsFromSheets();
+                    if (sheetProducts) { 
+                        menuItems = sheetProducts; 
+                        renderMenuAdmin(); 
+                        return; 
+                    }
                 }
-            } catch (e) {
-                console.error('Error cargando menú:', e);
+            } catch (e) { 
+                console.error('Error cargando menú:', e); 
             }
-            menuItems = [];
+            menuItems = JSON.parse(localStorage.getItem('menuItems') || '[]');
             renderMenuAdmin();
         }
 
-        // ============================================================
-        // AUTO-REFRESH Y TIMERS
-        // ============================================================
         function startAutoRefresh() {
             if (autoRefreshInterval) clearInterval(autoRefreshInterval);
+            
             autoRefreshInterval = setInterval(async () => {
                 try {
-                    const sheetOrders = await GoogleSheets.getOrders();
-                    if (sheetOrders) {
-                        const newOrders = sheetOrders.map(o => ({
-                            ...o,
-                            estado: (o.estado || '').toString().trim().toLowerCase().includes('pendiente') ? 'pendiente' : (o.estado || '').toString().trim().toLowerCase()
-                        }));
+                    if (window.GoogleSheets) {
+                        const sheetOrders = await window.GoogleSheets.getOrders();
                         
-                        if (newOrders.length !== orders.length) {
-                            console.log(`🔄 Nuevo pedido detectado! (${orders.length} → ${newOrders.length})`);
-                            orders = newOrders;
-                            renderOrders();
-                            updateStats();
-                            showNotification('📦 ¡Nuevo pedido recibido!', 'success');
-                        } else {
-                            let changed = false;
-                            for (let i = 0; i < newOrders.length; i++) {
-                                if (newOrders[i].estado !== orders[i]?.estado) {
-                                    changed = true;
-                                    break;
-                                }
-                            }
-                            if (changed) {
-                                console.log('🔄 Cambios en pedidos detectados');
+                        if (sheetOrders) {
+                            const newOrders = sheetOrders.map(o => ({
+                                ...o,
+                                estado: (o.estado || '').toString().trim().toLowerCase().includes('pendiente') ? 'pendiente' : (o.estado || '').toString().trim().toLowerCase()
+                            }));
+                            
+                            if (newOrders.length !== orders.length) {
+                                console.log(`🔄 Nuevo pedido detectado! (${orders.length} → ${newOrders.length})`);
                                 orders = newOrders;
                                 renderOrders();
                                 updateStats();
+                                showNotification('📦 ¡Nuevo pedido recibido!', 'success');
+                            } else {
+                                let changed = false;
+                                for (let i = 0; i < newOrders.length; i++) {
+                                    if (newOrders[i].estado !== orders[i]?.estado) {
+                                        changed = true;
+                                        break;
+                                    }
+                                }
+                                
+                                if (changed) {
+                                    console.log('🔄 Cambios en pedidos detectados');
+                                    orders = newOrders;
+                                    renderOrders();
+                                    updateStats();
+                                }
                             }
                         }
                     }
-                } catch (e) {
-                    console.error('Error auto-refresh:', e);
+                } catch (e) { 
+                    console.error('Error auto-refresh:', e); 
                 }
             }, 10000);
+            
             console.log('🔄 Auto-refresh activado (cada 10 segundos)');
         }
-
-        function stopAutoRefresh() {
-            if (autoRefreshInterval) clearInterval(autoRefreshInterval);
+        
+        function stopAutoRefresh() { 
+            if (autoRefreshInterval) clearInterval(autoRefreshInterval); 
         }
 
         function formatElapsedTime(ts) {
@@ -851,29 +677,31 @@
 
         function updateAllTimers() {
             document.querySelectorAll('.order-timer').forEach(el => {
-                const ts = parseInt(el.dataset.timestamp);
+                const ts = parseInt(el.dataset.timestamp); 
                 if (!ts) return;
                 const val = el.querySelector('.timer-value');
                 if (val) val.textContent = formatElapsedTime(ts);
+                if (Math.floor((Date.now()-ts)/60000) >= 30) {
+                    el.classList.add('urgent');
+                } else {
+                    el.classList.remove('urgent');
+                }
             });
         }
 
-        function startTimerUpdates() {
-            if (timerInterval) clearInterval(timerInterval);
-            timerInterval = setInterval(updateAllTimers, 1000);
+        function startTimerUpdates() { 
+            if (timerInterval) clearInterval(timerInterval); 
+            timerInterval = setInterval(updateAllTimers, 1000); 
         }
 
-        function stopTimerUpdates() {
-            if (timerInterval) clearInterval(timerInterval);
+        function stopTimerUpdates() { 
+            if (timerInterval) clearInterval(timerInterval); 
         }
 
-        function parseOrderItems(str) {
-            return str ? str.split(',').map(i => i.trim()).filter(i => i) : [];
+        function parseOrderItems(str) { 
+            return str ? str.split(',').map(i => i.trim()).filter(i => i) : []; 
         }
 
-        // ============================================================
-        // RENDERIZAR PEDIDOS
-        // ============================================================
         function renderOrders() {
             const statuses = ['pendiente', 'en-preparacion', 'en-camino', 'entregado'];
             const labels = { pendiente:'pendiente', 'en-preparacion':'preparacion', 'en-camino':'camino', entregado:'entregado' };
@@ -908,13 +736,14 @@
                     const itemsList = parseOrderItems(o.items);
                     const showAssignButton = (st === 'en-preparacion');
                     
-                    const safeId = String(o.id).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                    // ⭐ CORRECCIÓN: Usar el mismo método que funciona para entregadores
+                    const orderId = o.id;
                     
                     return `
                         <div class="order-card">
                             <div class="order-time-wrapper">
                                 <span class="order-time"><i class="far fa-clock"></i> ${fecha.toLocaleTimeString()}</span>
-                                <span class="order-timer" data-timestamp="${timestamp}" data-order-id="${o.id}">
+                                <span class="order-timer" data-timestamp="${timestamp}" data-order-id="${orderId}">
                                     <i class="fas fa-stopwatch"></i><span class="timer-value">${formatElapsedTime(timestamp)}</span>
                                 </span>
                             </div>
@@ -930,11 +759,11 @@
                                 ${o.entregador && o.entregador !== 'Sin asignar' ? '🛵 ' + o.entregador : '📦 Sin entregador'}
                             </div>
                             <div class="order-actions">
-                                <button class="btn-whatsapp" onclick="contactCustomer('${safeId}')"><i class="fab fa-whatsapp"></i></button>
+                                <button class="btn-whatsapp" onclick="contactCustomer('${orderId}')"><i class="fab fa-whatsapp"></i></button>
                                 ${st !== 'entregado' && st !== 'cancelado' ? `
-                                    <button class="btn-status" onclick='changeOrderStatus("${safeId}")'><i class="fas fa-arrow-right"></i> Avanzar</button>
-                                    ${showAssignButton ? `<button class="btn-assign" onclick='openAssignModal("${safeId}")'><i class="fas fa-motorcycle"></i> Asignar</button>` : ''}
-                                    <button class="btn-cancel" onclick='cancelOrder("${safeId}")'><i class="fas fa-times"></i></button>
+                                    <button class="btn-status" onclick="changeOrderStatus('${orderId}')"><i class="fas fa-arrow-right"></i> Avanzar</button>
+                                    ${showAssignButton ? `<button class="btn-assign" onclick="openAssignModal('${orderId}')"><i class="fas fa-motorcycle"></i> Asignar</button>` : ''}
+                                    <button class="btn-cancel" onclick="cancelOrder('${orderId}')"><i class="fas fa-times"></i></button>
                                 ` : ''}
                             </div>
                         </div>
@@ -945,13 +774,29 @@
             document.getElementById('sidebarOrdersCount').textContent = orders.length;
         }
 
-        // ============================================================
-        // CONTACTAR CLIENTE (CON TELÉFONO YA NORMALIZADO)
-        // ============================================================
+        async function changeOrderStatus(id) {
+            const order = orders.find(o => String(o.id) === String(id)); 
+            if (!order) return;
+            const flow = {'pendiente':'en-preparacion','en-preparacion':'en-camino','en-camino':'entregado'};
+            const newStatus = flow[order.estado] || order.estado;
+            try {
+                if (window.GoogleSheets) {
+                    await window.GoogleSheets.updateOrderStatus(id, newStatus);
+                }
+                order.estado = newStatus;
+                localStorage.setItem('orders', JSON.stringify(orders));
+                renderOrders();
+                showNotification('✅ Estado actualizado', 'success');
+            } catch (e) { 
+                console.error(e); 
+                showNotification('⚠️ Error al actualizar', 'warning'); 
+            }
+        }
+
         function contactCustomer(id) {
             console.log('📱 Intentando contactar cliente con ID:', id);
             
-            const order = orders.find(o => String(o.id) === String(id));
+            const order = orders.find(o => String(o.id) === String(id)); 
             
             if (!order) {
                 console.error('❌ Pedido no encontrado para ID:', id);
@@ -960,54 +805,60 @@
             }
 
             console.log('✅ Pedido encontrado:', order);
-            console.log('📱 Teléfono (ya normalizado):', order.telefono);
+            console.log('📱 Teléfono original:', order.telefono);
 
-            let phone = String(order.telefono || '').replace(/\D/g, '');
+            let rawPhone = (order.telefono || '').replace(/\D/g, '');
+            console.log('🔢 Teléfono limpio:', rawPhone);
             
-            if (!phone || phone.length < 12) {
-                showNotification('⚠️ Número de teléfono inválido: ' + phone, 'warning');
+            if (!rawPhone || rawPhone.length === 0) {
+                showNotification('⚠️ El cliente no dejó un número de teléfono', 'warning');
+                return;
+            }
+            
+            if (rawPhone.startsWith('11')) {
+                rawPhone = '549' + rawPhone.replace(/^11(15)?/, ''); 
+            } else if (rawPhone.length <= 11 && !rawPhone.startsWith('54')) {
+                rawPhone = '549' + rawPhone;
+            } else if (rawPhone.startsWith('54') && rawPhone.length === 12) {
+                rawPhone = rawPhone.replace('54', '549');
+            }
+
+            console.log('🌍 Teléfono final:', rawPhone);
+
+            if (rawPhone.length < 10) {
+                showNotification('⚠️ Número incompleto: ' + rawPhone, 'warning');
                 return;
             }
 
             let msg = `Hola ${order.cliente}, te escribimos de *Delicias Rotisería* 🍕\n\n`;
             msg += `📦 *Pedido #${String(order.id).slice(-6)}*\n`;
-            
-            const itemsList = order.items ? order.items.split(',').map(i => i.trim()).filter(i => i) : [];
-            if (itemsList.length > 0) {
-                msg += `📋 *Items:*\n`;
-                itemsList.forEach(item => {
-                    msg += `   • ${item}\n`;
-                });
-            }
-            
-            msg += `💰 *Total:* $${parseInt(order.total || 0).toLocaleString()}\n`;
-            msg += `📍 *Dirección:* ${order.direccion || 'No especificada'}\n`;
-            msg += `📌 *Estado:* ${order.estado ? order.estado.toUpperCase() : 'PENDIENTE'}\n\n`;
-            msg += `¿Tenés alguna consulta? ¡Estamos aquí para ayudarte! 🙌`;
+            msg += `• Items: ${order.items}\n`;
+            msg += `• Total: $${parseInt(order.total).toLocaleString()}\n`;
+            msg += `• Estado: ${order.estado.toUpperCase()}\n\n`;
+            msg += `¿Tenés alguna consulta? ¡Estamos aquí!`;
 
-            const waUrl = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
-            console.log('🔗 URL de WhatsApp:', waUrl);
+            const waUrl = `https://wa.me/${rawPhone}?text=${encodeURIComponent(msg)}`;
+            console.log('🔗 URL:', waUrl);
             
-            try {
-                window.open(waUrl, '_blank');
-                showNotification(`📱 Abriendo WhatsApp para ${order.cliente}`, 'success');
-            } catch (error) {
-                console.error('❌ Error al abrir WhatsApp:', error);
-                showNotification('❌ Error al abrir WhatsApp', 'error');
-            }
+            showNotification(`📱 Abriendo WhatsApp: ${rawPhone}`, 'success');
+            window.open(waUrl, '_blank');
         }
 
-        // ============================================================
-        // CONTACTAR ENTREGADOR
-        // ============================================================
         function contactDeliverer(id) {
             const deliverer = deliverers.find(d => d.id.toString() === id.toString());
             if (!deliverer) return;
 
-            let phone = normalizePhone(deliverer.telefono);
-            phone = phone.replace(/\D/g, '');
+            let rawPhone = (deliverer.telefono || '').replace(/\D/g, '');
+            
+            if (rawPhone.startsWith('11')) {
+                rawPhone = '549' + rawPhone.replace(/^11(15)?/, ''); 
+            } else if (rawPhone.length <= 11 && !rawPhone.startsWith('54')) {
+                rawPhone = '549' + rawPhone;
+            } else if (rawPhone.startsWith('54') && rawPhone.length === 12) {
+                rawPhone = rawPhone.replace('54', '549');
+            }
 
-            if (!phone || phone.length < 12) {
+            if (rawPhone.length < 10) {
                 showNotification('⚠️ Número de entregador inválido', 'warning');
                 return;
             }
@@ -1016,32 +867,13 @@
             msg += `¿Estás disponible para tomar pedidos ahora?\n\n`;
             msg += `¡Avísanos para asignarte rutas! 🗺️`;
 
-            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+            window.open(`https://wa.me/${rawPhone}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
-        // ============================================================
-        // OTRAS FUNCIONES (Cambiar estado, asignar, cancelar, etc.)
-        // ============================================================
-        async function changeOrderStatus(id) {
-            const order = orders.find(o => String(o.id) === String(id));
-            if (!order) return;
-            const flow = {'pendiente':'en-preparacion','en-preparacion':'en-camino','en-camino':'entregado'};
-            const newStatus = flow[order.estado] || order.estado;
-            try {
-                await GoogleSheets.updateOrderStatus(id, newStatus);
-                order.estado = newStatus;
-                renderOrders();
-                showNotification('✅ Estado actualizado', 'success');
-            } catch (e) {
-                console.error(e);
-                showNotification('⚠️ Error al actualizar', 'warning');
-            }
-        }
-
-        function clearFilters() {
-            document.getElementById('orderFilter').value = 'all';
-            document.getElementById('dateFilter').value = '';
-            renderOrders();
+        function clearFilters() { 
+            document.getElementById('orderFilter').value = 'all'; 
+            document.getElementById('dateFilter').value = ''; 
+            renderOrders(); 
         }
 
         function openAssignModal(orderId) {
@@ -1098,7 +930,12 @@
             try {
                 order.entregador = deliverer.nombre;
                 order.estado = 'en-camino';
-                await GoogleSheets.updateOrderStatus(selectedOrderId, 'en-camino');
+                
+                if (window.GoogleSheets) {
+                    await window.GoogleSheets.updateOrderStatus(selectedOrderId, 'en-camino');
+                }
+                
+                localStorage.setItem('orders', JSON.stringify(orders));
                 closeAssignDelivererModal();
                 renderOrders();
                 showNotification(`✅ Pedido asignado a ${deliverer.nombre}`, 'success');
@@ -1108,29 +945,15 @@
             }
         }
 
-        function cancelOrder(id) {
-            if (confirm('¿Cancelar pedido?')) {
-                const o = orders.find(x => String(x.id) === String(id));
-                if (o) {
-                    o.estado = 'cancelado';
-                    renderOrders();
-                    showNotification('❌ Pedido cancelado', 'info');
-                }
-            }
-        }
-
-        // ============================================================
-        // ESTADÍSTICAS
-        // ============================================================
         function updateStats() {
             const total = orders.length;
             const pending = orders.filter(o => ['pendiente','en-preparacion','en-camino'].includes(o.estado)).length;
-            const today = orders.filter(o => {
-                try {
-                    return new Date(o.fecha).toDateString() === new Date().toDateString();
-                } catch(e) {
-                    return false;
-                }
+            const today = orders.filter(o => { 
+                try { 
+                    return new Date(o.fecha).toDateString() === new Date().toDateString(); 
+                } catch(e) { 
+                    return false; 
+                } 
             }).length;
             const revenue = orders.reduce((sum, o) => o.estado !== 'cancelado' ? sum + (parseInt(o.total) || 0) : sum, 0);
             document.getElementById('statTotal').textContent = total;
@@ -1149,7 +972,7 @@
             
             const estados = [
                 { key: 'pendiente', label: '⏳ Pendientes', class: 'pendiente' },
-                { key: 'en-preparacion', label: '👨‍🍳 En Preparación', class: 'en-preparacion' },
+                { key: 'en-preparacion', label: '👨‍ En Preparación', class: 'en-preparacion' },
                 { key: 'en-camino', label: '🛵 En Camino', class: 'en-camino' },
                 { key: 'entregado', label: '✅ Entregados', class: 'entregado' },
                 { key: 'cancelado', label: '❌ Cancelados', class: 'cancelado' }
@@ -1199,10 +1022,10 @@
             
             const dailyRevenue = days.map(day => {
                 const dayOrders = orders.filter(o => {
-                    try {
-                        return new Date(o.fecha).toDateString() === day.key && o.estado !== 'cancelado';
-                    } catch(e) {
-                        return false;
+                    try { 
+                        return new Date(o.fecha).toDateString() === day.key && o.estado !== 'cancelado'; 
+                    } catch(e) { 
+                        return false; 
                     }
                 });
                 const total = dayOrders.reduce((sum, o) => sum + (parseInt(o.total) || 0), 0);
@@ -1287,11 +1110,8 @@
             `).join('');
         }
 
-        // ============================================================
-        // RENDERIZAR ENTREGADORES
-        // ============================================================
         function renderDeliverers() {
-            const c = document.getElementById('deliverersGrid');
+            const c = document.getElementById('deliverersGrid'); 
             if (!c) return;
             
             if (deliverers.length === 0) {
@@ -1325,11 +1145,8 @@
             document.getElementById('sidebarDeliverersCount').textContent = deliverers.length;
         }
 
-        // ============================================================
-        // RENDERIZAR MENÚ ADMIN
-        // ============================================================
         function renderMenuAdmin() {
-            const c = document.getElementById('menuAdminGrid');
+            const c = document.getElementById('menuAdminGrid'); 
             if (!c) return;
             
             if (menuItems.length === 0) {
@@ -1369,9 +1186,6 @@
             document.getElementById('sidebarMenuCount').textContent = menuItems.length;
         }
 
-        // ============================================================
-        // GESTIÓN DE PRODUCTOS
-        // ============================================================
         async function toggleProductStock(productId) {
             const product = menuItems.find(p => p.id.toString() === productId.toString());
             if (!product) return;
@@ -1381,7 +1195,11 @@
             
             try {
                 product.disponible = newStatus;
-                await GoogleSheets.saveProduct(product);
+                
+                if (window.GoogleSheets) {
+                    await window.GoogleSheets.saveProductToSheets(product);
+                }
+                
                 renderMenuAdmin();
                 showNotification(newStatus ? '✅ Producto disponible' : '❌ Producto no disponible', 'success');
             } catch (err) {
@@ -1390,17 +1208,17 @@
             }
         }
 
-        function openAddProductModal() {
+        function openAddProductModal() { 
             document.getElementById('addProductForm').reset();
             delete document.getElementById('addProductForm').dataset.editId;
             delete document.getElementById('addProductForm').dataset.mode;
             document.getElementById('productModalTitle').innerHTML = '<i class="fas fa-utensils" style="color: var(--primary);"></i> Agregar Producto';
             document.getElementById('productAvailable').value = 'true';
-            document.getElementById('addProductModal').classList.add('active');
+            document.getElementById('addProductModal').classList.add('active'); 
         }
 
-        function closeAddProductModal() {
-            document.getElementById('addProductModal').classList.remove('active');
+        function closeAddProductModal() { 
+            document.getElementById('addProductModal').classList.remove('active'); 
         }
 
         document.getElementById('addProductModal')?.addEventListener('click', function(e) {
@@ -1409,9 +1227,9 @@
 
         function editProduct(productId) {
             const product = menuItems.find(p => p.id.toString() === productId.toString());
-            if (!product) {
-                showNotification('❌ Producto no encontrado', 'error');
-                return;
+            if (!product) { 
+                showNotification('❌ Producto no encontrado', 'error'); 
+                return; 
             }
             document.getElementById('productName').value = product.nombre || '';
             document.getElementById('productDescription').value = product.descripcion || '';
@@ -1428,9 +1246,13 @@
         async function deleteProduct(productId) {
             if (!confirm('¿Estás seguro de eliminar este producto?')) return;
             try {
-                await GoogleSheets.deleteProduct(productId);
-                showNotification('✅ Producto eliminado', 'success');
-                loadMenuItems();
+                if (window.GoogleSheets && window.GoogleSheets.deleteProductFromSheets) {
+                    await window.GoogleSheets.deleteProductFromSheets(productId);
+                    showNotification('✅ Producto eliminado', 'success');
+                    loadMenuItems();
+                } else {
+                    showNotification('⚠️ Función no disponible', 'warning');
+                }
             } catch(err) {
                 console.error('Error eliminando producto:', err);
                 showNotification('❌ Error: ' + err.message, 'error');
@@ -1451,8 +1273,12 @@
                 disponible: document.getElementById('productAvailable').value === 'true'
             };
             try {
-                await GoogleSheets.saveProduct(data);
-                showNotification(mode === 'edit' ? '✅ Producto actualizado' : '✅ Producto agregado', 'success');
+                if (window.GoogleSheets) {
+                    await window.GoogleSheets.saveProductToSheets(data);
+                    showNotification(mode === 'edit' ? '✅ Producto actualizado' : '✅ Producto agregado', 'success');
+                } else {
+                    throw new Error('Google Sheets no disponible');
+                }
                 closeAddProductModal();
                 loadMenuItems();
                 e.target.reset();
@@ -1462,19 +1288,16 @@
             }
         });
 
-        // ============================================================
-        // GESTIÓN DE ENTREGADORES
-        // ============================================================
-        function openAddDelivererModal() {
+        function openAddDelivererModal() { 
             document.getElementById('addDelivererForm').reset();
             delete document.getElementById('addDelivererForm').dataset.editId;
             delete document.getElementById('addDelivererForm').dataset.mode;
             document.getElementById('delivererModalTitle').innerHTML = '<i class="fas fa-motorcycle" style="color: var(--primary);"></i> Agregar Entregador';
-            document.getElementById('addDelivererModal').classList.add('active');
+            document.getElementById('addDelivererModal').classList.add('active'); 
         }
 
-        function closeAddDelivererModal() {
-            document.getElementById('addDelivererModal').classList.remove('active');
+        function closeAddDelivererModal() { 
+            document.getElementById('addDelivererModal').classList.remove('active'); 
         }
 
         document.getElementById('addDelivererModal')?.addEventListener('click', function(e) {
@@ -1483,9 +1306,9 @@
 
         function editDeliverer(delivererId) {
             const deliverer = deliverers.find(d => d.id.toString() === delivererId.toString());
-            if (!deliverer) {
-                showNotification('❌ Entregador no encontrado', 'error');
-                return;
+            if (!deliverer) { 
+                showNotification('❌ Entregador no encontrado', 'error'); 
+                return; 
             }
             document.getElementById('delivererName').value = deliverer.nombre || '';
             document.getElementById('delivererPhone').value = deliverer.telefono || '';
@@ -1500,9 +1323,13 @@
         async function deleteDeliverer(delivererId) {
             if (!confirm('¿Estás seguro de eliminar este entregador?')) return;
             try {
-                await GoogleSheets.deleteDeliverer(delivererId);
-                showNotification('✅ Entregador eliminado', 'success');
-                loadDeliverers();
+                if (window.GoogleSheets && window.GoogleSheets.deleteDelivererFromSheets) {
+                    await window.GoogleSheets.deleteDelivererFromSheets(delivererId);
+                    showNotification('✅ Entregador eliminado', 'success');
+                    loadDeliverers();
+                } else {
+                    showNotification('⚠️ Función no disponible', 'warning');
+                }
             } catch(err) {
                 console.error('Error eliminando entregador:', err);
                 showNotification('❌ Error: ' + err.message, 'error');
@@ -1516,13 +1343,17 @@
             const data = {
                 id: editId || Date.now().toString(),
                 nombre: document.getElementById('delivererName').value,
-                telefono: normalizePhone(document.getElementById('delivererPhone').value),
+                telefono: document.getElementById('delivererPhone').value,
                 vehiculo: document.getElementById('delivererVehicle').value,
                 disponible: document.getElementById('delivererAvailable').value === 'true'
             };
             try {
-                await GoogleSheets.saveDeliverer(data);
-                showNotification(mode === 'edit' ? '✅ Entregador actualizado' : '✅ Entregador agregado', 'success');
+                if (window.GoogleSheets) {
+                    await window.GoogleSheets.saveDelivererToSheets(data);
+                    showNotification(mode === 'edit' ? '✅ Entregador actualizado' : '✅ Entregador agregado', 'success');
+                } else {
+                    throw new Error('Google Sheets no disponible');
+                }
                 closeAddDelivererModal();
                 loadDeliverers();
                 e.target.reset();
@@ -1532,7 +1363,19 @@
             }
         });
 
-        console.log('🚀 Admin Panel completo listo con ID:', SHEET_ID);
+        function cancelOrder(id) {
+            if (confirm('¿Cancelar pedido?')) {
+                const o = orders.find(x => String(x.id) === String(id));
+                if (o) { 
+                    o.estado = 'cancelado'; 
+                    localStorage.setItem('orders', JSON.stringify(orders)); 
+                    renderOrders(); 
+                    showNotification('❌ Pedido cancelado', 'info'); 
+                }
+            }
+        }
+
+        console.log('🚀 Admin Panel completo listo');
     </script>
 </body>
 </html>
