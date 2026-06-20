@@ -14,6 +14,60 @@ const PRODUCTOS_FALLBACK = [
 ];
 
 // ============================================
+// ⭐ NUEVO: MAPA DE COMBOS SUGERIDOS
+// ============================================
+const COMBOS_SUGERIDOS = {
+    // Pizzas → Bebidas
+    'pizzas': {
+        productos: ['bebidas'],
+        mensaje: '🍕 ¡Perfecto! Una pizza siempre va mejor con una bebida bien fría',
+        emoji: '🥤'
+    },
+    
+    // Hamburguesas → Papas + Bebidas
+    'hamburguesas': {
+        productos: ['papas', 'bebidas'],
+        mensaje: '🍔 ¡Excelente elección! ¿Qué tal unas papas fritas para acompañar?',
+        emoji: '🍟'
+    },
+    
+    // Lomitos → Papas + Bebidas
+    'lomitos': {
+        productos: ['papas', 'bebidas'],
+        mensaje: '🥪 ¡Un lomito jugoso! Completalo con unas papas crocantes',
+        emoji: '🍟'
+    },
+    
+    // Empanadas → Bebidas (especialmente si son 3+)
+    'empanadas': {
+        productos: ['bebidas'],
+        mensaje: '🥟 ¡Las empanadas están increíbles! ¿Una bebida para acompañar?',
+        emoji: '🥤'
+    },
+    
+    // Papas → Bebidas
+    'papas': {
+        productos: ['bebidas'],
+        mensaje: '🍟 ¡Papas fritas! ¿Qué tal una bebida para acompañar?',
+        emoji: '🥤'
+    },
+    
+    // Bebidas → Comida (si es la primera compra)
+    'bebidas': {
+        productos: ['pizzas', 'hamburguesas', 'empanadas'],
+        mensaje: '🥤 ¡Una bebida bien fría! ¿Y algo para comer?',
+        emoji: '🍕'
+    },
+    
+    // Aderezos → Comida
+    'aderezos': {
+        productos: ['papas', 'hamburguesas', 'lomitos'],
+        mensaje: '✨ ¡Nuestros aderezos son caseros! Van perfecto con...',
+        emoji: '🍟'
+    }
+};
+
+// ============================================
 // ESTADO GLOBAL
 // ============================================
 let cart = [];
@@ -21,9 +75,10 @@ let totalItems = 0;
 let totalPrice = 0;
 let productosActuales = [];
 let categoriaActual = 'all';
+let comboSuggestionTimeout = null;
 
 // ============================================
-// ⭐ CARGAR PRODUCTOS (VERSIÓN CORREGIDA)
+// CARGAR PRODUCTOS
 // ============================================
 async function loadProductsFromSheets() {
     try {
@@ -41,7 +96,6 @@ async function loadProductsFromSheets() {
         const data = await response.json();
         console.log('📊 Respuesta recibida:', data);
         
-        // ⭐ VERIFICACIÓN CORRECTA
         if (data.products && data.products.length > 0) {
             console.log(`✅ ${data.products.length} productos cargados desde Google Sheets`);
             console.log('📋 Productos:', data.products.map(p => p.nombre).join(', '));
@@ -58,7 +112,7 @@ async function loadProductsFromSheets() {
 }
 
 // ============================================
-// ORDENAR PRODUCTOS (bebidas al final)
+// ORDENAR PRODUCTOS
 // ============================================
 function sortProducts(products) {
     if (!products || products.length === 0) return [];
@@ -120,7 +174,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         `;
     }
     
-    // ⭐ Cargar productos
     productosActuales = await loadProductsFromSheets();
     productosActuales = sortProducts(productosActuales);
     
@@ -134,7 +187,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // ============================================
-// ⭐ RENDERIZAR MENÚ (CON STOCK)
+// RENDERIZAR MENÚ
 // ============================================
 function renderMenu() {
     const grid = document.getElementById('menuGrid');
@@ -146,7 +199,6 @@ function renderMenu() {
     let items = window.PRODUCTOS_ACTUALES || PRODUCTOS_FALLBACK;
     items = sortProducts(items);
     
-    // Filtrar por categoría
     if (categoriaActual && categoriaActual !== 'all') {
         items = items.filter(p => {
             const cat = (p.categoria || '').toLowerCase().trim();
@@ -167,7 +219,6 @@ function renderMenu() {
     console.log(`🎨 Renderizando ${items.length} productos...`);
     
     grid.innerHTML = items.map(producto => {
-        // ⭐ Verificar disponibilidad
         const isAvailable = producto.disponible !== false && 
                            producto.disponible !== 'false' && 
                            producto.disponible !== 'No' &&
@@ -228,7 +279,7 @@ function changeQuantity(productId, delta) {
 }
 
 // ============================================
-// AGREGAR AL CARRITO
+// ⭐ AGREGAR AL CARRITO (CON SUGERENCIAS)
 // ============================================
 function addToCart(productId) {
     const display = document.getElementById(`qty-${productId}`);
@@ -270,6 +321,152 @@ function addToCart(productId) {
     display.textContent = '0';
     updateCartUI();
     showNotification(`✅ ${quantity}x ${product.nombre} agregado al carrito`, 'success');
+    
+    // ⭐ NUEVO: Mostrar sugerencia de combo
+    mostrarSugerenciaCombo(product);
+}
+
+// ============================================
+// ⭐ NUEVO: MOSTRAR SUGERENCIA DE COMBO
+// ============================================
+function mostrarSugerenciaCombo(productoAgregado) {
+    // Cerrar sugerencia anterior si existe
+    cerrarSugerenciaCombo();
+    
+    const categoria = (productoAgregado.categoria || '').toLowerCase().trim();
+    const comboConfig = COMBOS_SUGERIDOS[categoria];
+    
+    // Si no hay configuración para esta categoría, no mostrar sugerencia
+    if (!comboConfig) {
+        console.log('ℹ️ No hay sugerencias para la categoría:', categoria);
+        return;
+    }
+    
+    // Buscar productos sugeridos
+    const productosSugeridos = [];
+    const allProducts = window.PRODUCTOS_ACTUALES || PRODUCTOS_FALLBACK;
+    
+    comboConfig.productos.forEach(catSugerida => {
+        // Buscar productos de la categoría sugerida que estén disponibles
+        const productosCategoria = allProducts.filter(p => {
+            const cat = (p.categoria || '').toLowerCase().trim();
+            const isAvailable = p.disponible !== false && 
+                               p.disponible !== 'false' && 
+                               p.disponible !== 'No';
+            
+            // No sugerir el mismo producto que ya agregó
+            const isSameProduct = parseInt(p.id) === parseInt(productoAgregado.id);
+            
+            // No sugerir productos que ya están en el carrito
+            const isInCart = cart.some(item => parseInt(item.id) === parseInt(p.id));
+            
+            return cat === catSugerida && isAvailable && !isSameProduct && !isInCart;
+        });
+        
+        // Agregar hasta 2 productos de cada categoría sugerida
+        productosSugeridos.push(...productosCategoria.slice(0, 2));
+    });
+    
+    // Si no hay productos sugeridos, no mostrar panel
+    if (productosSugeridos.length === 0) {
+        console.log('ℹ️ No hay productos sugeridos disponibles');
+        return;
+    }
+    
+    // Limitar a máximo 3 sugerencias
+    const sugerenciasFinales = productosSugeridos.slice(0, 3);
+    
+    // Crear panel de sugerencia
+    const panel = document.createElement('div');
+    panel.className = 'combo-suggestion';
+    panel.id = 'comboSuggestionPanel';
+    
+    panel.innerHTML = `
+        <button class="combo-close" onclick="cerrarSugerenciaCombo()">×</button>
+        <div class="combo-header">
+            <i class="fas fa-lightbulb"></i>
+            <span>¡Te recomendamos!</span>
+        </div>
+        <div class="combo-message">
+            ${comboConfig.mensaje}
+        </div>
+        <div class="combo-products">
+            ${sugerenciasFinales.map(prod => `
+                <div class="combo-product" onclick="agregarSugerencia(${prod.id})">
+                    <img src="${prod.imagen || 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=300'}" 
+                         alt="${prod.nombre}"
+                         onerror="this.src='https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=300'">
+                    <div class="combo-product-info">
+                        <div class="combo-product-name">${prod.nombre}</div>
+                        <div class="combo-product-price">$${parseInt(prod.precio).toLocaleString()}</div>
+                    </div>
+                    <button class="combo-add-btn" onclick="event.stopPropagation(); agregarSugerencia(${prod.id})">
+                        <i class="fas fa-plus"></i> Agregar
+                    </button>
+                </div>
+            `).join('')}
+        </div>
+        <div class="combo-footer">
+            💡 Hacé clic para agregar al carrito
+        </div>
+    `;
+    
+    document.body.appendChild(panel);
+    
+    // Auto-cerrar después de 8 segundos
+    comboSuggestionTimeout = setTimeout(() => {
+        cerrarSugerenciaCombo();
+    }, 8000);
+    
+    console.log('💡 Sugerencia de combo mostrada para:', productoAgregado.nombre);
+}
+
+// ============================================
+// ⭐ NUEVO: CERRAR SUGERENCIA DE COMBO
+// ============================================
+function cerrarSugerenciaCombo() {
+    const panel = document.getElementById('comboSuggestionPanel');
+    if (panel) {
+        panel.classList.add('fade-out');
+        setTimeout(() => {
+            panel.remove();
+        }, 300);
+    }
+    
+    if (comboSuggestionTimeout) {
+        clearTimeout(comboSuggestionTimeout);
+        comboSuggestionTimeout = null;
+    }
+}
+
+// ============================================
+// ⭐ NUEVO: AGREGAR SUGERENCIA AL CARRITO
+// ============================================
+function agregarSugerencia(productId) {
+    const products = window.PRODUCTOS_ACTUALES || PRODUCTOS_FALLBACK;
+    const product = products.find(p => parseInt(p.id) === parseInt(productId));
+    
+    if (!product) return;
+    
+    // Verificar si ya está en el carrito
+    const existing = cart.find(item => parseInt(item.id) === parseInt(productId));
+    if (existing) {
+        existing.quantity += 1;
+    } else {
+        cart.push({
+            id: parseInt(productId),
+            ...product,
+            quantity: 1
+        });
+    }
+    
+    updateCartUI();
+    showNotification(`✅ ${product.nombre} agregado al carrito`, 'success');
+    
+    // Cerrar panel de sugerencia
+    cerrarSugerenciaCombo();
+    
+    console.log('🛒 Sugerencia agregada al carrito:', product.nombre);
 }
 
 // ============================================
@@ -482,4 +679,4 @@ function setupEventListeners() {
     console.log('✅ Event listeners configurados');
 }
 
-console.log('🚀 main.js cargado correctamente');
+console.log('🚀 main.js cargado correctamente con sugerencias de combos');
