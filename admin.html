@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - Rotisería Delicias</title>
+    <title>Admin+Panel - Rotisería Delicias</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -299,8 +299,8 @@
                         <div class="filters">
                             <select id="orderFilter">
                                 <option value="all">📋 Todos</option>
-                                <option value="pendiente"> Pendientes</option>
-                                <option value="en-preparacion">👨‍ En Preparación</option>
+                                <option value="pendiente">⏳ Pendientes</option>
+                                <option value="en-preparacion">👨‍🍳 En Preparación</option>
                                 <option value="en-camino">🛵 En Camino</option>
                                 <option value="entregado">✅ Entregados</option>
                                 <option value="cancelado">❌ Cancelados</option>
@@ -316,7 +316,7 @@
                         <div class="column-body" id="col-pendiente"></div>
                     </div>
                     <div class="column" data-status="en-preparacion">
-                        <div class="column-header"><h3>👨‍ En Preparación</h3><span class="count" id="count-preparacion">0</span></div>
+                        <div class="column-header"><h3>👨‍🍳 En Preparación</h3><span class="count" id="count-preparacion">0</span></div>
                         <div class="column-body" id="col-preparacion"></div>
                     </div>
                     <div class="column" data-status="en-camino">
@@ -452,7 +452,7 @@
             </div>
             <form id="addDelivererForm">
                 <div class="form-group">
-                    <label> Nombre completo *</label>
+                    <label>👤 Nombre completo *</label>
                     <input type="text" id="delivererName" required placeholder="Ej: Carlos Gómez">
                 </div>
                 <div class="form-group">
@@ -464,7 +464,7 @@
                     <input type="text" id="delivererVehicle" placeholder="Ej: Moto, Bicicleta, Auto">
                 </div>
                 <div class="form-group">
-                    <label> Disponible</label>
+                    <label>📌 Disponible</label>
                     <select id="delivererAvailable">
                         <option value="true">✅ Disponible</option>
                         <option value="false">❌ No disponible</option>
@@ -506,7 +506,7 @@
                         loadDashboardData();
                     } catch (error) {
                         console.error('Error:', error);
-                        showNotification(' Error al autenticar', 'error');
+                        showNotification('❌ Error al autenticar', 'error');
                     }
                 } else {
                     showNotification('❌ Google Sheets no disponible', 'error');
@@ -544,7 +544,9 @@
             div.innerHTML = message;
             document.body.appendChild(div);
             setTimeout(() => {
-                div.style.opacity = '0'; div.style.transform = 'translateY(20px)'; div.style.transition = 'all 0.3s';
+                div.style.opacity = '0'; 
+                div.style.transform = 'translateY(20px)'; 
+                div.style.transition = 'all 0.3s';
                 setTimeout(() => div.remove(), 300);
             }, 4000);
         }
@@ -553,7 +555,6 @@
             await Promise.allSettled([loadOrders(), loadDeliverers(), loadMenuItems()]);
         }
 
-        // ⭐ CARGAR PEDIDOS CON NORMALIZACIÓN DE ESTADO
         async function loadOrders() {
             try {
                 if (window.GoogleSheets) {
@@ -562,10 +563,8 @@
                     
                     if (sheetOrders && sheetOrders.length > 0) {
                         orders = sheetOrders.map(o => {
-                            // Normalizar estado: quitar espacios, minúsculas y unificar variantes de pendiente
                             let cleanStatus = (o.estado || '').toString().trim().toLowerCase();
                             if(cleanStatus.includes('pendiente')) cleanStatus = 'pendiente';
-                            
                             return { ...o, estado: cleanStatus };
                         });
                     } else {
@@ -588,9 +587,15 @@
             try {
                 if (window.GoogleSheets) {
                     const sheetDeliverers = await window.GoogleSheets.getDeliverersFromSheets();
-                    if (sheetDeliverers) { deliverers = sheetDeliverers; renderDeliverers(); return; }
+                    if (sheetDeliverers) { 
+                        deliverers = sheetDeliverers; 
+                        renderDeliverers(); 
+                        return; 
+                    }
                 }
-            } catch (e) { console.error('Error cargando entregadores:', e); }
+            } catch (e) { 
+                console.error('Error cargando entregadores:', e); 
+            }
             deliverers = JSON.parse(localStorage.getItem('deliverers') || '[]');
             renderDeliverers();
         }
@@ -599,14 +604,19 @@
             try {
                 if (window.GoogleSheets) {
                     const sheetProducts = await window.GoogleSheets.getProductsFromSheets();
-                    if (sheetProducts) { menuItems = sheetProducts; renderMenuAdmin(); return; }
+                    if (sheetProducts) { 
+                        menuItems = sheetProducts; 
+                        renderMenuAdmin(); 
+                        return; 
+                    }
                 }
-            } catch (e) { console.error('Error cargando menú:', e); }
+            } catch (e) { 
+                console.error('Error cargando menú:', e); 
+            }
             menuItems = JSON.parse(localStorage.getItem('menuItems') || '[]');
             renderMenuAdmin();
         }
 
-        // ⭐ AUTO-REFRESH MEJORADO
         function startAutoRefresh() {
             if (autoRefreshInterval) clearInterval(autoRefreshInterval);
             
@@ -645,13 +655,17 @@
                             }
                         }
                     }
-                } catch (e) { console.error('Error auto-refresh:', e); }
+                } catch (e) { 
+                    console.error('Error auto-refresh:', e); 
+                }
             }, 10000);
             
             console.log('🔄 Auto-refresh activado (cada 10 segundos)');
         }
         
-        function stopAutoRefresh() { if (autoRefreshInterval) clearInterval(autoRefreshInterval); }
+        function stopAutoRefresh() { 
+            if (autoRefreshInterval) clearInterval(autoRefreshInterval); 
+        }
 
         function formatElapsedTime(ts) {
             const diff = Math.max(0, Date.now() - ts);
@@ -660,21 +674,34 @@
             if (m>0) return `${m}m ${String(s%60).padStart(2,'0')}s`;
             return `${s}s`;
         }
+
         function updateAllTimers() {
             document.querySelectorAll('.order-timer').forEach(el => {
-                const ts = parseInt(el.dataset.timestamp); if (!ts) return;
+                const ts = parseInt(el.dataset.timestamp); 
+                if (!ts) return;
                 const val = el.querySelector('.timer-value');
                 if (val) val.textContent = formatElapsedTime(ts);
-                if (Math.floor((Date.now()-ts)/60000) >= 30) el.classList.add('urgent');
-                else el.classList.remove('urgent');
+                if (Math.floor((Date.now()-ts)/60000) >= 30) {
+                    el.classList.add('urgent');
+                } else {
+                    el.classList.remove('urgent');
+                }
             });
         }
-        function startTimerUpdates() { if (timerInterval) clearInterval(timerInterval); timerInterval = setInterval(updateAllTimers, 1000); }
-        function stopTimerUpdates() { if (timerInterval) clearInterval(timerInterval); }
 
-        function parseOrderItems(str) { return str ? str.split(',').map(i => i.trim()).filter(i => i) : []; }
+        function startTimerUpdates() { 
+            if (timerInterval) clearInterval(timerInterval); 
+            timerInterval = setInterval(updateAllTimers, 1000); 
+        }
 
-        // ⭐ RENDER PEDIDOS CON ESCAPE SEGURO PARA IDS
+        function stopTimerUpdates() { 
+            if (timerInterval) clearInterval(timerInterval); 
+        }
+
+        function parseOrderItems(str) { 
+            return str ? str.split(',').map(i => i.trim()).filter(i => i) : []; 
+        }
+
         function renderOrders() {
             const statuses = ['pendiente', 'en-preparacion', 'en-camino', 'entregado'];
             const labels = { pendiente:'pendiente', 'en-preparacion':'preparacion', 'en-camino':'camino', entregado:'entregado' };
@@ -688,26 +715,26 @@
                 if (countEl) countEl.textContent = filtered.length;
                 
                 if (filtered.length === 0) {
-                    container.innerHTML = `<div class="empty-state"><i class="fas fa-inbox"></i><p>Sin pedidos</p></div>`;
+                    container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><p>Sin pedidos</p></div>';
                     return;
                 }
                 
                 container.innerHTML = filtered.map(o => {
                     const pagoLower = (o.pago || '').toLowerCase();
                     let pagoIcon = 'fa-money-bill-wave';
-                    if (pagoLower.includes('tarjeta') || pagoLower.includes('credito') || pagoLower.includes('crédito')) pagoIcon = 'fa-credit-card';
-                    else if (pagoLower.includes('transferencia') || pagoLower.includes('transfer')) pagoIcon = 'fa-building-columns';
-                    else if (pagoLower.includes('mercado') || pagoLower.includes('mp')) pagoIcon = 'fa-mobile-screen';
+                    if (pagoLower.includes('tarjeta') || pagoLower.includes('credito') || pagoLower.includes('crédito')) {
+                        pagoIcon = 'fa-credit-card';
+                    } else if (pagoLower.includes('transferencia') || pagoLower.includes('transfer')) {
+                        pagoIcon = 'fa-building-columns';
+                    } else if (pagoLower.includes('mercado') || pagoLower.includes('mp')) {
+                        pagoIcon = 'fa-mobile-screen';
+                    }
                     
                     const notas = o.notas && o.notas.trim() ? o.notas : 'S/N';
                     const fecha = new Date(o.fecha);
                     const timestamp = fecha.getTime();
                     const itemsList = parseOrderItems(o.items);
-                    
-                    // El botón de asignar solo aparece si está en "en-preparacion"
                     const showAssignButton = (st === 'en-preparacion');
-                    
-                    // ⭐ ESCAPAR EL ID CORRECTAMENTE PARA EVITAR ERRORES EN ONCLICK
                     const safeId = JSON.stringify(o.id);
                     
                     return `
@@ -727,7 +754,7 @@
                             <div class="order-notes"><i class="fas fa-sticky-note"></i> <span>${notas}</span></div>
                             <div class="order-total">$${parseInt(o.total).toLocaleString()}</div>
                             <div class="order-deliverer">
-                                ${o.entregador && o.entregador !== 'Sin asignar' ? '🛵 ' + o.entregador : ' Sin entregador'}
+                                ${o.entregador && o.entregador !== 'Sin asignar' ? '🛵 ' + o.entregador : '📦 Sin entregador'}
                             </div>
                             <div class="order-actions">
                                 <button class="btn-whatsapp" onclick="contactCustomer(${safeId})"><i class="fab fa-whatsapp"></i></button>
@@ -746,27 +773,31 @@
         }
 
         async function changeOrderStatus(id) {
-            const order = orders.find(o => String(o.id) === String(id)); if (!order) return;
+            const order = orders.find(o => String(o.id) === String(id)); 
+            if (!order) return;
             const flow = {'pendiente':'en-preparacion','en-preparacion':'en-camino','en-camino':'entregado'};
             const newStatus = flow[order.estado] || order.estado;
             try {
-                if (window.GoogleSheets) await window.GoogleSheets.updateOrderStatus(id, newStatus);
+                if (window.GoogleSheets) {
+                    await window.GoogleSheets.updateOrderStatus(id, newStatus);
+                }
                 order.estado = newStatus;
                 localStorage.setItem('orders', JSON.stringify(orders));
                 renderOrders();
                 showNotification('✅ Estado actualizado', 'success');
-            } catch (e) { console.error(e); showNotification('⚠️ Error al actualizar', 'warning'); }
+            } catch (e) { 
+                console.error(e); 
+                showNotification('⚠️ Error al actualizar', 'warning'); 
+            }
         }
 
-        // ⭐ WHATSAPP CLIENTES CON LOGS Y FORMATO INTERNACIONAL
         function contactCustomer(id) {
-            console.log(' Intentando contactar cliente con ID:', id);
+            console.log('📱 Intentando contactar cliente con ID:', id);
             
             const order = orders.find(o => String(o.id) === String(id)); 
             
             if (!order) {
                 console.error('❌ Pedido no encontrado para ID:', id);
-                console.log('IDs disponibles:', orders.map(o => o.id));
                 showNotification('⚠️ Error: No se encontró el pedido', 'error');
                 return;
             }
@@ -774,55 +805,49 @@
             console.log('✅ Pedido encontrado:', order);
             console.log('📱 Teléfono original:', order.telefono);
 
-            // 1. Limpiamos el teléfono: dejamos SOLO números
             let rawPhone = (order.telefono || '').replace(/\D/g, '');
-            
             console.log('🔢 Teléfono limpio:', rawPhone);
             
-            // 2. Lógica inteligente para Argentina:
+            if (!rawPhone || rawPhone.length === 0) {
+                showNotification('⚠️ El cliente no dejó un número de teléfono', 'warning');
+                return;
+            }
+            
             if (rawPhone.startsWith('11')) {
                 rawPhone = '549' + rawPhone.replace(/^11(15)?/, ''); 
-            } 
-            else if (rawPhone.length <= 11 && !rawPhone.startsWith('54')) {
+            } else if (rawPhone.length <= 11 && !rawPhone.startsWith('54')) {
                 rawPhone = '549' + rawPhone;
-            }
-            else if (rawPhone.startsWith('54') && rawPhone.length === 12) {
+            } else if (rawPhone.startsWith('54') && rawPhone.length === 12) {
                 rawPhone = rawPhone.replace('54', '549');
             }
 
-            console.log('🌍 Teléfono final (formato internacional):', rawPhone);
+            console.log('🌍 Teléfono final:', rawPhone);
 
             if (rawPhone.length < 10) {
-                showNotification('⚠️ El número de teléfono parece incompleto o inválido', 'warning');
+                showNotification('⚠️ Número incompleto: ' + rawPhone, 'warning');
                 return;
             }
 
-            // 3. Preparamos el mensaje profesional
-            const fecha = new Date(order.fecha).toLocaleString('es-AR', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'});
-            
             let msg = `Hola ${order.cliente}, te escribimos de *Delicias Rotisería* 🍕\n\n`;
             msg += `📦 *Pedido #${String(order.id).slice(-6)}*\n`;
             msg += `• Items: ${order.items}\n`;
             msg += `• Total: $${parseInt(order.total).toLocaleString()}\n`;
             msg += `• Estado: ${order.estado.toUpperCase()}\n\n`;
-            msg += `¿Tenés alguna consulta sobre tu pedido? ¡Estamos aquí!`;
+            msg += `¿Tenés alguna consulta? ¡Estamos aquí!`;
 
-            // 4. Abrimos WhatsApp Web/App
             const waUrl = `https://wa.me/${rawPhone}?text=${encodeURIComponent(msg)}`;
-            console.log('🔗 URL de WhatsApp:', waUrl);
+            console.log('🔗 URL:', waUrl);
             
+            showNotification(`📱 Abriendo WhatsApp: ${rawPhone}`, 'success');
             window.open(waUrl, '_blank');
         }
 
-        // ⭐ WHATSAPP ENTREGADORES CON FORMATO INTERNACIONAL
         function contactDeliverer(id) {
             const deliverer = deliverers.find(d => d.id.toString() === id.toString());
             if (!deliverer) return;
 
-            // 1. Limpiamos el teléfono
             let rawPhone = (deliverer.telefono || '').replace(/\D/g, '');
             
-            // 2. Aplicamos la misma lógica de Argentina
             if (rawPhone.startsWith('11')) {
                 rawPhone = '549' + rawPhone.replace(/^11(15)?/, ''); 
             } else if (rawPhone.length <= 11 && !rawPhone.startsWith('54')) {
@@ -836,16 +861,18 @@
                 return;
             }
 
-            // 3. Mensaje para repartidores
             let msg = `🛵 Hola ${deliverer.nombre}, te escribimos de *Delicias Rotisería*.\n\n`;
             msg += `¿Estás disponible para tomar pedidos ahora?\n\n`;
             msg += `¡Avísanos para asignarte rutas! 🗺️`;
 
-            // 4. Abrir WhatsApp
             window.open(`https://wa.me/${rawPhone}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
-        function clearFilters() { document.getElementById('orderFilter').value = 'all'; document.getElementById('dateFilter').value = ''; renderOrders(); }
+        function clearFilters() { 
+            document.getElementById('orderFilter').value = 'all'; 
+            document.getElementById('dateFilter').value = ''; 
+            renderOrders(); 
+        }
 
         function openAssignModal(orderId) {
             selectedOrderId = orderId;
@@ -855,7 +882,7 @@
             const listContainer = document.getElementById('assignDelivererList');
             
             if (availableDeliverers.length === 0) {
-                listContainer.innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>No hay entregadores disponibles</p></div>`;
+                listContainer.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>No hay entregadores disponibles</p></div>';
             } else {
                 listContainer.innerHTML = availableDeliverers.map(d => `
                     <div class="deliverer-option" data-id="${d.id}" onclick="selectDelivererOption('${d.id}')">
@@ -863,7 +890,7 @@
                             <div class="deliverer-name">${d.nombre}</div>
                             <div class="deliverer-vehicle"><i class="fas fa-motorcycle"></i> ${d.vehiculo || 'Sin vehículo'}</div>
                         </div>
-                        <span class="deliverer-status available"> Disponible</span>
+                        <span class="deliverer-status available">🟢 Disponible</span>
                     </div>
                 `).join('');
             }
@@ -919,7 +946,13 @@
         function updateStats() {
             const total = orders.length;
             const pending = orders.filter(o => ['pendiente','en-preparacion','en-camino'].includes(o.estado)).length;
-            const today = orders.filter(o => { try { return new Date(o.fecha).toDateString() === new Date().toDateString(); } catch(e) { return false; } }).length;
+            const today = orders.filter(o => { 
+                try { 
+                    return new Date(o.fecha).toDateString() === new Date().toDateString(); 
+                } catch(e) { 
+                    return false; 
+                } 
+            }).length;
             const revenue = orders.reduce((sum, o) => o.estado !== 'cancelado' ? sum + (parseInt(o.total) || 0) : sum, 0);
             document.getElementById('statTotal').textContent = total;
             document.getElementById('statPending').textContent = pending;
@@ -948,7 +981,7 @@
             const totalOrders = orders.length;
             
             if (totalOrders === 0) {
-                container.innerHTML = `<div class="empty-state"><i class="fas fa-chart-bar"></i><p>Aún no hay pedidos registrados</p></div>`;
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-chart-bar"></i><p>Aún no hay pedidos registrados</p></div>';
                 return;
             }
             
@@ -987,8 +1020,11 @@
             
             const dailyRevenue = days.map(day => {
                 const dayOrders = orders.filter(o => {
-                    try { return new Date(o.fecha).toDateString() === day.key && o.estado !== 'cancelado'; }
-                    catch(e) { return false; }
+                    try { 
+                        return new Date(o.fecha).toDateString() === day.key && o.estado !== 'cancelado'; 
+                    } catch(e) { 
+                        return false; 
+                    }
                 });
                 const total = dayOrders.reduce((sum, o) => sum + (parseInt(o.total) || 0), 0);
                 return { ...day, total, count: dayOrders.length };
@@ -998,7 +1034,7 @@
             const totalRevenue = dailyRevenue.reduce((sum, d) => sum + d.total, 0);
             
             if (totalRevenue === 0) {
-                container.innerHTML = `<div class="empty-state"><i class="fas fa-chart-line"></i><p>Aún no hay ingresos registrados</p></div>`;
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-chart-line"></i><p>Aún no hay ingresos registrados</p></div>';
                 return;
             }
             
@@ -1050,7 +1086,7 @@
                 .slice(0, 5);
             
             if (sorted.length === 0) {
-                container.innerHTML = `<div class="empty-state"><i class="fas fa-trophy"></i><p>Aún no hay ventas registradas</p></div>`;
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-trophy"></i><p>Aún no hay ventas registradas</p></div>';
                 return;
             }
             
@@ -1072,13 +1108,12 @@
             `).join('');
         }
 
-        // ⭐ RENDER ENTREGADORES CON BOTÓN WHATSAPP
         function renderDeliverers() {
             const c = document.getElementById('deliverersGrid'); 
             if (!c) return;
             
             if (deliverers.length === 0) {
-                c.innerHTML = `<div class="empty-state"><i class="fas fa-motorcycle"></i><p>Sin entregadores</p></div>`;
+                c.innerHTML = '<div class="empty-state"><i class="fas fa-motorcycle"></i><p>Sin entregadores</p></div>';
                 document.getElementById('sidebarDeliverersCount').textContent = 0;
                 return;
             }
@@ -1109,10 +1144,11 @@
         }
 
         function renderMenuAdmin() {
-            const c = document.getElementById('menuAdminGrid'); if (!c) return;
+            const c = document.getElementById('menuAdminGrid'); 
+            if (!c) return;
             
             if (menuItems.length === 0) {
-                c.innerHTML = `<div class="empty-state"><i class="fas fa-utensils"></i><p>Sin productos</p></div>`;
+                c.innerHTML = '<div class="empty-state"><i class="fas fa-utensils"></i><p>Sin productos</p></div>';
                 document.getElementById('sidebarMenuCount').textContent = 0;
                 return;
             }
@@ -1178,14 +1214,21 @@
             document.getElementById('productAvailable').value = 'true';
             document.getElementById('addProductModal').classList.add('active'); 
         }
-        function closeAddProductModal() { document.getElementById('addProductModal').classList.remove('active'); }
+
+        function closeAddProductModal() { 
+            document.getElementById('addProductModal').classList.remove('active'); 
+        }
+
         document.getElementById('addProductModal')?.addEventListener('click', function(e) {
             if (e.target === this) closeAddProductModal();
         });
 
         function editProduct(productId) {
             const product = menuItems.find(p => p.id.toString() === productId.toString());
-            if (!product) { showNotification('❌ Producto no encontrado', 'error'); return; }
+            if (!product) { 
+                showNotification('❌ Producto no encontrado', 'error'); 
+                return; 
+            }
             document.getElementById('productName').value = product.nombre || '';
             document.getElementById('productDescription').value = product.descripcion || '';
             document.getElementById('productPrice').value = product.precio || '';
@@ -1210,7 +1253,7 @@
                 }
             } catch(err) {
                 console.error('Error eliminando producto:', err);
-                showNotification(' Error: ' + err.message, 'error');
+                showNotification('❌ Error: ' + err.message, 'error');
             }
         }
 
@@ -1250,14 +1293,21 @@
             document.getElementById('delivererModalTitle').innerHTML = '<i class="fas fa-motorcycle" style="color: var(--primary);"></i> Agregar Entregador';
             document.getElementById('addDelivererModal').classList.add('active'); 
         }
-        function closeAddDelivererModal() { document.getElementById('addDelivererModal').classList.remove('active'); }
+
+        function closeAddDelivererModal() { 
+            document.getElementById('addDelivererModal').classList.remove('active'); 
+        }
+
         document.getElementById('addDelivererModal')?.addEventListener('click', function(e) {
             if (e.target === this) closeAddDelivererModal();
         });
 
         function editDeliverer(delivererId) {
             const deliverer = deliverers.find(d => d.id.toString() === delivererId.toString());
-            if (!deliverer) { showNotification('❌ Entregador no encontrado', 'error'); return; }
+            if (!deliverer) { 
+                showNotification('❌ Entregador no encontrado', 'error'); 
+                return; 
+            }
             document.getElementById('delivererName').value = deliverer.nombre || '';
             document.getElementById('delivererPhone').value = deliverer.telefono || '';
             document.getElementById('delivererVehicle').value = deliverer.vehiculo || '';
@@ -1314,7 +1364,12 @@
         function cancelOrder(id) {
             if (confirm('¿Cancelar pedido?')) {
                 const o = orders.find(x => String(x.id) === String(id));
-                if (o) { o.estado = 'cancelado'; localStorage.setItem('orders', JSON.stringify(orders)); renderOrders(); showNotification('❌ Pedido cancelado', 'info'); }
+                if (o) { 
+                    o.estado = 'cancelado'; 
+                    localStorage.setItem('orders', JSON.stringify(orders)); 
+                    renderOrders(); 
+                    showNotification('❌ Pedido cancelado', 'info'); 
+                }
             }
         }
 
