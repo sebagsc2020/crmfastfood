@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - Rotisería Delicias</title>
+    <title>Admin+Panel - Rotisería Delicias</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- ⭐ NUEVAS LIBRERÍAS PARA GRÁFICOS Y PDF -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -56,7 +55,21 @@
         .login-box .btn-primary { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: var(--radius-sm); font-size: 1rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
 
         .admin-wrapper { display: none; min-height: 100vh; }
-        .sidebar { position: fixed; top: 0; left: 0; width: 260px; height: 100vh; background: var(--secondary); color: white; padding: 1.5rem 1rem; overflow-y: auto; z-index: 100; }
+        
+        /* ⭐ SIDEBAR RESPONSIVE */
+        .sidebar { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 260px; 
+            height: 100vh; 
+            background: var(--secondary); 
+            color: white; 
+            padding: 1.5rem 1rem; 
+            overflow-y: auto; 
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
         .sidebar .brand { display: flex; align-items: center; gap: 12px; padding: 0 0.5rem 2rem; border-bottom: 1px solid rgba(255,255,255,0.06); margin-bottom: 1.5rem; }
         .sidebar .brand i { font-size: 1.8rem; background: var(--primary); padding: 10px; border-radius: 12px; }
         .sidebar .brand span { font-size: 1.2rem; font-weight: 700; }
@@ -69,7 +82,42 @@
         .sidebar .logout-section { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.06); }
         .sidebar .logout-btn { color: rgba(255,255,255,0.5); }
 
-        .main-content { margin-left: 260px; padding: 2rem; min-height: 100vh; }
+        /* ⭐ BOTÓN HAMBURGUESA (solo visible en móvil) */
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1100;
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(230, 57, 70, 0.3);
+        }
+
+        /* ⭐ OVERLAY para cerrar sidebar en móvil */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+
+        .main-content { 
+            margin-left: 260px; 
+            padding: 2rem; 
+            min-height: 100vh;
+            transition: margin-left 0.3s ease;
+        }
         .topbar { display: flex; justify-content: space-between; align-items: center; padding-bottom: 1.5rem; border-bottom: 1px solid var(--gray-200); margin-bottom: 2rem; }
         .topbar .page-title { font-size: 1.8rem; font-weight: 800; }
         .topbar .page-title span { color: var(--primary); }
@@ -214,7 +262,6 @@
         .stock-badge.available { background: #e8f5e9; color: #2e7d32; }
         .stock-badge.unavailable { background: #ffebee; color: #c62828; }
 
-        /* ⭐ NUEVOS ESTILOS PARA EL GRÁFICO DE 30 DÍAS */
         .revenue-30days-card {
             background: white;
             border-radius: var(--radius);
@@ -230,6 +277,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
         }
         .btn-download-pdf {
             background: var(--primary);
@@ -255,11 +304,190 @@
             width: 100%;
         }
 
-        @media (max-width: 1200px) { .board-columns { grid-template-columns: repeat(2, 1fr); } .stats-grid { grid-template-columns: repeat(2, 1fr); } .stats-charts-grid { grid-template-columns: 1fr; } }
-        @media (max-width: 768px) { .board-columns { grid-template-columns: 1fr; } .stats-grid { grid-template-columns: 1fr; } .sidebar { width: 72px; } .main-content { margin-left: 72px; } }
+        /* ============================================
+           ⭐ MEDIA QUERIES RESPONSIVE
+           ============================================ */
+        
+        /* Tablets y pantallas medianas */
+        @media (max-width: 1200px) { 
+            .board-columns { grid-template-columns: repeat(2, 1fr); } 
+            .stats-grid { grid-template-columns: repeat(2, 1fr); } 
+            .stats-charts-grid { grid-template-columns: 1fr; } 
+        }
+        
+        /* ⭐ MÓVIL - Cambios principales */
+        @media (max-width: 768px) { 
+            /* Mostrar botón hamburguesa */
+            .menu-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            /* Sidebar oculto por defecto en móvil */
+            .sidebar {
+                transform: translateX(-100%);
+                width: 260px;
+            }
+            
+            /* Sidebar visible cuando está activo */
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            
+            /* Mostrar overlay cuando sidebar está abierto */
+            .sidebar-overlay.active {
+                display: block;
+            }
+            
+            /* Main content ocupa todo el ancho */
+            .main-content { 
+                margin-left: 0; 
+                padding: 1rem;
+                padding-top: 70px; /* Espacio para el botón hamburguesa */
+            }
+            
+            /* Topbar adaptado */
+            .topbar { 
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+                padding-top: 0.5rem;
+            }
+            
+            .topbar .page-title { 
+                font-size: 1.4rem; 
+            }
+            
+            .topbar .user-info {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            /* Stats en 2 columnas */
+            .stats-grid { 
+                grid-template-columns: repeat(2, 1fr); 
+                gap: 0.8rem;
+            }
+            
+            .stat-card {
+                padding: 0.8rem;
+            }
+            
+            .stat-card .stat-number {
+                font-size: 1.2rem;
+            }
+            
+            /* Board en 1 columna */
+            .board-columns { 
+                grid-template-columns: 1fr; 
+            }
+            
+            /* Tab header apilado */
+            .tab-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .tab-header h2 {
+                font-size: 1.2rem;
+            }
+            
+            .filters {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .filters select, .filters input {
+                width: 100%;
+            }
+            
+            /* Grids en 1 columna */
+            .deliverers-grid, .menu-admin-grid { 
+                grid-template-columns: 1fr; 
+            }
+            
+            /* Modal más pequeño en móvil */
+            .modal-content {
+                width: 95%;
+                padding: 1.5rem;
+            }
+            
+            /* Gráfico de 30 días */
+            .chart-container-30days {
+                height: 250px;
+            }
+            
+            .revenue-30days-card h3 {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .btn-download-pdf {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            /* Notificaciones más pequeñas */
+            .notification {
+                left: 10px;
+                right: 10px;
+                bottom: 10px;
+                padding: 12px 16px;
+                font-size: 0.9rem;
+            }
+        }
+        
+        /* Móviles muy pequeños */
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 0.5rem;
+            }
+            
+            .stat-card {
+                padding: 0.6rem;
+                gap: 0.5rem;
+            }
+            
+            .stat-card .stat-icon {
+                width: 32px;
+                height: 32px;
+                font-size: 0.9rem;
+            }
+            
+            .stat-card .stat-number {
+                font-size: 1rem;
+            }
+            
+            .stat-card .stat-label {
+                font-size: 0.65rem;
+            }
+            
+            .topbar .page-title {
+                font-size: 1.2rem;
+            }
+            
+            .order-card .order-actions {
+                flex-wrap: wrap;
+            }
+            
+            .order-card .order-actions button {
+                flex: 1;
+                min-width: 80px;
+            }
+        }
     </style>
 </head>
 <body>
+
+    <!-- ⭐ BOTÓN HAMBURGUESA (solo visible en móvil) -->
+    <button class="menu-toggle" id="menuToggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- ⭐ OVERLAY para cerrar sidebar -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
     <!-- ===== LOGIN ===== -->
     <div class="login-container" id="loginScreen">
@@ -285,7 +513,7 @@
 
     <!-- ===== ADMIN DASHBOARD ===== -->
     <div class="admin-wrapper" id="dashboardScreen">
-        <aside class="sidebar">
+        <aside class="sidebar" id="sidebar">
             <div class="brand">
                 <i class="fas fa-utensils"></i>
                 <div><span>Delicias</span><small>Panel Admin</small></div>
@@ -346,7 +574,7 @@
                             <select id="orderFilter">
                                 <option value="all">📋 Todos</option>
                                 <option value="pendiente">⏳ Pendientes</option>
-                                <option value="en-preparacion">👨‍ En Preparación</option>
+                                <option value="en-preparacion">👨‍🍳 En Preparación</option>
                                 <option value="en-camino">🛵 En Camino</option>
                                 <option value="entregado">✅ Entregados</option>
                                 <option value="cancelado">❌ Cancelados</option>
@@ -409,7 +637,6 @@
             <div class="tab-content" id="statsTab">
                 <div class="tab-header"><h2><i class="fas fa-chart-bar" style="color: var(--primary);"></i> Estadísticas</h2></div>
                 
-                <!-- ⭐ GRÁFICOS EXISTENTES -->
                 <div class="stats-charts-grid">
                     <div class="stats-chart-card">
                         <h3>📊 Pedidos por Estado</h3>
@@ -425,7 +652,6 @@
                     </div>
                 </div>
 
-                <!-- ⭐ NUEVO: GRÁFICO DE 30 DÍAS CON BOTÓN PDF -->
                 <div class="revenue-30days-card" id="revenue30DaysCard">
                     <h3>
                         <span>📈 Ganancias - Últimos 30 días</span>
@@ -546,12 +772,20 @@
         let autoRefreshInterval = null;
         let selectedOrderId = null;
         let selectedDelivererId = null;
-        let revenue30DaysChartInstance = null; // ⭐ Instancia del gráfico de 30 días
+        let revenue30DaysChartInstance = null;
 
         const ADMIN_USER = 'admin';
         const ADMIN_PASS = '2409admin2409';
 
         document.getElementById('currentDate').textContent = new Date().toLocaleDateString('es-AR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+        // ⭐ FUNCIÓN PARA TOGGLE SIDEBAR EN MÓVIL
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+        }
 
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -597,6 +831,11 @@
                 if (this.dataset.tab === 'deliverers') renderDeliverers();
                 if (this.dataset.tab === 'menu') renderMenuAdmin();
                 if (this.dataset.tab === 'stats') updateStats();
+                
+                // ⭐ Cerrar sidebar en móvil al cambiar de tab
+                if (window.innerWidth <= 768) {
+                    toggleSidebar();
+                }
             });
         });
 
@@ -1024,7 +1263,7 @@
             renderStatusChart();
             renderRevenueChart();
             renderTopProductsChart();
-            renderRevenue30DaysChart(); // ⭐ Renderizar gráfico de 30 días
+            renderRevenue30DaysChart();
         }
 
         function renderStatusChart() {
@@ -1033,7 +1272,7 @@
             
             const estados = [
                 { key: 'pendiente', label: '⏳ Pendientes', class: 'pendiente' },
-                { key: 'en-preparacion', label: '👨‍ En Preparación', class: 'en-preparacion' },
+                { key: 'en-preparacion', label: '👨‍🍳 En Preparación', class: 'en-preparacion' },
                 { key: 'en-camino', label: '🛵 En Camino', class: 'en-camino' },
                 { key: 'entregado', label: '✅ Entregados', class: 'entregado' },
                 { key: 'cancelado', label: '❌ Cancelados', class: 'cancelado' }
@@ -1146,7 +1385,7 @@
             const sorted = Object.entries(productCounts)
                 .map(([name, count]) => ({ name, count }))
                 .sort((a, b) => b.count - a.count)
-                .slice(0, 3); // ⭐ CAMBIO: De 5 a 3
+                .slice(0, 3);
             
             if (sorted.length === 0) {
                 container.innerHTML = '<div class="empty-state"><i class="fas fa-trophy"></i><p>Aún no hay ventas registradas</p></div>';
@@ -1171,12 +1410,10 @@
             `).join('');
         }
 
-        // ⭐ NUEVA FUNCIÓN: GRÁFICO DE 30 DÍAS CON CHART.JS
         function renderRevenue30DaysChart() {
             const canvas = document.getElementById('revenue30DaysChart');
             if (!canvas) return;
             
-            // Destruir instancia anterior si existe
             if (revenue30DaysChartInstance) {
                 revenue30DaysChartInstance.destroy();
             }
@@ -1204,8 +1441,6 @@
                 const total = dayOrders.reduce((sum, o) => sum + (parseInt(o.total) || 0), 0);
                 return { ...day, total };
             });
-            
-            const totalRevenue = dailyRevenue.reduce((sum, d) => sum + d.total, 0);
             
             const ctx = canvas.getContext('2d');
             
@@ -1236,10 +1471,7 @@
                             display: true,
                             position: 'top',
                             labels: {
-                                font: {
-                                    family: 'Inter',
-                                    size: 12
-                                }
+                                font: { family: 'Inter', size: 12 }
                             }
                         },
                         tooltip: {
@@ -1262,32 +1494,26 @@
                                 },
                                 font: { family: 'Inter', size: 11 }
                             },
-                            grid: {
-                                color: 'rgba(0,0,0,0.05)'
-                            }
+                            grid: { color: 'rgba(0,0,0,0.05)' }
                         },
                         x: {
                             ticks: {
                                 font: { family: 'Inter', size: 10 },
                                 maxRotation: 45
                             },
-                            grid: {
-                                display: false
-                            }
+                            grid: { display: false }
                         }
                     }
                 }
             });
         }
 
-        // ⭐ NUEVA FUNCIÓN: DESCARGAR GRÁFICO EN PDF
         async function downloadRevenuePDF() {
             const { jsPDF } = window.jspdf;
             
             showNotification('📄 Generando PDF...', 'info');
             
             try {
-                // Capturar el contenedor del gráfico
                 const element = document.getElementById('revenue30DaysCard');
                 
                 const canvas = await html2canvas(element, {
@@ -1298,12 +1524,10 @@
                 
                 const imgData = canvas.toDataURL('image/png');
                 
-                // Crear PDF
                 const pdf = new jsPDF('landscape', 'mm', 'a4');
                 const pdfWidth = pdf.internal.pageSize.getWidth();
                 const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
                 
-                // Agregar título
                 pdf.setFontSize(18);
                 pdf.setTextColor(230, 57, 70);
                 pdf.text('Rotisería Delicias - Reporte de Ganancias', 14, 20);
@@ -1312,10 +1536,8 @@
                 pdf.setTextColor(100, 100, 100);
                 pdf.text(`Período: Últimos 30 días | Generado: ${new Date().toLocaleDateString('es-AR')}`, 14, 28);
                 
-                // Agregar el gráfico
                 pdf.addImage(imgData, 'PNG', 14, 35, pdfWidth - 28, pdfHeight - 10);
                 
-                // Agregar total
                 const totalRevenue = orders
                     .filter(o => {
                         try {
@@ -1331,7 +1553,6 @@
                 pdf.setTextColor(230, 57, 70);
                 pdf.text(`Total 30 días: $${totalRevenue.toLocaleString()}`, 14, pdfHeight + 45);
                 
-                // Guardar PDF
                 const fileName = `ganancias_30dias_${new Date().toISOString().split('T')[0]}.pdf`;
                 pdf.save(fileName);
                 
