@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin+Panel - Rotisería Delicias</title>
+    <title>Admin Panel - Rotisería Delicias</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1092,6 +1092,7 @@
             }
         }
 
+        // ⭐ WHATSAPP CON MENSAJE PERSONALIZADO
         function contactCustomer(id) {
             console.log('📱 Intentando contactar cliente con ID:', id);
             
@@ -1106,6 +1107,7 @@
             console.log('✅ Pedido encontrado:', order);
             console.log('📱 Teléfono original:', order.telefono);
 
+            // Limpiar y formatear teléfono
             let rawPhone = String(order.telefono || '').replace(/\D/g, '');
             console.log('🔢 Teléfono limpio:', rawPhone);
             
@@ -1129,12 +1131,82 @@
                 return;
             }
 
-            let msg = `Hola ${order.cliente}, te escribimos de *Delicias Rotisería* 🍕\n\n`;
-            msg += `📦 *Pedido #${String(order.id).slice(-6)}*\n`;
-            msg += `• Items: ${order.items}\n`;
-            msg += `• Total: $${parseInt(order.total).toLocaleString()}\n`;
-            msg += `• Estado: ${order.estado.toUpperCase()}\n\n`;
-            msg += `¿Tenés alguna consulta? ¡Estamos aquí!`;
+            // ⭐ FORMATO DE FECHA ESTILIZADO
+            const fecha = new Date(order.fecha);
+            const fechaFormateada = fecha.toLocaleDateString('es-AR', { 
+                day: '2-digit', 
+                month: '2-digit', 
+                year: 'numeric' 
+            }) + ', ' + fecha.toLocaleTimeString('es-AR', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+
+            // ⭐ EMOJIS DE ESTADO
+            const estadoEmojis = {
+                'pendiente': '⏳',
+                'en-preparacion': '👨‍🍳',
+                'en-camino': '🛵',
+                'entregado': '✅',
+                'cancelado': '❌'
+            };
+            
+            const estadoLabels = {
+                'pendiente': 'Pendiente',
+                'en-preparacion': 'En Preparación',
+                'en-camino': 'En Camino',
+                'entregado': 'Entregado',
+                'cancelado': 'Cancelado'
+            };
+            
+            const estadoEmoji = estadoEmojis[order.estado] || '📦';
+            const estadoLabel = estadoLabels[order.estado] || order.estado;
+
+            // ⭐ FORMATEAR MÉTODO DE PAGO
+            const pagoLabels = {
+                'efectivo': '💵 Efectivo',
+                'debito': '💳 Débito',
+                'credito': '💳 Crédito',
+                'transferencia': '🏦 Transferencia',
+                'mercadopago': '📱 Mercado Pago'
+            };
+            const pagoTexto = pagoLabels[(order.pago || '').toLowerCase()] || order.pago || 'Efectivo';
+
+            // ⭐ CONSTRUIR MENSAJE CON ESTILO PERSONALIZADO
+            let msg = `🍕 *DELICIAS ROTISERÍA*\n`;
+            msg += `━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+            msg += `📋 *DETALLE DE TU PEDIDO*\n\n`;
+            msg += `👤 *Cliente:* ${order.cliente}\n`;
+            msg += `📱 *Teléfono:* ${order.telefono}\n`;
+            msg += `📍 *Dirección:* ${order.direccion || 'Retira en local'}\n`;
+            msg += `🕐 *Fecha:* ${fechaFormateada}\n\n`;
+            msg += `━━━━━━━━━━━━━━━━━━━━━━━\n`;
+            msg += `🛒 *PRODUCTOS:*\n\n`;
+            
+            // Parsear productos
+            const items = (order.items || '').split(',').map(i => i.trim()).filter(i => i);
+            items.forEach(item => {
+                msg += `• ${item}\n`;
+            });
+            
+            msg += `\n━━━━━━━━━━━━━━━━━━━━━━━\n`;
+            msg += `💰 *TOTAL:* $${parseInt(order.total).toLocaleString('es-AR')}\n`;
+            msg += `💳 *Pago:* ${pagoTexto}\n`;
+            
+            if (order.notas && order.notas.trim() && order.notas.trim() !== 'S/N') {
+                msg += `\n📝 *Notas:* ${order.notas}\n`;
+            }
+            
+            msg += `\n━━━━━━━━━━━━━━━━━━━━━━━\n`;
+            msg += `📦 *ESTADO DEL PEDIDO:* ${estadoEmoji} ${estadoLabel}\n`;
+            
+            if (order.entregador && order.entregador !== 'Sin asignar') {
+                msg += `🛵 *Entregador:* ${order.entregador}\n`;
+            }
+            
+            msg += `━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+            msg += `¡Gracias por tu compra! 🙏\n`;
+            msg += `Cualquier consulta, estamos a tu disposición. 😊`;
 
             const waUrl = `https://wa.me/${rawPhone}?text=${encodeURIComponent(msg)}`;
             console.log('🔗 URL:', waUrl);
@@ -1272,7 +1344,7 @@
             
             const estados = [
                 { key: 'pendiente', label: '⏳ Pendientes', class: 'pendiente' },
-                { key: 'en-preparacion', label: '👨‍🍳 En Preparación', class: 'en-preparacion' },
+                { key: 'en-preparacion', label: '👨‍ En Preparación', class: 'en-preparacion' },
                 { key: 'en-camino', label: '🛵 En Camino', class: 'en-camino' },
                 { key: 'entregado', label: '✅ Entregados', class: 'entregado' },
                 { key: 'cancelado', label: '❌ Cancelados', class: 'cancelado' }
