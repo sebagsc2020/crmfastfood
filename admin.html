@@ -56,7 +56,7 @@
 
         .admin-wrapper { display: none; min-height: 100vh; }
         
-        /* ⭐ SIDEBAR RESPONSIVE */
+        /* SIDEBAR RESPONSIVE */
         .sidebar { 
             position: fixed; 
             top: 0; 
@@ -82,7 +82,7 @@
         .sidebar .logout-section { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.06); }
         .sidebar .logout-btn { color: rgba(255,255,255,0.5); }
 
-        /* ⭐ BOTÓN HAMBURGUESA (solo visible en móvil) */
+        /* BOTÓN HAMBURGUESA (solo visible en móvil) */
         .menu-toggle {
             display: none;
             position: fixed;
@@ -100,7 +100,7 @@
             box-shadow: 0 4px 12px rgba(230, 57, 70, 0.3);
         }
 
-        /* ⭐ OVERLAY para cerrar sidebar en móvil */
+        /* OVERLAY para cerrar sidebar en móvil */
         .sidebar-overlay {
             display: none;
             position: fixed;
@@ -304,50 +304,40 @@
             width: 100%;
         }
 
-        /* ============================================
-           ⭐ MEDIA QUERIES RESPONSIVE
-           ============================================ */
-        
-        /* Tablets y pantallas medianas */
+        /* MEDIA QUERIES RESPONSIVE */
         @media (max-width: 1200px) { 
             .board-columns { grid-template-columns: repeat(2, 1fr); } 
             .stats-grid { grid-template-columns: repeat(2, 1fr); } 
             .stats-charts-grid { grid-template-columns: 1fr; } 
         }
         
-        /* ⭐ MÓVIL - Cambios principales */
+        /* MÓVIL - Cambios principales */
         @media (max-width: 768px) { 
-            /* Mostrar botón hamburguesa */
             .menu-toggle {
                 display: flex;
                 align-items: center;
                 justify-content: center;
             }
             
-            /* Sidebar oculto por defecto en móvil */
             .sidebar {
                 transform: translateX(-100%);
                 width: 260px;
             }
             
-            /* Sidebar visible cuando está activo */
             .sidebar.open {
                 transform: translateX(0);
             }
             
-            /* Mostrar overlay cuando sidebar está abierto */
             .sidebar-overlay.active {
                 display: block;
             }
             
-            /* Main content ocupa todo el ancho */
             .main-content { 
                 margin-left: 0; 
                 padding: 1rem;
-                padding-top: 70px; /* Espacio para el botón hamburguesa */
+                padding-top: 70px;
             }
             
-            /* Topbar adaptado */
             .topbar { 
                 flex-direction: column;
                 align-items: flex-start;
@@ -364,7 +354,6 @@
                 justify-content: space-between;
             }
             
-            /* Stats en 2 columnas */
             .stats-grid { 
                 grid-template-columns: repeat(2, 1fr); 
                 gap: 0.8rem;
@@ -378,12 +367,10 @@
                 font-size: 1.2rem;
             }
             
-            /* Board en 1 columna */
             .board-columns { 
                 grid-template-columns: 1fr; 
             }
             
-            /* Tab header apilado */
             .tab-header {
                 flex-direction: column;
                 align-items: stretch;
@@ -402,18 +389,15 @@
                 width: 100%;
             }
             
-            /* Grids en 1 columna */
             .deliverers-grid, .menu-admin-grid { 
                 grid-template-columns: 1fr; 
             }
             
-            /* Modal más pequeño en móvil */
             .modal-content {
                 width: 95%;
                 padding: 1.5rem;
             }
             
-            /* Gráfico de 30 días */
             .chart-container-30days {
                 height: 250px;
             }
@@ -428,7 +412,6 @@
                 justify-content: center;
             }
             
-            /* Notificaciones más pequeñas */
             .notification {
                 left: 10px;
                 right: 10px;
@@ -481,12 +464,12 @@
 </head>
 <body>
 
-    <!-- ⭐ BOTÓN HAMBURGUESA (solo visible en móvil) -->
+    <!-- BOTÓN HAMBURGUESA (solo visible en móvil) -->
     <button class="menu-toggle" id="menuToggle" onclick="toggleSidebar()">
         <i class="fas fa-bars"></i>
     </button>
 
-    <!-- ⭐ OVERLAY para cerrar sidebar -->
+    <!-- OVERLAY para cerrar sidebar -->
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
     <!-- ===== LOGIN ===== -->
@@ -572,12 +555,12 @@
                     <div class="actions">
                         <div class="filters">
                             <select id="orderFilter">
-                                <option value="all">📋 Todos</option>
-                                <option value="pendiente">⏳ Pendientes</option>
-                                <option value="en-preparacion">👨‍🍳 En Preparación</option>
-                                <option value="en-camino">🛵 En Camino</option>
-                                <option value="entregado">✅ Entregados</option>
-                                <option value="cancelado">❌ Cancelados</option>
+                                <option value="all">Todos</option>
+                                <option value="pendiente">Pendientes</option>
+                                <option value="en-preparacion">En Preparación</option>
+                                <option value="en-camino">En Camino</option>
+                                <option value="entregado">Entregados</option>
+                                <option value="cancelado">Cancelados</option>
                             </select>
                             <input type="date" id="dateFilter">
                             <button class="btn-secondary-sm" onclick="clearFilters()"><i class="fas fa-undo"></i> Limpiar</button>
@@ -586,19 +569,19 @@
                 </div>
                 <div class="board-columns" id="orderBoard">
                     <div class="column" data-status="pendiente">
-                        <div class="column-header"><h3>⏳ Pendientes</h3><span class="count" id="count-pendiente">0</span></div>
+                        <div class="column-header"><h3>Pendientes</h3><span class="count" id="count-pendiente">0</span></div>
                         <div class="column-body" id="col-pendiente"></div>
                     </div>
                     <div class="column" data-status="en-preparacion">
-                        <div class="column-header"><h3>👨‍ En Preparación</h3><span class="count" id="count-preparacion">0</span></div>
+                        <div class="column-header"><h3>En Preparación</h3><span class="count" id="count-preparacion">0</span></div>
                         <div class="column-body" id="col-preparacion"></div>
                     </div>
                     <div class="column" data-status="en-camino">
-                        <div class="column-header"><h3>🛵 En Camino</h3><span class="count" id="count-camino">0</span></div>
+                        <div class="column-header"><h3>En Camino</h3><span class="count" id="count-camino">0</span></div>
                         <div class="column-body" id="col-camino"></div>
                     </div>
                     <div class="column" data-status="entregado">
-                        <div class="column-header"><h3>✅ Entregados</h3><span class="count" id="count-entregado">0</span></div>
+                        <div class="column-header"><h3>Entregados</h3><span class="count" id="count-entregado">0</span></div>
                         <div class="column-body" id="col-entregado"></div>
                     </div>
                 </div>
@@ -639,22 +622,22 @@
                 
                 <div class="stats-charts-grid">
                     <div class="stats-chart-card">
-                        <h3>📊 Pedidos por Estado</h3>
+                        <h3>Pedidos por Estado</h3>
                         <div id="statusChart"></div>
                     </div>
                     <div class="stats-chart-card">
-                        <h3>📈 Ingresos Diarios (últimos 7 días)</h3>
+                        <h3>Ingresos Diarios (últimos 7 días)</h3>
                         <div id="revenueChart"></div>
                     </div>
                     <div class="stats-chart-card">
-                        <h3>🏆 Top 3 Productos Más Vendidos</h3>
+                        <h3>Top 3 Productos Más Vendidos</h3>
                         <div id="topProductsChart"></div>
                     </div>
                 </div>
 
                 <div class="revenue-30days-card" id="revenue30DaysCard">
                     <h3>
-                        <span>📈 Ganancias - Últimos 30 días</span>
+                        <span>Ganancias - Últimos 30 días</span>
                         <button class="btn-download-pdf" onclick="downloadRevenuePDF()">
                             <i class="fas fa-file-pdf"></i> Descargar PDF
                         </button>
@@ -692,37 +675,37 @@
             </div>
             <form id="addProductForm">
                 <div class="form-group">
-                    <label>🍽️ Nombre *</label>
+                    <label>Nombre *</label>
                     <input type="text" id="productName" required placeholder="Ej: Pizza Muzzarella">
                 </div>
                 <div class="form-group">
-                    <label>📝 Descripción</label>
+                    <label>Descripción</label>
                     <textarea id="productDescription" rows="2" placeholder="Breve descripción del producto"></textarea>
                 </div>
                 <div class="form-group">
-                    <label>💰 Precio $ *</label>
+                    <label>Precio $ *</label>
                     <input type="number" id="productPrice" required step="100" placeholder="4500">
                 </div>
                 <div class="form-group">
-                    <label>🖼️ URL de la imagen</label>
+                    <label>URL de la imagen</label>
                     <input type="text" id="productImage" placeholder="https://images.unsplash.com/...">
                 </div>
                 <div class="form-group">
-                    <label>📂 Categoría</label>
+                    <label>Categoría</label>
                     <select id="productCategory">
-                        <option value="pizzas">🍕 Pizzas</option>
-                        <option value="hamburguesas">🍔 Hamburguesas</option>
-                        <option value="lomitos">🥪 Lomitos</option>
-                        <option value="empanadas">🥟 Empanadas</option>
-                        <option value="papas">🍟 Papas Fritas</option>
-                        <option value="bebidas">🥤 Bebidas</option>
+                        <option value="pizzas">Pizzas</option>
+                        <option value="hamburguesas">Hamburguesas</option>
+                        <option value="lomitos">Lomitos</option>
+                        <option value="empanadas">Empanadas</option>
+                        <option value="papas">Papas Fritas</option>
+                        <option value="bebidas">Bebidas</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>📦 Stock</label>
+                    <label>Stock</label>
                     <select id="productAvailable">
-                        <option value="true">✅ Disponible</option>
-                        <option value="false">❌ No Disponible</option>
+                        <option value="true">Disponible</option>
+                        <option value="false">No Disponible</option>
                     </select>
                 </div>
                 <button type="submit" class="btn-primary" style="width:100%;"><i class="fas fa-save"></i> Guardar Producto</button>
@@ -739,22 +722,22 @@
             </div>
             <form id="addDelivererForm">
                 <div class="form-group">
-                    <label>👤 Nombre completo *</label>
+                    <label>Nombre completo *</label>
                     <input type="text" id="delivererName" required placeholder="Ej: Carlos Gómez">
                 </div>
                 <div class="form-group">
-                    <label>📱 Teléfono *</label>
+                    <label>Teléfono *</label>
                     <input type="tel" id="delivererPhone" required placeholder="11 2222-3333">
                 </div>
                 <div class="form-group">
-                    <label>🛵 Vehículo</label>
+                    <label>Vehículo</label>
                     <input type="text" id="delivererVehicle" placeholder="Ej: Moto, Bicicleta, Auto">
                 </div>
                 <div class="form-group">
-                    <label>📌 Disponible</label>
+                    <label>Disponible</label>
                     <select id="delivererAvailable">
-                        <option value="true">✅ Disponible</option>
-                        <option value="false">❌ No disponible</option>
+                        <option value="true">Disponible</option>
+                        <option value="false">No disponible</option>
                     </select>
                 </div>
                 <button type="submit" class="btn-primary" style="width:100%;"><i class="fas fa-save"></i> Guardar Entregador</button>
@@ -779,7 +762,7 @@
 
         document.getElementById('currentDate').textContent = new Date().toLocaleDateString('es-AR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-        // ⭐ FUNCIÓN PARA TOGGLE SIDEBAR EN MÓVIL
+        // FUNCION PARA TOGGLE SIDEBAR EN MÓVIL
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebarOverlay');
@@ -798,17 +781,17 @@
                         await window.GoogleSheets.authenticate();
                         document.getElementById('loginScreen').style.display = 'none';
                         document.getElementById('dashboardScreen').style.display = 'block';
-                        showNotification('✅ Bienvenido al panel', 'success');
+                        showNotification('Bienvenido al panel', 'success');
                         loadDashboardData();
                     } catch (error) {
                         console.error('Error:', error);
-                        showNotification('❌ Error al autenticar', 'error');
+                        showNotification('Error al autenticar', 'error');
                     }
                 } else {
-                    showNotification('❌ Google Sheets no disponible', 'error');
+                    showNotification('Google Sheets no disponible', 'error');
                 }
             } else {
-                showNotification('❌ Usuario o contraseña incorrectos', 'error');
+                showNotification('Usuario o contraseña incorrectos', 'error');
             }
         });
 
@@ -832,7 +815,7 @@
                 if (this.dataset.tab === 'menu') renderMenuAdmin();
                 if (this.dataset.tab === 'stats') updateStats();
                 
-                // ⭐ Cerrar sidebar en móvil al cambiar de tab
+                // Cerrar sidebar en móvil al cambiar de tab
                 if (window.innerWidth <= 768) {
                     toggleSidebar();
                 }
@@ -860,7 +843,7 @@
             try {
                 if (window.GoogleSheets) {
                     const sheetOrders = await window.GoogleSheets.getOrders();
-                    console.log(`📦 Pedidos cargados: ${sheetOrders.length}`);
+                    console.log(`Pedidos cargados: ${sheetOrders.length}`);
                     
                     if (sheetOrders && sheetOrders.length > 0) {
                         orders = sheetOrders.map(o => {
@@ -933,11 +916,11 @@
                             }));
                             
                             if (newOrders.length !== orders.length) {
-                                console.log(`🔄 Nuevo pedido detectado! (${orders.length} → ${newOrders.length})`);
+                                console.log(`Nuevo pedido detectado! (${orders.length} -> ${newOrders.length})`);
                                 orders = newOrders;
                                 renderOrders();
                                 updateStats();
-                                showNotification('📦 ¡Nuevo pedido recibido!', 'success');
+                                showNotification('Nuevo pedido recibido!', 'success');
                             } else {
                                 let changed = false;
                                 for (let i = 0; i < newOrders.length; i++) {
@@ -948,7 +931,7 @@
                                 }
                                 
                                 if (changed) {
-                                    console.log('🔄 Cambios en pedidos detectados');
+                                    console.log('Cambios en pedidos detectados');
                                     orders = newOrders;
                                     renderOrders();
                                     updateStats();
@@ -961,7 +944,7 @@
                 }
             }, 10000);
             
-            console.log('🔄 Auto-refresh activado (cada 10 segundos)');
+            console.log('Auto-refresh activado (cada 10 segundos)');
         }
         
         function stopAutoRefresh() { 
@@ -1023,7 +1006,7 @@
                 container.innerHTML = filtered.map(o => {
                     const pagoLower = (o.pago || '').toLowerCase();
                     let pagoIcon = 'fa-money-bill-wave';
-                    if (pagoLower.includes('tarjeta') || pagoLower.includes('credito') || pagoLower.includes('crédito')) {
+                    if (pagoLower.includes('tarjeta') || pagoLower.includes('credito') || pagoLower.includes('credito')) {
                         pagoIcon = 'fa-credit-card';
                     } else if (pagoLower.includes('transferencia') || pagoLower.includes('transfer')) {
                         pagoIcon = 'fa-building-columns';
@@ -1055,7 +1038,7 @@
                             <div class="order-notes"><i class="fas fa-sticky-note"></i> <span>${notas}</span></div>
                             <div class="order-total">$${parseInt(o.total).toLocaleString()}</div>
                             <div class="order-deliverer">
-                                ${o.entregador && o.entregador !== 'Sin asignar' ? '🛵 ' + o.entregador : '📦 Sin entregador'}
+                                ${o.entregador && o.entregador !== 'Sin asignar' ? o.entregador : 'Sin entregador'}
                             </div>
                             <div class="order-actions">
                                 <button class="btn-whatsapp" onclick="contactCustomer('${orderId}')"><i class="fab fa-whatsapp"></i></button>
@@ -1085,34 +1068,30 @@
                 order.estado = newStatus;
                 localStorage.setItem('orders', JSON.stringify(orders));
                 renderOrders();
-                showNotification('✅ Estado actualizado', 'success');
+                showNotification('Estado actualizado', 'success');
             } catch (e) { 
                 console.error(e); 
-                showNotification('⚠️ Error al actualizar', 'warning'); 
+                showNotification('Error al actualizar', 'warning'); 
             }
         }
 
-        // ⭐ WHATSAPP CON MENSAJE PERSONALIZADO
+        // WHATSAPP CON MENSAJE EN ASCII (SOLUCION 1)
         function contactCustomer(id) {
-            console.log('📱 Intentando contactar cliente con ID:', id);
+            console.log('Intentando contactar cliente con ID:', id);
             
             const order = orders.find(o => String(o.id) === String(id)); 
             
             if (!order) {
-                console.error('❌ Pedido no encontrado para ID:', id);
-                showNotification('⚠️ Error: No se encontró el pedido', 'error');
+                console.error('Pedido no encontrado para ID:', id);
+                showNotification('Error: No se encontró el pedido', 'error');
                 return;
             }
 
-            console.log('✅ Pedido encontrado:', order);
-            console.log('📱 Teléfono original:', order.telefono);
-
             // Limpiar y formatear teléfono
             let rawPhone = String(order.telefono || '').replace(/\D/g, '');
-            console.log('🔢 Teléfono limpio:', rawPhone);
             
             if (!rawPhone || rawPhone.length === 0) {
-                showNotification('⚠️ El cliente no dejó un número de teléfono', 'warning');
+                showNotification('El cliente no dejó un número de teléfono', 'warning');
                 return;
             }
             
@@ -1124,94 +1103,78 @@
                 rawPhone = rawPhone.replace('54', '549');
             }
 
-            console.log('🌍 Teléfono final:', rawPhone);
-
             if (rawPhone.length < 10) {
-                showNotification('⚠️ Número incompleto: ' + rawPhone, 'warning');
+                showNotification('Número incompleto: ' + rawPhone, 'warning');
                 return;
             }
 
-            // ⭐ FORMATO DE FECHA ESTILIZADO
+            // FORMATO DE FECHA
             const fecha = new Date(order.fecha);
             const fechaFormateada = fecha.toLocaleDateString('es-AR', { 
-                day: '2-digit', 
-                month: '2-digit', 
-                year: 'numeric' 
+                day: '2-digit', month: '2-digit', year: 'numeric' 
             }) + ', ' + fecha.toLocaleTimeString('es-AR', { 
-                hour: '2-digit', 
-                minute: '2-digit' 
+                hour: '2-digit', minute: '2-digit' 
             });
 
-            // ⭐ EMOJIS DE ESTADO
-            const estadoEmojis = {
-                'pendiente': '⏳',
-                'en-preparacion': '👨‍🍳',
-                'en-camino': '🛵',
-                'entregado': '✅',
-                'cancelado': '❌'
-            };
-            
+            // ESTADOS CON TEXTO ASCII
             const estadoLabels = {
-                'pendiente': 'Pendiente',
-                'en-preparacion': 'En Preparación',
-                'en-camino': 'En Camino',
-                'entregado': 'Entregado',
-                'cancelado': 'Cancelado'
+                'pendiente': '[PENDIENTE]',
+                'en-preparacion': '[EN PREPARACION]',
+                'en-camino': '[EN CAMINO]',
+                'entregado': '[ENTREGADO]',
+                'cancelado': '[CANCELADO]'
             };
-            
-            const estadoEmoji = estadoEmojis[order.estado] || '📦';
-            const estadoLabel = estadoLabels[order.estado] || order.estado;
+            const estadoTexto = estadoLabels[order.estado] || `[${order.estado.toUpperCase()}]`;
 
-            // ⭐ FORMATEAR MÉTODO DE PAGO
+            // METODOS DE PAGO
             const pagoLabels = {
-                'efectivo': '💵 Efectivo',
-                'debito': '💳 Débito',
-                'credito': '💳 Crédito',
-                'transferencia': '🏦 Transferencia',
-                'mercadopago': '📱 Mercado Pago'
+                'efectivo': 'Efectivo',
+                'debito': 'Debito',
+                'credito': 'Credito',
+                'transferencia': 'Transferencia',
+                'mercadopago': 'Mercado Pago'
             };
             const pagoTexto = pagoLabels[(order.pago || '').toLowerCase()] || order.pago || 'Efectivo';
 
-            // ⭐ CONSTRUIR MENSAJE CON ESTILO PERSONALIZADO
-            let msg = `🍕 *DELICIAS ROTISERÍA*\n`;
-            msg += `━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
-            msg += `📋 *DETALLE DE TU PEDIDO*\n\n`;
-            msg += `👤 *Cliente:* ${order.cliente}\n`;
-            msg += `📱 *Teléfono:* ${order.telefono}\n`;
-            msg += `📍 *Dirección:* ${order.direccion || 'Retira en local'}\n`;
-            msg += `🕐 *Fecha:* ${fechaFormateada}\n\n`;
-            msg += `━━━━━━━━━━━━━━━━━━━━━━━\n`;
-            msg += `🛒 *PRODUCTOS:*\n\n`;
+            // MENSAJE CON SIMBOLOS ASCII
+            let msg = `*DELICIAS ROTISERIA*\n`;
+            msg += `========================================\n\n`;
+            msg += `*DETALLE DE TU PEDIDO*\n\n`;
+            msg += `>> Cliente: ${order.cliente}\n`;
+            msg += `>> Telefono: ${order.telefono}\n`;
+            msg += `>> Direccion: ${order.direccion || 'Retira en local'}\n`;
+            msg += `>> Fecha: ${fechaFormateada}\n\n`;
+            msg += `========================================\n`;
+            msg += `*PRODUCTOS:*\n\n`;
             
-            // Parsear productos
             const items = (order.items || '').split(',').map(i => i.trim()).filter(i => i);
             items.forEach(item => {
-                msg += `• ${item}\n`;
+                msg += `  * ${item}\n`;
             });
             
-            msg += `\n━━━━━━━━━━━━━━━━━━━━━━━\n`;
-            msg += `💰 *TOTAL:* $${parseInt(order.total).toLocaleString('es-AR')}\n`;
-            msg += `💳 *Pago:* ${pagoTexto}\n`;
+            msg += `\n========================================\n`;
+            msg += `*TOTAL:* $${parseInt(order.total).toLocaleString('es-AR')}\n`;
+            msg += `*Pago:* ${pagoTexto}\n`;
             
             if (order.notas && order.notas.trim() && order.notas.trim() !== 'S/N') {
-                msg += `\n📝 *Notas:* ${order.notas}\n`;
+                msg += `\n*Notas:* ${order.notas}\n`;
             }
             
-            msg += `\n━━━━━━━━━━━━━━━━━━━━━━━\n`;
-            msg += `📦 *ESTADO DEL PEDIDO:* ${estadoEmoji} ${estadoLabel}\n`;
+            msg += `\n========================================\n`;
+            msg += `*ESTADO DEL PEDIDO:* ${estadoTexto}\n`;
             
             if (order.entregador && order.entregador !== 'Sin asignar') {
-                msg += `🛵 *Entregador:* ${order.entregador}\n`;
+                msg += `*Entregador:* ${order.entregador}\n`;
             }
             
-            msg += `━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
-            msg += `¡Gracias por tu compra! 🙏\n`;
-            msg += `Cualquier consulta, estamos a tu disposición. 😊`;
+            msg += `========================================\n\n`;
+            msg += `*Gracias por tu compra!*\n`;
+            msg += `Cualquier consulta, estamos a tu disposicion.`;
 
             const waUrl = `https://wa.me/${rawPhone}?text=${encodeURIComponent(msg)}`;
-            console.log('🔗 URL:', waUrl);
+            console.log('URL:', waUrl);
             
-            showNotification(`📱 Abriendo WhatsApp: ${rawPhone}`, 'success');
+            showNotification(`Abriendo WhatsApp: ${rawPhone}`, 'success');
             window.open(waUrl, '_blank');
         }
 
@@ -1230,13 +1193,13 @@
             }
 
             if (rawPhone.length < 10) {
-                showNotification('⚠️ Número de entregador inválido', 'warning');
+                showNotification('Número de entregador inválido', 'warning');
                 return;
             }
 
-            let msg = `🛵 Hola ${deliverer.nombre}, te escribimos de *Delicias Rotisería*.\n\n`;
-            msg += `¿Estás disponible para tomar pedidos ahora?\n\n`;
-            msg += `¡Avísanos para asignarte rutas! 🗺️`;
+            let msg = `Hola ${deliverer.nombre}, te escribimos de Delicias Rotisería.\n\n`;
+            msg += `Estas disponible para tomar pedidos ahora?\n\n`;
+            msg += `Avisanos para asignarte rutas!`;
 
             window.open(`https://wa.me/${rawPhone}?text=${encodeURIComponent(msg)}`, '_blank');
         }
@@ -1263,7 +1226,7 @@
                             <div class="deliverer-name">${d.nombre}</div>
                             <div class="deliverer-vehicle"><i class="fas fa-motorcycle"></i> ${d.vehiculo || 'Sin vehículo'}</div>
                         </div>
-                        <span class="deliverer-status available">🟢 Disponible</span>
+                        <span class="deliverer-status available">Disponible</span>
                     </div>
                 `).join('');
             }
@@ -1286,7 +1249,7 @@
 
         async function confirmAssignDeliverer() {
             if (!selectedOrderId || !selectedDelivererId) {
-                showNotification('⚠️ Seleccioná un entregador', 'warning');
+                showNotification('Seleccioná un entregador', 'warning');
                 return;
             }
             
@@ -1294,7 +1257,7 @@
             const deliverer = deliverers.find(d => d.id.toString() === selectedDelivererId.toString());
             
             if (!order || !deliverer) {
-                showNotification('❌ Error: pedido o entregador no encontrado', 'error');
+                showNotification('Error: pedido o entregador no encontrado', 'error');
                 return;
             }
             
@@ -1309,10 +1272,10 @@
                 localStorage.setItem('orders', JSON.stringify(orders));
                 closeAssignDelivererModal();
                 renderOrders();
-                showNotification(`✅ Pedido asignado a ${deliverer.nombre}`, 'success');
+                showNotification(`Pedido asignado a ${deliverer.nombre}`, 'success');
             } catch (err) {
                 console.error('Error asignando entregador:', err);
-                showNotification('❌ Error al asignar: ' + err.message, 'error');
+                showNotification('Error al asignar: ' + err.message, 'error');
             }
         }
 
@@ -1343,11 +1306,11 @@
             if (!container) return;
             
             const estados = [
-                { key: 'pendiente', label: '⏳ Pendientes', class: 'pendiente' },
-                { key: 'en-preparacion', label: '👨‍ En Preparación', class: 'en-preparacion' },
-                { key: 'en-camino', label: '🛵 En Camino', class: 'en-camino' },
-                { key: 'entregado', label: '✅ Entregados', class: 'entregado' },
-                { key: 'cancelado', label: '❌ Cancelados', class: 'cancelado' }
+                { key: 'pendiente', label: 'Pendientes', class: 'pendiente' },
+                { key: 'en-preparacion', label: 'En Preparación', class: 'en-preparacion' },
+                { key: 'en-camino', label: 'En Camino', class: 'en-camino' },
+                { key: 'entregado', label: 'Entregados', class: 'entregado' },
+                { key: 'cancelado', label: 'Cancelados', class: 'cancelado' }
             ];
             
             const counts = estados.map(e => ({ ...e, count: orders.filter(o => o.estado === e.key).length }));
@@ -1583,7 +1546,7 @@
         async function downloadRevenuePDF() {
             const { jsPDF } = window.jspdf;
             
-            showNotification('📄 Generando PDF...', 'info');
+            showNotification('Generando PDF...', 'info');
             
             try {
                 const element = document.getElementById('revenue30DaysCard');
@@ -1628,10 +1591,10 @@
                 const fileName = `ganancias_30dias_${new Date().toISOString().split('T')[0]}.pdf`;
                 pdf.save(fileName);
                 
-                showNotification('✅ PDF descargado exitosamente', 'success');
+                showNotification('PDF descargado exitosamente', 'success');
             } catch (error) {
                 console.error('Error generando PDF:', error);
-                showNotification('❌ Error al generar PDF', 'error');
+                showNotification('Error al generar PDF', 'error');
             }
         }
 
@@ -1663,7 +1626,7 @@
 
                     <div class="order-notes"><i class="fas fa-bicycle"></i> ${d.vehiculo || 'N/A'}</div>
                     <div style="margin-top:0.5rem;font-size:0.8rem;color:${d.disponible ? '#2e7d32' : '#c62828'}">
-                        ${d.disponible ? '🟢 Disponible' : '🔴 No disponible'}
+                        ${d.disponible ? 'Disponible' : 'No disponible'}
                     </div>
                 </div>
             `).join('');
@@ -1685,7 +1648,7 @@
                 return `
                     <div class="order-card" style="overflow:hidden; transition: transform 0.2s; ${!isAvailable ? 'opacity: 0.7;' : ''}" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='none'">
                         <div class="stock-badge ${isAvailable ? 'available' : 'unavailable'}">
-                            ${isAvailable ? '✅ Disponible' : '❌ No Disponible'}
+                            ${isAvailable ? 'Disponible' : 'No Disponible'}
                         </div>
                         <div class="card-actions">
                             <button class="btn-toggle-stock ${!isAvailable ? 'unavailable' : ''}" onclick="toggleProductStock('${p.id}')" title="${isAvailable ? 'Marcar como No Disponible' : 'Marcar como Disponible'}">
@@ -1726,10 +1689,10 @@
                 }
                 
                 renderMenuAdmin();
-                showNotification(newStatus ? '✅ Producto disponible' : '❌ Producto no disponible', 'success');
+                showNotification(newStatus ? 'Producto disponible' : 'Producto no disponible', 'success');
             } catch (err) {
                 console.error('Error actualizando stock:', err);
-                showNotification('❌ Error: ' + err.message, 'error');
+                showNotification('Error: ' + err.message, 'error');
             }
         }
 
@@ -1753,7 +1716,7 @@
         function editProduct(productId) {
             const product = menuItems.find(p => p.id.toString() === productId.toString());
             if (!product) { 
-                showNotification('❌ Producto no encontrado', 'error'); 
+                showNotification('Producto no encontrado', 'error'); 
                 return; 
             }
             document.getElementById('productName').value = product.nombre || '';
@@ -1773,14 +1736,14 @@
             try {
                 if (window.GoogleSheets && window.GoogleSheets.deleteProductFromSheets) {
                     await window.GoogleSheets.deleteProductFromSheets(productId);
-                    showNotification('✅ Producto eliminado', 'success');
+                    showNotification('Producto eliminado', 'success');
                     loadMenuItems();
                 } else {
-                    showNotification('⚠️ Función no disponible', 'warning');
+                    showNotification('Función no disponible', 'warning');
                 }
             } catch(err) {
                 console.error('Error eliminando producto:', err);
-                showNotification('❌ Error: ' + err.message, 'error');
+                showNotification('Error: ' + err.message, 'error');
             }
         }
 
@@ -1800,7 +1763,7 @@
             try {
                 if (window.GoogleSheets) {
                     await window.GoogleSheets.saveProductToSheets(data);
-                    showNotification(mode === 'edit' ? '✅ Producto actualizado' : '✅ Producto agregado', 'success');
+                    showNotification(mode === 'edit' ? 'Producto actualizado' : 'Producto agregado', 'success');
                 } else {
                     throw new Error('Google Sheets no disponible');
                 }
@@ -1809,7 +1772,7 @@
                 e.target.reset();
             } catch(err) {
                 console.error('Error guardando producto:', err);
-                showNotification('❌ Error: ' + err.message, 'error');
+                showNotification('Error: ' + err.message, 'error');
             }
         });
 
@@ -1832,7 +1795,7 @@
         function editDeliverer(delivererId) {
             const deliverer = deliverers.find(d => d.id.toString() === delivererId.toString());
             if (!deliverer) { 
-                showNotification('❌ Entregador no encontrado', 'error'); 
+                showNotification('Entregador no encontrado', 'error'); 
                 return; 
             }
             document.getElementById('delivererName').value = deliverer.nombre || '';
@@ -1850,14 +1813,14 @@
             try {
                 if (window.GoogleSheets && window.GoogleSheets.deleteDelivererFromSheets) {
                     await window.GoogleSheets.deleteDelivererFromSheets(delivererId);
-                    showNotification('✅ Entregador eliminado', 'success');
+                    showNotification('Entregador eliminado', 'success');
                     loadDeliverers();
                 } else {
-                    showNotification('⚠️ Función no disponible', 'warning');
+                    showNotification('Función no disponible', 'warning');
                 }
             } catch(err) {
                 console.error('Error eliminando entregador:', err);
-                showNotification('❌ Error: ' + err.message, 'error');
+                showNotification('Error: ' + err.message, 'error');
             }
         }
 
@@ -1875,7 +1838,7 @@
             try {
                 if (window.GoogleSheets) {
                     await window.GoogleSheets.saveDelivererToSheets(data);
-                    showNotification(mode === 'edit' ? '✅ Entregador actualizado' : '✅ Entregador agregado', 'success');
+                    showNotification(mode === 'edit' ? 'Entregador actualizado' : 'Entregador agregado', 'success');
                 } else {
                     throw new Error('Google Sheets no disponible');
                 }
@@ -1884,7 +1847,7 @@
                 e.target.reset();
             } catch(err) {
                 console.error('Error guardando entregador:', err);
-                showNotification('❌ Error: ' + err.message, 'error');
+                showNotification('Error: ' + err.message, 'error');
             }
         });
 
@@ -1895,12 +1858,12 @@
                     o.estado = 'cancelado'; 
                     localStorage.setItem('orders', JSON.stringify(orders)); 
                     renderOrders(); 
-                    showNotification('❌ Pedido cancelado', 'info'); 
+                    showNotification('Pedido cancelado', 'info'); 
                 }
             }
         }
 
-        console.log('🚀 Admin Panel completo listo');
+        console.log('Admin Panel completo listo');
     </script>
 </body>
 </html>
