@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🍕 Rotisería Delicias - Pedidos Inteligentes</title>
+    <title>🍕 Rotisería+Delicias - Sabores que enamoran</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,24 +15,33 @@
         :root {
             --primary: #e63946;
             --primary-dark: #c62828;
+            --primary-light: #ff6b6b;
             --secondary: #1a1a2e;
+            --accent: #fdcb6e;
+            --accent-light: #ffeaa7;
+            --gold: #f39c12;
             --cream: #fdf6f0;
+            --dark: #0a0a1a;
             --text: #2d3436;
             --text-light: #636e72;
             --white: #ffffff;
-            --success: #2e7d32;
-            --warning: #f39c12;
             --shadow: 0 20px 60px rgba(0,0,0,0.15);
+            --shadow-hover: 0 30px 80px rgba(230, 57, 70, 0.25);
             --radius: 20px;
+            --radius-sm: 10px;
             --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
         html { scroll-behavior: smooth; }
         body { font-family: 'Inter', sans-serif; background: var(--cream); color: var(--text); overflow-x: hidden; }
-        
-        /* ===== HEADER ===== */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--cream); }
+        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
+
+        /* ===== HEADER RESPONSIVE ===== */
         header { 
-            background: rgba(255, 255, 255, 0.95); 
+            background: rgba(255, 255, 255, 0.92); 
             backdrop-filter: blur(20px); 
+            -webkit-backdrop-filter: blur(20px); 
             box-shadow: 0 2px 20px rgba(0,0,0,0.06); 
             position: fixed; 
             top: 0; 
@@ -40,6 +49,11 @@
             right: 0; 
             z-index: 1000; 
             padding: 0 2rem; 
+            transition: var(--transition); 
+        }
+        header.scrolled { 
+            background: rgba(255, 255, 255, 0.98); 
+            box-shadow: 0 4px 30px rgba(0,0,0,0.1); 
         }
         .header-container { 
             max-width: 1400px; 
@@ -65,11 +79,44 @@
             color: white; 
             padding: 8px; 
             border-radius: 12px; 
+            transition: var(--transition); 
         }
+        .logo:hover i { 
+            transform: rotate(-10deg) scale(1.05); 
+        }
+
+        /* ===== MENÚ HAMBURGUESA ===== */
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            z-index: 1001;
+        }
+        .menu-toggle span {
+            width: 25px;
+            height: 3px;
+            background: var(--secondary);
+            border-radius: 3px;
+            transition: var(--transition);
+        }
+        .menu-toggle.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+        .menu-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+        .menu-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -6px);
+        }
+
         .nav-menu { 
             display: flex; 
             list-style: none; 
-            gap: 2rem; 
+            gap: 2.5rem; 
             align-items: center; 
         }
         .nav-menu a { 
@@ -77,6 +124,25 @@
             color: var(--text); 
             font-weight: 500; 
             font-size: 0.95rem; 
+            transition: var(--transition); 
+            position: relative; 
+        }
+        .nav-menu a::after { 
+            content: ''; 
+            position: absolute; 
+            bottom: -5px; 
+            left: 0; 
+            width: 0; 
+            height: 2.5px; 
+            background: var(--primary); 
+            border-radius: 10px; 
+            transition: var(--transition); 
+        }
+        .nav-menu a:hover::after, .nav-menu a.active::after { 
+            width: 100%; 
+        }
+        .nav-menu a:hover { 
+            color: var(--primary); 
         }
 
         .cart-icon { 
@@ -84,6 +150,7 @@
             cursor: pointer; 
             font-size: 1.5rem; 
             color: var(--secondary); 
+            transition: var(--transition); 
             background: var(--cream); 
             padding: 10px; 
             border-radius: 50%; 
@@ -92,6 +159,11 @@
             display: flex; 
             align-items: center; 
             justify-content: center; 
+        }
+        .cart-icon:hover { 
+            background: var(--primary); 
+            color: white; 
+            transform: scale(1.05); 
         }
         .cart-count { 
             position: absolute; 
@@ -108,15 +180,32 @@
             align-items: center; 
             justify-content: center; 
             border: 2px solid white; 
+            animation: pulse-badge 2s infinite; 
+        }
+        @keyframes pulse-badge { 
+            0%, 100% { transform: scale(1); } 
+            50% { transform: scale(1.1); } 
         }
 
-        /* ===== HERO ===== */
         .hero { 
             min-height: 100vh; 
             display: flex; 
             align-items: center; 
             padding: 100px 2rem 60px; 
-            background: linear-gradient(135deg, #fdf6f0 0%, #f8e8e0 100%); 
+            background: linear-gradient(135deg, #fdf6f0 0%, #f8e8e0 50%, #fdf6f0 100%); 
+            position: relative; 
+            overflow: hidden; 
+        }
+        .hero::before { 
+            content: ''; 
+            position: absolute; 
+            top: -50%; 
+            right: -20%; 
+            width: 70%; 
+            height: 150%; 
+            background: radial-gradient(circle, rgba(230, 57, 70, 0.08) 0%, transparent 70%); 
+            border-radius: 50%; 
+            pointer-events: none; 
         }
         .hero-content { 
             max-width: 1400px; 
@@ -125,24 +214,47 @@
             grid-template-columns: 1fr 1fr; 
             gap: 4rem; 
             align-items: center; 
+            position: relative; 
+            z-index: 1; 
             width: 100%; 
         }
         .hero-text h1 { 
             font-family: 'Playfair Display', serif; 
-            font-size: 4rem; 
+            font-size: 4.5rem; 
             font-weight: 900; 
-            line-height: 1.1; 
+            line-height: 1.05; 
             margin-bottom: 1.5rem; 
             color: var(--secondary); 
         }
-        .hero-text h1 .highlight { color: var(--primary); }
+        .hero-text h1 .highlight { 
+            color: var(--primary); 
+            position: relative; 
+            display: inline-block; 
+        }
+        .hero-text h1 .highlight::after { 
+            content: ''; 
+            position: absolute; 
+            bottom: 5px; 
+            left: 0; 
+            width: 100%; 
+            height: 14px; 
+            background: var(--accent-light); 
+            opacity: 0.5; 
+            border-radius: 10px; 
+            z-index: -1; 
+        }
         .hero-text .subtitle { 
             font-size: 1.2rem; 
             color: var(--text-light); 
             line-height: 1.8; 
-            margin-bottom: 2rem; 
+            margin-bottom: 2.5rem; 
+            max-width: 500px; 
         }
-        .hero-buttons { display: flex; gap: 1rem; flex-wrap: wrap; }
+        .hero-buttons { 
+            display: flex; 
+            gap: 1rem; 
+            flex-wrap: wrap; 
+        }
         .btn-primary { 
             display: inline-flex; 
             align-items: center; 
@@ -155,12 +267,14 @@
             font-size: 1.05rem; 
             font-weight: 600; 
             cursor: pointer; 
+            transition: var(--transition); 
             text-decoration: none; 
             box-shadow: 0 8px 30px rgba(230, 57, 70, 0.3); 
         }
         .btn-primary:hover { 
             background: var(--primary-dark); 
             transform: translateY(-3px); 
+            box-shadow: 0 12px 40px rgba(230, 57, 70, 0.4); 
         }
         .btn-secondary { 
             display: inline-flex; 
@@ -174,7 +288,20 @@
             font-size: 1.05rem; 
             font-weight: 600; 
             cursor: pointer; 
+            transition: var(--transition); 
             text-decoration: none; 
+        }
+        .btn-secondary:hover { 
+            border-color: var(--primary); 
+            color: var(--primary); 
+            transform: translateY(-3px); 
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08); 
+        }
+        .hero-image { 
+            position: relative; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
         }
         .hero-image .image-wrapper { 
             position: relative; 
@@ -184,166 +311,259 @@
             border-radius: 50%; 
             overflow: hidden; 
             box-shadow: 0 30px 80px rgba(230, 57, 70, 0.2); 
+            animation: float 6s ease-in-out infinite; 
+        }
+        @keyframes float { 
+            0%, 100% { transform: translateY(0px); } 
+            50% { transform: translateY(-20px); } 
         }
         .hero-image .image-wrapper img { 
             width: 100%; 
             height: 100%; 
             object-fit: cover; 
         }
-
-        /* ===== MICRÓFONO FLOTANTE ===== */
-        .voice-assistant-btn {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
-            border: none;
-            font-size: 1.8rem;
-            cursor: pointer;
-            box-shadow: 0 10px 40px rgba(230, 57, 70, 0.4);
-            z-index: 999;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .hero-image .floating-badge { 
+            position: absolute; 
+            background: white; 
+            padding: 1rem 1.5rem; 
+            border-radius: var(--radius); 
+            box-shadow: var(--shadow); 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            animation: float-badge 4s ease-in-out infinite; 
         }
-        .voice-assistant-btn:hover {
-            transform: scale(1.1);
+        .hero-image .floating-badge:nth-child(2) { 
+            top: 10%; 
+            right: -10%; 
+            animation-delay: 0.5s; 
         }
-        .voice-assistant-btn.listening {
-            animation: pulse-ring 1.5s infinite;
-            background: linear-gradient(135deg, #2e7d32, #1b5e20);
+        .hero-image .floating-badge:nth-child(3) { 
+            bottom: 15%; 
+            left: -10%; 
+            animation-delay: 1s; 
         }
-        @keyframes pulse-ring {
-            0% { box-shadow: 0 0 0 0 rgba(46, 125, 50, 0.7); }
-            70% { box-shadow: 0 0 0 20px rgba(46, 125, 50, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(46, 125, 50, 0); }
+        @keyframes float-badge { 
+            0%, 100% { transform: translateY(0px) rotate(0deg); } 
+            50% { transform: translateY(-10px) rotate(2deg); } 
         }
-
-        /* ===== MODAL DE VOZ ===== */
-        .voice-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 10000;
-            align-items: center;
-            justify-content: center;
+        .floating-badge .icon { 
+            font-size: 1.8rem; 
         }
-        .voice-modal.active {
-            display: flex;
+        .floating-badge .text { 
+            font-weight: 600; 
+            font-size: 0.9rem; 
         }
-        .voice-modal-content {
-            background: white;
-            border-radius: var(--radius);
-            padding: 2rem;
-            max-width: 500px;
-            width: 90%;
-            text-align: center;
-            animation: slideUp 0.3s ease;
-        }
-        @keyframes slideUp {
-            from { transform: translateY(50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        .voice-modal-content h2 {
-            font-size: 1.8rem;
-            margin-bottom: 1rem;
-            color: var(--secondary);
-        }
-        .mic-button {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
-            border: none;
-            font-size: 3rem;
-            cursor: pointer;
-            margin: 1.5rem auto;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .mic-button.listening {
-            background: linear-gradient(135deg, #2e7d32, #1b5e20);
-            animation: pulse-mic 1.5s infinite;
-        }
-        @keyframes pulse-mic {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-        .voice-status {
-            font-size: 1.1rem;
-            color: var(--text);
-            margin-bottom: 1rem;
-            min-height: 30px;
-        }
-        .voice-transcript {
-            background: var(--cream);
-            padding: 1rem;
-            border-radius: 10px;
-            margin: 1rem 0;
-            min-height: 60px;
-            font-style: italic;
-            color: var(--text-light);
-        }
-        .voice-actions {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            margin-top: 1.5rem;
-        }
-        .voice-actions button {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 50px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 0.95rem;
-        }
-        .btn-cancel { background: #e0e0e0; color: var(--text); }
-        .btn-confirm { background: var(--primary); color: white; }
-        .btn-confirm:disabled { background: #ccc; cursor: not-allowed; }
-
-        /* ===== RESUMEN DEL PEDIDO POR VOZ ===== */
-        .order-summary {
-            background: var(--cream);
-            padding: 1.5rem;
-            border-radius: 10px;
-            margin: 1rem 0;
-            text-align: left;
-        }
-        .order-summary h3 {
-            margin-bottom: 1rem;
-            color: var(--secondary);
-        }
-        .order-item-summary {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.5rem 0;
-            border-bottom: 1px solid #e0e0e0;
-        }
-        .order-total-summary {
-            display: flex;
-            justify-content: space-between;
-            padding-top: 1rem;
-            margin-top: 1rem;
-            border-top: 2px solid var(--primary);
-            font-weight: 700;
-            font-size: 1.2rem;
-            color: var(--primary);
+        .floating-badge .sub { 
+            font-size: 0.7rem; 
+            color: var(--text-light); 
         }
 
-        /* ===== CARRITO PANEL ===== */
+        .categories { 
+            max-width: 1400px; 
+            margin: 0 auto; 
+            padding: 2rem; 
+            display: grid; 
+            grid-template-columns: repeat(7, 1fr); 
+            gap: 1rem; 
+        }
+        .category-item { 
+            background: var(--white); 
+            padding: 1.5rem; 
+            border-radius: var(--radius); 
+            text-align: center; 
+            cursor: pointer; 
+            transition: var(--transition); 
+            box-shadow: var(--shadow); 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 0.8rem; 
+        }
+        .category-item:hover { 
+            transform: translateY(-5px); 
+            box-shadow: var(--shadow-hover); 
+            background: var(--primary); 
+            color: white; 
+        }
+        .category-item img { 
+            width: 70px; 
+            height: 70px; 
+            object-fit: contain; 
+            transition: var(--transition); 
+            filter: grayscale(100%) drop-shadow(0 2px 4px rgba(0,0,0,0.15)); 
+        }
+        .category-item:hover img { 
+            filter: grayscale(0%) drop-shadow(0 4px 8px rgba(0,0,0,0.2)); 
+            transform: scale(1.1); 
+        }
+        .category-item span { 
+            font-weight: 600; 
+            font-size: 0.95rem; 
+            color: var(--gray-700); 
+            transition: var(--transition); 
+        }
+        .category-item.active { 
+            background: var(--primary); 
+            color: white; 
+            transform: translateY(-5px); 
+            box-shadow: var(--shadow-hover); 
+        }
+        .category-item.active img { 
+            filter: grayscale(0%) drop-shadow(0 2px 6px rgba(0,0,0,0.3)); 
+        }
+        .category-item.active span { 
+            color: white; 
+        }
+
+        .menu-section { 
+            max-width: 1400px; 
+            margin: 0 auto; 
+            padding: 4rem 2rem; 
+        }
+        .section-header { 
+            text-align: center; 
+            margin-bottom: 3rem; 
+        }
+        .section-header h2 { 
+            font-size: 3rem; 
+            font-weight: 800; 
+        }
+        .section-header p { 
+            color: var(--text-light); 
+            font-size: 1.1rem; 
+        }
+        .menu-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+            gap: 2rem; 
+        }
+
+        .product-card { 
+            background: var(--white); 
+            border-radius: var(--radius); 
+            overflow: hidden; 
+            box-shadow: var(--shadow); 
+            transition: var(--transition); 
+            position: relative; 
+        }
+        .product-card:hover { 
+            transform: translateY(-8px); 
+            box-shadow: var(--shadow-hover); 
+        }
+        .product-card.unavailable { 
+            opacity: 0.65; 
+            pointer-events: none; 
+        }
+        .product-card.unavailable:hover { 
+            transform: none; 
+            box-shadow: var(--shadow); 
+        }
+        .product-image { 
+            width: 100%; 
+            height: 220px; 
+            object-fit: cover; 
+            background: #f0e6e0; 
+        }
+        .product-card.unavailable .product-image { 
+            filter: grayscale(100%); 
+        }
+        .product-info { 
+            padding: 1.5rem; 
+        }
+        .product-name { 
+            font-size: 1.2rem; 
+            font-weight: 700; 
+            margin-bottom: 0.3rem; 
+        }
+        .product-description { 
+            color: var(--text-light); 
+            font-size: 0.9rem; 
+            margin-bottom: 0.5rem; 
+        }
+        .product-price { 
+            font-size: 1.5rem; 
+            font-weight: 700; 
+            color: var(--primary); 
+            margin: 0.5rem 0; 
+        }
+        .product-actions { 
+            display: flex; 
+            gap: 0.5rem; 
+            align-items: center; 
+            margin-top: 1rem; 
+        }
+        .quantity-control { 
+            display: flex; 
+            align-items: center; 
+            gap: 0.5rem; 
+            background: #f0f0f0; 
+            border-radius: 50px; 
+            padding: 0.3rem; 
+        }
+        .quantity-btn { 
+            width: 32px; 
+            height: 32px; 
+            border: none; 
+            border-radius: 50%; 
+            background: white; 
+            color: var(--text); 
+            font-size: 1.2rem; 
+            cursor: pointer; 
+            transition: var(--transition); 
+            font-weight: 700; 
+        }
+        .quantity-btn:hover { 
+            background: var(--primary); 
+            color: white; 
+        }
+        .quantity-display { 
+            min-width: 30px; 
+            text-align: center; 
+            font-weight: 600; 
+        }
+        .add-to-cart { 
+            flex: 1; 
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            padding: 10px; 
+            border-radius: 50px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            transition: var(--transition); 
+        }
+        .add-to-cart:hover { 
+            background: var(--primary-dark); 
+            transform: scale(1.02); 
+        }
+        .unavailable-badge { 
+            position: absolute; 
+            top: 10px; 
+            right: 10px; 
+            background: #c62828; 
+            color: white; 
+            padding: 6px 14px; 
+            border-radius: 50px; 
+            font-size: 0.75rem; 
+            font-weight: 700; 
+            z-index: 10; 
+            display: flex; 
+            align-items: center; 
+            gap: 4px; 
+        }
+        .unavailable-message { 
+            text-align: center; 
+            padding: 10px; 
+            background: #ffebee; 
+            border-radius: 8px; 
+            color: #c62828; 
+            font-weight: 600; 
+            font-size: 0.9rem; 
+            margin-top: 0.5rem; 
+        }
+
         .cart-overlay { 
             display: none; 
             position: fixed; 
@@ -353,8 +573,11 @@
             height: 100%; 
             background: rgba(0,0,0,0.5); 
             z-index: 2000; 
+            animation: fadeIn 0.3s; 
         }
-        .cart-overlay.active { display: block; }
+        .cart-overlay.active { 
+            display: block; 
+        }
         .cart-panel { 
             position: fixed; 
             top: 0; 
@@ -363,13 +586,15 @@
             height: 100%; 
             background: white; 
             box-shadow: -10px 0 30px rgba(0,0,0,0.1); 
-            transition: right 0.3s ease; 
+            transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
             padding: 2rem; 
             display: flex; 
             flex-direction: column; 
             z-index: 2001; 
         }
-        .cart-panel.open { right: 0; }
+        .cart-panel.open { 
+            right: 0; 
+        }
         .cart-header { 
             display: flex; 
             justify-content: space-between; 
@@ -383,8 +608,12 @@
             border: none; 
             font-size: 2rem; 
             cursor: pointer; 
+            color: var(--text-light); 
         }
-        .cart-items { flex: 1; overflow-y: auto; }
+        .cart-items { 
+            flex: 1; 
+            overflow-y: auto; 
+        }
         .cart-item { 
             display: flex; 
             justify-content: space-between; 
@@ -392,10 +621,20 @@
             padding: 1rem 0; 
             border-bottom: 1px solid #f0f0f0; 
         }
-        .cart-item-info { flex: 1; }
-        .cart-item-name { font-weight: 600; }
-        .cart-item-qty { color: var(--text-light); font-size: 0.9rem; }
-        .cart-item-price { font-weight: 700; color: var(--primary); }
+        .cart-item-info { 
+            flex: 1; 
+        }
+        .cart-item-name { 
+            font-weight: 600; 
+        }
+        .cart-item-qty { 
+            color: var(--text-light); 
+            font-size: 0.9rem; 
+        }
+        .cart-item-price { 
+            font-weight: 700; 
+            color: var(--primary); 
+        }
         .remove-item { 
             background: none; 
             border: none; 
@@ -411,227 +650,526 @@
             font-size: 1.3rem; 
             font-weight: 700; 
         }
+        .checkout-btn { 
+            width: 100%; 
+            padding: 16px; 
+            font-size: 1.1rem; 
+        }
 
-        /* ===== WIDGET DE TIEMPO DE ENTREGA ===== */
-        .delivery-time-widget {
-            background: linear-gradient(135deg, #fff5f5, #ffe8e8);
+        .modal { 
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0,0,0,0.6); 
+            z-index: 3000; 
+            animation: fadeIn 0.3s; 
+        }
+        .modal.active { 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+        }
+        .modal-content { 
+            background: white; 
+            border-radius: var(--radius); 
+            max-width: 700px; 
+            width: 90%; 
+            max-height: 90vh; 
+            overflow-y: auto; 
+            padding: 2rem; 
+            animation: slideUp 0.3s; 
+        }
+        .modal-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 2rem; 
+        }
+        .close-modal { 
+            background: none; 
+            border: none; 
+            font-size: 2rem; 
+            cursor: pointer; 
+        }
+        .order-form .form-section { 
+            margin-bottom: 2rem; 
+        }
+        .order-form h3 { 
+            margin-bottom: 1rem; 
+            color: var(--secondary); 
+        }
+        .form-group { 
+            margin-bottom: 1rem; 
+        }
+        .form-group label { 
+            display: block; 
+            margin-bottom: 0.3rem; 
+            font-weight: 500; 
+        }
+        .form-group input, .form-group textarea { 
+            width: 100%; 
+            padding: 12px; 
+            border: 2px solid #e0e0e0; 
+            border-radius: 8px; 
+            font-size: 1rem; 
+            transition: var(--transition); 
+            font-family: inherit; 
+        }
+        .form-group input:focus, .form-group textarea:focus { 
+            outline: none; 
+            border-color: var(--primary); 
+        }
+        .radio-group { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 1rem; 
+        }
+        .radio-option { 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            padding: 1rem; 
+            border: 2px solid #e0e0e0; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            transition: var(--transition); 
+        }
+        .radio-option:hover { 
+            border-color: var(--primary); 
+        }
+        .payment-options { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 0.5rem; 
+        }
+        .payment-option { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            gap: 5px; 
+            padding: 1rem; 
+            border: 2px solid #e0e0e0; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            transition: var(--transition); 
+        }
+        .payment-option:hover { 
+            border-color: var(--primary); 
+        }
+        .payment-option i { 
+            font-size: 1.5rem; 
+        }
+        .total-display { 
+            font-size: 1.5rem; 
+            font-weight: 700; 
+            text-align: right; 
+            color: var(--primary); 
+            padding: 1rem 0; 
+        }
+        .btn-large { 
+            width: 100%; 
+            padding: 16px; 
+            font-size: 1.2rem; 
+            justify-content: center; 
+        }
+        .order-item { 
+            display: flex; 
+            justify-content: space-between; 
+            padding: 0.5rem 0; 
+            border-bottom: 1px solid #f0f0f0; 
+        }
+
+        .how-to-order { 
+            max-width: 1400px; 
+            margin: 0 auto; 
+            padding: 4rem 2rem; 
+            text-align: center; 
+        }
+        .how-to-order h2 { 
+            font-size: 2.5rem; 
+            margin-bottom: 3rem; 
+        }
+        .steps { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 2rem; 
+        }
+        .step { 
+            background: white; 
+            padding: 2rem; 
+            border-radius: var(--radius); 
+            box-shadow: var(--shadow); 
+        }
+        .step-number { 
+            width: 60px; 
+            height: 60px; 
+            background: var(--primary); 
+            color: white; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 1.5rem; 
+            font-weight: 700; 
+            margin: 0 auto 1rem; 
+        }
+
+        footer { 
+            background: var(--secondary); 
+            color: white; 
+            padding: 3rem 2rem 1rem; 
+            margin-top: 4rem; 
+        }
+        .footer-content { 
+            max-width: 1400px; 
+            margin: 0 auto; 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 2rem; 
+        }
+        .footer-section h4 { 
+            margin-bottom: 1rem; 
+        }
+        .footer-section p { 
+            opacity: 0.8; 
+            line-height: 1.8; 
+        }
+        .footer-bottom { 
+            text-align: center; 
+            padding-top: 2rem; 
+            margin-top: 2rem; 
+            border-top: 1px solid rgba(255,255,255,0.1); 
+        }
+
+        @keyframes fadeIn { 
+            from { opacity: 0; } 
+            to { opacity: 1; } 
+        }
+        @keyframes slideUp { 
+            from { transform: translateY(30px); opacity: 0; } 
+            to { transform: translateY(0); opacity: 1; } 
+        }
+
+        /* ===== PANEL DE SUGERENCIAS DE COMBOS ===== */
+        .combo-suggestion {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 1.5rem;
+            max-width: 350px;
+            z-index: 1500;
+            animation: slideInRight 0.4s ease-out;
             border: 2px solid var(--primary);
-            border-radius: 15px;
-            padding: 1.5rem;
-            margin: 1rem 0;
-            text-align: center;
-            animation: fadeIn 0.5s ease;
         }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        .delivery-time-widget.loading { opacity: 0.6; }
-        .delivery-time-widget .icon {
-            font-size: 2rem;
-            color: var(--primary);
-            margin-bottom: 0.5rem;
-        }
-        .delivery-time-widget .time-range {
-            font-size: 2rem;
-            font-weight: 800;
-            color: var(--primary);
-            margin: 0.5rem 0;
-        }
-        .delivery-time-widget .time-label {
-            font-size: 0.9rem;
-            color: var(--text-light);
-            margin-bottom: 1rem;
-        }
-        .delivery-time-widget .details {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 0.5rem;
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid #e0e0e0;
-        }
-        .delivery-time-widget .detail-item { text-align: center; }
-        .delivery-time-widget .detail-value {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--secondary);
-        }
-        .delivery-time-widget .detail-label {
-            font-size: 0.75rem;
-            color: var(--text-light);
-            text-transform: uppercase;
-        }
-        .congestion-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 50px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            margin-top: 0.5rem;
-        }
-        .congestion-low { background: #d1fae5; color: #065f46; }
-        .congestion-medium { background: #fef3c7; color: #92400e; }
-        .congestion-high { background: #fee2e2; color: #991b1b; }
 
-        /* ===== WIDGET DE RECOMENDACIONES ===== */
-        .recommendations-widget {
-            background: linear-gradient(135deg, #fff9e6, #fff3cc);
-            border: 2px solid #f39c12;
-            border-radius: 15px;
-            padding: 1.5rem;
-            margin: 1.5rem 0;
-            animation: slideIn 0.5s ease;
+        @keyframes slideInRight {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
-        @keyframes slideIn {
-            from { transform: translateY(-20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+
+        .combo-suggestion.fade-out {
+            animation: fadeOut 0.3s ease-out forwards;
         }
-        .recommendations-widget .header {
+
+        @keyframes fadeOut {
+            to { transform: translateX(400px); opacity: 0; }
+        }
+
+        .combo-header {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 0.5rem;
             margin-bottom: 1rem;
-        }
-        .recommendations-widget .header i {
-            font-size: 1.5rem;
-            color: #f39c12;
-        }
-        .recommendations-widget .header h3 {
+            color: var(--primary);
+            font-weight: 700;
             font-size: 1.1rem;
-            color: var(--secondary);
-            margin: 0;
         }
-        .recommendations-widget .subtitle {
-            font-size: 0.85rem;
-            color: var(--text-light);
+
+        .combo-header i { font-size: 1.3rem; }
+
+        .combo-message {
+            color: var(--text);
             margin-bottom: 1rem;
-            font-style: italic;
+            font-size: 0.95rem;
+            line-height: 1.5;
         }
-        .recommendations-list {
+
+        .combo-products {
             display: flex;
             flex-direction: column;
             gap: 0.8rem;
+            margin-bottom: 1rem;
         }
-        .recommendation-item {
+
+        .combo-product {
             display: flex;
             align-items: center;
-            gap: 1rem;
-            background: white;
-            padding: 1rem;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            transition: all 0.3s ease;
+            gap: 0.8rem;
+            padding: 0.8rem;
+            background: var(--cream);
+            border-radius: var(--radius-sm);
             cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
         }
-        .recommendation-item:hover {
+
+        .combo-product:hover {
+            border-color: var(--primary);
             transform: translateX(5px);
-            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.2);
+            background: white;
         }
-        .recommendation-item img {
+
+        .combo-product img {
             width: 60px;
             height: 60px;
             border-radius: 8px;
             object-fit: cover;
         }
-        .recommendation-item .info { flex: 1; }
-        .recommendation-item .name {
+
+        .combo-product-info { flex: 1; }
+
+        .combo-product-name {
             font-weight: 600;
-            font-size: 0.95rem;
-            color: var(--secondary);
-            margin-bottom: 0.3rem;
+            font-size: 0.9rem;
+            color: var(--text);
+            margin-bottom: 0.2rem;
         }
-        .recommendation-item .reason {
-            font-size: 0.75rem;
-            color: var(--text-light);
-            margin-bottom: 0.3rem;
-        }
-        .recommendation-item .price {
-            font-weight: 700;
+
+        .combo-product-price {
             color: var(--primary);
-            font-size: 1rem;
+            font-weight: 700;
+            font-size: 0.95rem;
         }
-        .recommendation-item .add-btn {
+
+        .combo-add-btn {
             background: var(--primary);
             color: white;
             border: none;
-            padding: 8px 16px;
+            padding: 0.5rem 1rem;
             border-radius: 50px;
             font-weight: 600;
             cursor: pointer;
             font-size: 0.85rem;
             transition: all 0.3s ease;
-            white-space: nowrap;
         }
-        .recommendation-item .add-btn:hover {
+
+        .combo-add-btn:hover {
             background: var(--primary-dark);
             transform: scale(1.05);
         }
-        .recommendation-item .add-btn.added {
-            background: var(--success);
-        }
-        .recommendation-badge {
-            display: inline-block;
-            background: #f39c12;
-            color: white;
-            padding: 2px 8px;
-            border-radius: 50px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            margin-left: 8px;
+
+        .combo-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-light);
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
         }
 
-        /* ===== NOTIFICACIONES ===== */
-        .notification { 
-            position: fixed; 
-            bottom: 20px; 
-            right: 20px; 
-            padding: 16px 24px; 
-            border-radius: 10px; 
-            color: white; 
-            font-weight: 600; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2); 
-            z-index: 9999; 
-            animation: slideIn 0.3s ease;
+        .combo-close:hover {
+            background: var(--cream);
+            color: var(--primary);
         }
-        .notification.success { background: var(--success); }
-        .notification.error { background: #c62828; }
-        .notification.warning { background: var(--warning); }
 
-        /* ===== RESPONSIVE ===== */
+        .combo-footer {
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-light);
+            margin-top: 0.5rem;
+        }
+
+        /* ===== RESPONSIVE DESIGN ===== */
+        @media (max-width: 1024px) {
+            .hero-text h1 { font-size: 3.5rem; }
+            .hero-image .floating-badge { display: none; }
+            .hero { grid-template-columns: 1fr; text-align: center; padding: 2rem; }
+            .hero-content p { margin: 0 auto 2rem; }
+            .categories { grid-template-columns: repeat(4, 1fr); }
+        }
+
         @media (max-width: 768px) {
-            .hero-content { grid-template-columns: 1fr; text-align: center; }
-            .hero-text h1 { font-size: 2.5rem; }
-            .nav-menu { gap: 1.5rem; }
-            .cart-panel { width: 100%; right: -100%; }
-            .voice-assistant-btn {
-                width: 60px;
-                height: 60px;
-                font-size: 1.5rem;
-                bottom: 20px;
-                right: 20px;
+            /* Header y Menú */
+            .menu-toggle {
+                display: flex;
             }
-            .delivery-time-widget .details {
-                grid-template-columns: 1fr;
+            
+            .nav-menu {
+                position: fixed;
+                top: 75px;
+                left: -100%;
+                width: 100%;
+                height: calc(100vh - 75px);
+                background: white;
+                flex-direction: column;
+                padding: 2rem;
+                gap: 1.5rem;
+                transition: left 0.3s ease;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            }
+            
+            .nav-menu.active {
+                left: 0;
+            }
+            
+            .nav-menu a {
+                font-size: 1.2rem;
+                padding: 0.5rem 0;
+            }
+
+            /* Hero */
+            .hero { 
+                padding: 120px 1.5rem 40px; 
+            }
+            .hero-content { 
+                grid-template-columns: 1fr; 
+                text-align: center; 
+                gap: 2rem; 
+            }
+            .hero-text h1 { 
+                font-size: 2.5rem; 
+            }
+            .hero-text .subtitle { 
+                margin: 0 auto 2rem; 
+                font-size: 1rem;
+            }
+            .hero-buttons { 
+                justify-content: center; 
+            }
+            .hero-image .image-wrapper { 
+                max-width: 300px; 
+            }
+
+            /* Categorías */
+            .categories { 
+                grid-template-columns: repeat(3, 1fr); 
+                padding: 1rem;
+                gap: 0.5rem;
+            }
+            .category-item { 
+                padding: 1rem;
+            }
+            .category-item img { 
+                width: 50px; 
+                height: 50px; 
+            }
+            .category-item span { 
+                font-size: 0.8rem; 
+            }
+
+            /* Menú */
+            .menu-section { 
+                padding: 2rem 1rem; 
+            }
+            .section-header h2 { 
+                font-size: 2rem; 
+            }
+            .menu-grid { 
+                grid-template-columns: 1fr; 
+                gap: 1.5rem;
+            }
+
+            /* Carrito */
+            .cart-panel { 
+                width: 100%; 
+                right: -100%; 
+            }
+
+            /* Modal */
+            .modal-content { 
+                padding: 1.5rem; 
+                width: 95%;
+            }
+            .payment-options { 
+                grid-template-columns: repeat(2, 1fr); 
+            }
+            .radio-group { 
+                grid-template-columns: 1fr; 
+            }
+
+            /* Cómo pedir */
+            .steps { 
+                grid-template-columns: 1fr; 
+            }
+
+            /* Footer */
+            .footer-content { 
+                grid-template-columns: 1fr; 
+                text-align: center; 
+            }
+
+            /* Combo suggestion */
+            .combo-suggestion {
+                bottom: 80px;
+                right: 10px;
+                left: 10px;
+                max-width: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-text h1 { 
+                font-size: 2rem; 
+            }
+            .btn-primary, .btn-secondary { 
+                padding: 12px 24px; 
+                font-size: 0.9rem; 
+            }
+            .categories { 
+                grid-template-columns: repeat(2, 1fr); 
+            }
+            .category-item img { 
+                width: 45px; 
+                height: 45px; 
+            }
+            .category-item span { 
+                font-size: 0.75rem; 
+            }
+            .hero-image .image-wrapper {
+                max-width: 250px;
             }
         }
     </style>
 </head>
 <body>
 
-    <header>
+    <header id="header">
         <div class="header-container">
             <a href="#" class="logo">
                 <i class="fas fa-utensils"></i>
                 Delicias
             </a>
+            
+            <!-- Botón Menú Hamburguesa -->
+            <button class="menu-toggle" id="menuToggle" onclick="toggleMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            
             <nav>
-                <ul class="nav-menu">
-                    <li><a href="#menu">Menú</a></li>
-                    <li><a href="#como-pedir">Cómo Pedir</a></li>
-                    <li><a href="#contacto">Contacto</a></li>
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="#menu" class="active" onclick="closeMenu()">Menú</a></li>
+                    <li><a href="#como-pedir" onclick="closeMenu()">Cómo Pedir</a></li>
+                    <li><a href="#contacto" onclick="closeMenu()">Contacto</a></li>
                 </ul>
             </nav>
+            
             <div class="cart-icon" onclick="toggleCart()">
                 <i class="fas fa-shopping-cart"></i>
                 <span class="cart-count" id="cartCount">0</span>
@@ -643,67 +1181,85 @@
         <div class="hero-content">
             <div class="hero-text">
                 <h1>
-                    Pedí por <span class="highlight">voz</span><br>
-                    o navegá el menú
+                    Sabores que <br>
+                    <span class="highlight">enamoran</span>
                 </h1>
                 <p class="subtitle">
-                    Decinos qué querés y lo preparamos al toque. 
-                    También podés explorar nuestro menú completo.
+                    Las mejores empanadas, pizzas, lomitos y hamburguesas de la ciudad. 
+                    Hechas con amor y los mejores ingredientes.
                 </p>
                 <div class="hero-buttons">
-                    <button class="btn-primary" onclick="openVoiceAssistant()">
-                        <i class="fas fa-microphone"></i> Pedir por Voz
-                    </button>
-                    <a href="#menu" class="btn-secondary">
-                        <i class="fas fa-utensils"></i> Ver Menú
+                    <a href="#menu" class="btn-primary">
+                        <i class="fas fa-arrow-right"></i> Ver Menú
+                    </a>
+                    <a href="#como-pedir" class="btn-secondary">
+                        <i class="fas fa-info-circle"></i> Cómo Pedir
                     </a>
                 </div>
             </div>
             <div class="hero-image">
                 <div class="image-wrapper">
-                    <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=600&h=600&fit=crop" alt="Pizza">
+                    <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=600&h=600&fit=crop" alt="Pizza Deliciosa">
+                </div>
+                <div class="floating-badge" style="top: 10%; right: -10%;">
+                    <span class="icon">⭐</span>
+                    <div>
+                        <div class="text">4.9/5</div>
+                        <div class="sub">Clientes felices</div>
+                    </div>
+                </div>
+                <div class="floating-badge" style="bottom: 15%; left: -10%;">
+                    <span class="icon">🏆</span>
+                    <div>
+                        <div class="text">+1000</div>
+                        <div class="sub">Pedidos entregados</div>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- BOTÓN FLOTANTE DE VOZ -->
-    <button class="voice-assistant-btn" id="voiceBtn" onclick="openVoiceAssistant()" title="Pedir por voz">
-        <i class="fas fa-microphone"></i>
-    </button>
-
-    <!-- MODAL DE ASISTENTE DE VOZ -->
-    <div class="voice-modal" id="voiceModal">
-        <div class="voice-modal-content">
-            <h2>🎤 Asistente de Voz</h2>
-            <p style="color: var(--text-light); margin-bottom: 1rem;">Decí tu pedido naturalmente</p>
-            
-            <button class="mic-button" id="micButton" onclick="toggleListening()">
-                <i class="fas fa-microphone"></i>
-            </button>
-            
-            <div class="voice-status" id="voiceStatus">
-                Tocá el micrófono para empezar
-            </div>
-            
-            <div class="voice-transcript" id="voiceTranscript">
-                Tu pedido aparecerá aquí...
-            </div>
-
-            <div id="orderPreview" style="display: none;">
-                <div class="order-summary" id="orderSummary"></div>
-            </div>
-
-            <div class="voice-actions">
-                <button class="btn-cancel" onclick="closeVoiceAssistant()">Cancelar</button>
-                <button class="btn-confirm" id="confirmBtn" onclick="confirmVoiceOrder()" disabled>
-                    Agregar al Carrito
-                </button>
-            </div>
+    <section class="categories">
+        <div class="category-item active" onclick="filterCategory('all', this)">
+            <img src="images/ico_todos.png" alt="Todos">
+            <span>Todos</span>
         </div>
-    </div>
+        <div class="category-item" onclick="filterCategory('pizzas', this)">
+            <img src="images/ico_pizza.png" alt="Pizzas">
+            <span>Pizzas</span>
+        </div>
+        <div class="category-item" onclick="filterCategory('hamburguesas', this)">
+            <img src="images/ico_hamburguesa.png" alt="Hamburguesas">
+            <span>Hamburguesas</span>
+        </div>
+        <div class="category-item" onclick="filterCategory('lomitos', this)">
+            <img src="images/ico_lomito.png" alt="Lomitos">
+            <span>Lomitos</span>
+        </div>
+        <div class="category-item" onclick="filterCategory('empanadas', this)">
+            <img src="images/ico_empanada.png" alt="Empanadas">
+            <span>Empanadas</span>
+        </div>
+        <div class="category-item" onclick="filterCategory('papas', this)">
+            <img src="images/ico_papa.png" alt="Papas Fritas">
+            <span>Papas Fritas</span>
+        </div>
+        <div class="category-item" onclick="filterCategory('bebidas', this)">
+            <img src="images/ico_bebida.png" alt="Bebidas">
+            <span>Bebidas</span>
+        </div>
+    </section>
 
-    <!-- CARRITO -->
+    <section id="menu" class="menu-section">
+        <div class="section-header">
+            <h2>🔥 Nuestro Menú</h2>
+            <p>Elige tus productos favoritos y personaliza tu pedido</p>
+        </div>
+        <div class="menu-grid" id="menuGrid">
+            <!-- Los productos se cargan automáticamente -->
+        </div>
+    </section>
+
     <div class="cart-overlay" id="cartOverlay" onclick="toggleCart()">
         <div class="cart-panel" onclick="event.stopPropagation()">
             <div class="cart-header">
@@ -711,646 +1267,176 @@
                 <button class="close-cart" onclick="toggleCart()">&times;</button>
             </div>
             <div class="cart-items" id="cartItems">
-                <p style="color: #999; text-align: center; padding: 2rem 0;">Tu carrito está vacío</p>
+                <p class="empty-cart" style="color: #999; text-align: center; padding: 2rem 0;">Tu carrito está vacío</p>
             </div>
             <div class="cart-total">
                 <span>Total:</span>
                 <span id="cartTotal">$0</span>
             </div>
-            
-            <!-- WIDGET DE TIEMPO DE ENTREGA -->
-            <div id="deliveryTimeWidget" style="display: none;">
-                <div class="delivery-time-widget" id="deliveryTimeContent">
-                    <div class="icon"><i class="fas fa-clock"></i></div>
-                    <div class="time-range" id="timeRange">--</div>
-                    <div class="time-label">Tiempo estimado de entrega</div>
-                    <div class="details">
-                        <div class="detail-item">
-                            <div class="detail-value" id="prepTime">--</div>
-                            <div class="detail-label">Preparación</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-value" id="travelTime">--</div>
-                            <div class="detail-label">Viaje</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-value" id="distance">--</div>
-                            <div class="detail-label">Distancia</div>
-                        </div>
-                    </div>
-                    <div id="congestionBadge"></div>
-                </div>
-            </div>
-
-            <!-- WIDGET DE RECOMENDACIONES -->
-            <div id="recommendationsWidget" style="display: none;">
-                <div class="recommendations-widget" id="recommendationsContent">
-                    <div class="header">
-                        <i class="fas fa-lightbulb"></i>
-                        <h3>Te recomendamos</h3>
-                    </div>
-                    <div class="subtitle" id="recommendationsSubtitle">
-                        Basado en pedidos similares al tuyo
-                    </div>
-                    <div class="recommendations-list" id="recommendationsList"></div>
-                </div>
-            </div>
-
-            <button class="btn-primary" style="width: 100%; justify-content: center; margin-top: 1rem;" onclick="checkout()">
+            <button class="btn-primary checkout-btn" onclick="openCheckout()">
                 <i class="fas fa-credit-card"></i> Finalizar Pedido
             </button>
         </div>
     </div>
 
+    <div class="modal" id="checkoutModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📋 Confirmar Pedido</h2>
+                <button class="close-modal" onclick="closeCheckout()">&times;</button>
+            </div>
+            <form id="orderForm" class="order-form">
+                <div class="form-section">
+                    <h3>👤 Datos de Contacto</h3>
+                    <div class="form-group">
+                        <label>Nombre completo *</label>
+                        <input type="text" id="customerName" required placeholder="Ej: Juan Pérez">
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono *</label>
+                        <input type="tel" id="customerPhone" required placeholder="11 1234-5678">
+                    </div>
+                </div>
+                <div class="form-section">
+                    <h3>🛒 Resumen del Pedido</h3>
+                    <div id="orderSummary"></div>
+                    <div class="total-display">
+                        <span>Total:</span>
+                        <span id="modalTotal">$0</span>
+                    </div>
+                </div>
+                <div class="form-section">
+                    <h3>📍 ¿Cómo querés recibir tu pedido?</h3>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="deliveryType" value="delivery" checked>
+                            <i class="fas fa-truck"></i>
+                            <span>Envío a domicilio</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="deliveryType" value="pickup">
+                            <i class="fas fa-store"></i>
+                            <span>Retiro en el local</span>
+                        </label>
+                    </div>
+                    <div id="addressField" class="form-group">
+                        <label>Dirección de entrega *</label>
+                        <input type="text" id="deliveryAddress" placeholder="Calle y número">
+                    </div>
+                </div>
+                <div class="form-section">
+                    <h3>💳 Forma de Pago</h3>
+                    <div class="payment-options">
+                        <label class="payment-option">
+                            <input type="radio" name="payment" value="efectivo">
+                            <i class="fas fa-money-bill"></i>
+                            <span>Efectivo</span>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment" value="debito">
+                            <i class="fas fa-credit-card"></i>
+                            <span>Débito</span>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment" value="credito">
+                            <i class="fas fa-credit-card"></i>
+                            <span>Crédito</span>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment" value="transferencia" checked>
+                            <i class="fas fa-university"></i>
+                            <span>Transferencia</span>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment" value="mercadoPago">
+                            <i class="fas fa-qrcode"></i>
+                            <span>Mercado Pago</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-section">
+                    <h3>📝 Observaciones</h3>
+                    <textarea id="orderNotes" placeholder="Ej: Sin cebolla, extra salsa, etc." rows="2"></textarea>
+                </div>
+                <button type="submit" class="btn-primary btn-large">
+                    <i class="fas fa-check-circle"></i> Confirmar Pedido
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <section id="como-pedir" class="how-to-order">
+        <h2>📱 ¿Cómo pedir?</h2>
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <h3>Elegí tus productos</h3>
+                <p>Seleccioná las cantidades que querés de cada item</p>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <h3>Confirmá tu pedido</h3>
+                <p>Completá tus datos y elegí cómo retirar</p>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <h3>¡Disfrutá!</h3>
+                <p>Recibí tu pedido caliente y fresco</p>
+            </div>
+        </div>
+    </section>
+
+    <footer id="contacto">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4> Delicias</h4>
+                <p>Sabores que enamoran desde 2020</p>
+            </div>
+            <div class="footer-section">
+                <h4>Contacto</h4>
+                <p><i class="fas fa-phone"></i> 11 1234-5678</p>
+                <p><i class="fab fa-whatsapp"></i> 11 9876-5432</p>
+            </div>
+            <div class="footer-section">
+                <h4>Horarios</h4>
+                <p>Lun - Dom: 18:00 - 00:00</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Delicias Rotisería - Todos los derechos reservados</p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+
     <script>
-        // ============================================
-        // CONFIGURACIÓN
-        // ============================================
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzno9_b1xIrGpBB5MZcXvH2XukxAx4inrG-3HIdM0ZSRsnxyR0YrzfQ_sUqibM_1rsWug/exec';
-        
-        let cart = [];
-        let recognition = null;
-        let isListening = false;
-        let currentVoiceOrder = null;
-        let tiempoEntregaCache = null;
-        let recomendacionesCache = [];
-        let ultimoTimeout = null;
-        let recomendacionesTimeout = null;
+        // Toggle menú hamburguesa
+        function toggleMenu() {
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.getElementById('navMenu');
+            menuToggle.classList.toggle('active');
+            navMenu.classList.toggle('active');
+        }
 
-        // ============================================
-        // SISTEMA DE VOZ
-        // ============================================
-        function initSpeechRecognition() {
-            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-                recognition = new SpeechRecognition();
-                
-                recognition.lang = 'es-AR';
-                recognition.continuous = false;
-                recognition.interimResults = true;
+        // Cerrar menú al hacer clic en un enlace
+        function closeMenu() {
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.getElementById('navMenu');
+            menuToggle.classList.remove('active');
+            navMenu.classList.remove('active');
+        }
 
-                recognition.onstart = function() {
-                    isListening = true;
-                    document.getElementById('micButton').classList.add('listening');
-                    document.getElementById('voiceStatus').textContent = '🎙️ Escuchando... decí tu pedido';
-                    document.getElementById('voiceTranscript').textContent = '';
-                };
-
-                recognition.onresult = function(event) {
-                    let transcript = '';
-                    for (let i = event.resultIndex; i < event.results.length; i++) {
-                        transcript += event.results[i][0].transcript;
-                    }
-                    document.getElementById('voiceTranscript').textContent = transcript;
-                };
-
-                recognition.onerror = function(event) {
-                    console.error('Error:', event.error);
-                    document.getElementById('voiceStatus').textContent = '❌ Error: ' + event.error;
-                    stopListening();
-                };
-
-                recognition.onend = function() {
-                    stopListening();
-                    if (document.getElementById('voiceTranscript').textContent && 
-                        document.getElementById('voiceTranscript').textContent !== 'Tu pedido aparecerá aquí...') {
-                        processVoiceOrder();
-                    }
-                };
+        // Scroll effect
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
             } else {
-                document.getElementById('voiceStatus').textContent = '❌ Tu navegador no soporta reconocimiento de voz';
+                header.classList.remove('scrolled');
             }
-        }
-
-        function openVoiceAssistant() {
-            document.getElementById('voiceModal').classList.add('active');
-            initSpeechRecognition();
-        }
-
-        function closeVoiceAssistant() {
-            document.getElementById('voiceModal').classList.remove('active');
-            stopListening();
-            resetVoiceUI();
-        }
-
-        function resetVoiceUI() {
-            document.getElementById('voiceStatus').textContent = 'Tocá el micrófono para empezar';
-            document.getElementById('voiceTranscript').textContent = 'Tu pedido aparecerá aquí...';
-            document.getElementById('orderPreview').style.display = 'none';
-            document.getElementById('confirmBtn').disabled = true;
-            currentVoiceOrder = null;
-        }
-
-        function toggleListening() {
-            if (isListening) {
-                recognition.stop();
-            } else {
-                try {
-                    recognition.start();
-                } catch (e) {
-                    console.error('Error:', e);
-                }
-            }
-        }
-
-        function stopListening() {
-            isListening = false;
-            document.getElementById('micButton').classList.remove('listening');
-            if (recognition) {
-                try { recognition.stop(); } catch (e) {}
-            }
-        }
-
-        function processVoiceOrder() {
-            const transcript = document.getElementById('voiceTranscript').textContent;
-            
-            if (!transcript || transcript === 'Tu pedido aparecerá aquí...') {
-                document.getElementById('voiceStatus').textContent = '⚠️ No se detectó ningún pedido';
-                return;
-            }
-
-            document.getElementById('voiceStatus').textContent = '🤖 Procesando con IA...';
-            document.getElementById('confirmBtn').disabled = true;
-
-            simulateAIResponse(transcript);
-        }
-
-        function simulateAIResponse(transcript) {
-            const transcriptLower = transcript.toLowerCase();
-            const productosDetectados = [];
-            
-            if (transcriptLower.includes('empanada')) {
-                const cantidad = extractNumber(transcript) || 1;
-                productosDetectados.push({
-                    id: 'empanada-carne',
-                    nombre: 'Empanada de Carne',
-                    cantidad: cantidad,
-                    precio: 1500
-                });
-            }
-            if (transcriptLower.includes('pizza') || transcriptLower.includes('muzzarella')) {
-                productosDetectados.push({
-                    id: 'pizza-muzzarella',
-                    nombre: 'Pizza Muzzarella',
-                    cantidad: 1,
-                    precio: 4500
-                });
-            }
-            if (transcriptLower.includes('coca') || transcriptLower.includes('gaseosa')) {
-                productosDetectados.push({
-                    id: 'coca-cola',
-                    nombre: 'Coca Cola 1.5L',
-                    cantidad: 1,
-                    precio: 3000
-                });
-            }
-            if (transcriptLower.includes('lomito')) {
-                productosDetectados.push({
-                    id: 'lomito-prensado',
-                    nombre: 'Lomito Prensado',
-                    cantidad: 1,
-                    precio: 5500
-                });
-            }
-
-            if (productosDetectados.length === 0) {
-                document.getElementById('voiceStatus').textContent = '⚠️ No entendí el pedido. Intentá de nuevo.';
-                return;
-            }
-
-            currentVoiceOrder = productosDetectados;
-            displayOrderSummary(productosDetectados);
-            
-            document.getElementById('voiceStatus').textContent = '✅ Pedido interpretado correctamente';
-            document.getElementById('confirmBtn').disabled = false;
-        }
-
-        function extractNumber(text) {
-            const numbers = {
-                'uno': 1, 'una': 1, 'dos': 2, 'tres': 3, 'cuatro': 4,
-                'cinco': 5, 'seis': 6, 'siete': 7, 'ocho': 8, 'nueve': 9, 'diez': 10
-            };
-            
-            for (let [word, num] of Object.entries(numbers)) {
-                if (text.toLowerCase().includes(word)) return num;
-            }
-            
-            const match = text.match(/\d+/);
-            return match ? parseInt(match[0]) : null;
-        }
-
-        function displayOrderSummary(productos) {
-            const summaryDiv = document.getElementById('orderSummary');
-            const total = productos.reduce((sum, p) => sum + (p.precio * p.cantidad), 0);
-            
-            summaryDiv.innerHTML = `
-                <h3>📋 Resumen del Pedido</h3>
-                ${productos.map(p => `
-                    <div class="order-item-summary">
-                        <span>${p.cantidad}x ${p.nombre}</span>
-                        <span>$${(p.precio * p.cantidad).toLocaleString()}</span>
-                    </div>
-                `).join('')}
-                <div class="order-total-summary">
-                    <span>Total:</span>
-                    <span>$${total.toLocaleString()}</span>
-                </div>
-            `;
-            
-            document.getElementById('orderPreview').style.display = 'block';
-        }
-
-        function confirmVoiceOrder() {
-            if (!currentVoiceOrder) return;
-
-            currentVoiceOrder.forEach(producto => {
-                const existing = cart.find(item => item.id === producto.id);
-                if (existing) {
-                    existing.cantidad += producto.cantidad;
-                } else {
-                    cart.push({ ...producto });
-                }
-            });
-
-            updateCartUI();
-            closeVoiceAssistant();
-            showNotification(`✅ ${currentVoiceOrder.length} producto(s) agregado(s)`, 'success');
-            
-            setTimeout(() => toggleCart(), 500);
-        }
-
-        // ============================================
-        // SISTEMA DE CARRITO
-        // ============================================
-        function toggleCart() {
-            document.getElementById('cartOverlay').classList.toggle('active');
-            document.querySelector('.cart-panel').classList.toggle('open');
-            
-            if (document.querySelector('.cart-panel').classList.contains('open')) {
-                cargarRecomendaciones();
-            }
-        }
-
-        function updateCartUI() {
-            const cartItems = document.getElementById('cartItems');
-            const cartCount = document.getElementById('cartCount');
-            const cartTotal = document.getElementById('cartTotal');
-            
-            const totalItems = cart.reduce((sum, item) => sum + item.cantidad, 0);
-            const totalPrice = cart.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
-            
-            cartCount.textContent = totalItems;
-            cartTotal.textContent = `$${totalPrice.toLocaleString()}`;
-            
-            if (cart.length === 0) {
-                cartItems.innerHTML = '<p style="color: #999; text-align: center; padding: 2rem 0;">Tu carrito está vacío</p>';
-                return;
-            }
-            
-            cartItems.innerHTML = cart.map(item => `
-                <div class="cart-item">
-                    <div class="cart-item-info">
-                        <div class="cart-item-name">${item.nombre}</div>
-                        <div class="cart-item-qty">${item.cantidad}x $${item.precio.toLocaleString()}</div>
-                    </div>
-                    <div class="cart-item-price">$${(item.precio * item.cantidad).toLocaleString()}</div>
-                    <button class="remove-item" onclick="removeFromCart('${item.id}')">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-            `).join('');
-        }
-
-        function removeFromCart(productId) {
-            cart = cart.filter(item => item.id !== productId);
-            updateCartUI();
-            cargarRecomendaciones();
-        }
-
-        function checkout() {
-            if (cart.length === 0) {
-                showNotification('⚠️ El carrito está vacío', 'warning');
-                return;
-            }
-            showNotification('🎉 Procesando pedido...', 'success');
-        }
-
-        // ============================================
-        // SISTEMA DE TIEMPO DE ENTREGA
-        // ============================================
-        function initTiempoEntrega() {
-            const addressInput = document.getElementById('deliveryAddress');
-            if (!addressInput) return;
-            
-            addressInput.addEventListener('input', function() {
-                clearTimeout(ultimoTimeout);
-                ultimoTimeout = setTimeout(() => {
-                    if (this.value.length > 5) {
-                        calcularTiempoEntrega();
-                    } else {
-                        ocultarWidgetTiempo();
-                    }
-                }, 800);
-            });
-            
-            document.querySelectorAll('input[name="deliveryType"]').forEach(radio => {
-                radio.addEventListener('change', function() {
-                    if (this.value === 'delivery' && addressInput.value.length > 5) {
-                        calcularTiempoEntrega();
-                    } else {
-                        ocultarWidgetTiempo();
-                    }
-                });
-            });
-        }
-
-        function calcularTiempoEntrega() {
-            const address = document.getElementById('deliveryAddress').value;
-            const deliveryType = document.querySelector('input[name="deliveryType"]:checked')?.value;
-            
-            if (!address || deliveryType !== 'delivery') {
-                ocultarWidgetTiempo();
-                return;
-            }
-            
-            mostrarWidgetTiempo(true);
-            simularRespuestaTiempo();
-        }
-
-        function simularRespuestaTiempo() {
-            const address = document.getElementById('deliveryAddress').value.toLowerCase();
-            const numItems = cart.reduce((sum, item) => sum + item.cantidad, 0);
-            
-            let distancia, tiempoViaje;
-            
-            if (address.includes('centro')) {
-                distancia = 2;
-                tiempoViaje = 8;
-            } else if (address.includes('nueva cordoba') || address.includes('nueva córdoba')) {
-                distancia = 3;
-                tiempoViaje = 12;
-            } else if (address.includes('alta cordoba') || address.includes('alta córdoba')) {
-                distancia = 5;
-                tiempoViaje = 20;
-            } else {
-                distancia = 4;
-                tiempoViaje = 15;
-            }
-            
-            const tiempoPrep = 10 + (numItems * 2);
-            
-            const hora = new Date().getHours();
-            let congestion = 'Bajo';
-            let congestionClass = 'congestion-low';
-            let factorCongestion = 1;
-            
-            if (hora >= 19 && hora <= 21) {
-                congestion = 'Alto';
-                congestionClass = 'congestion-high';
-                factorCongestion = 1.5;
-            } else if (hora >= 12 && hora <= 14) {
-                congestion = 'Medio';
-                congestionClass = 'congestion-medium';
-                factorCongestion = 1.3;
-            }
-            
-            const tiempoTotal = Math.round((tiempoPrep + tiempoViaje) * factorCongestion);
-            const min = Math.floor(tiempoTotal / 5) * 5;
-            const max = min + 10;
-            
-            actualizarWidgetTiempo({
-                tiempoMinimo: min,
-                tiempoMaximo: max,
-                detalles: {
-                    preparacion: tiempoPrep,
-                    viaje: tiempoViaje,
-                    distancia: distancia.toFixed(1),
-                    congestion: congestion,
-                    congestionClass: congestionClass
-                }
-            });
-        }
-
-        function mostrarWidgetTiempo(loading = false) {
-            const widget = document.getElementById('deliveryTimeWidget');
-            const content = document.getElementById('deliveryTimeContent');
-            
-            if (!widget) return;
-            
-            widget.style.display = 'block';
-            if (loading) {
-                content.classList.add('loading');
-                document.getElementById('timeRange').textContent = 'Calculando...';
-            } else {
-                content.classList.remove('loading');
-            }
-        }
-
-        function ocultarWidgetTiempo() {
-            const widget = document.getElementById('deliveryTimeWidget');
-            if (widget) widget.style.display = 'none';
-        }
-
-        function actualizarWidgetTiempo(data) {
-            document.getElementById('timeRange').textContent = `${data.tiempoMinimo}-${data.tiempoMaximo} min`;
-            document.getElementById('prepTime').textContent = `${data.detalles.preparacion} min`;
-            document.getElementById('travelTime').textContent = `${data.detalles.viaje} min`;
-            document.getElementById('distance').textContent = `${data.detalles.distancia} km`;
-            
-            const congestionBadge = document.getElementById('congestionBadge');
-            congestionBadge.innerHTML = `
-                <span class="congestion-badge ${data.detalles.congestionClass}">
-                    Tráfico: ${data.detalles.congestion}
-                </span>
-            `;
-            
-            document.getElementById('deliveryTimeContent').classList.remove('loading');
-            tiempoEntregaCache = data;
-        }
-
-        // ============================================
-        // SISTEMA DE RECOMENDACIONES
-        // ============================================
-        function initRecomendaciones() {
-            const observer = new MutationObserver(() => {
-                clearTimeout(recomendacionesTimeout);
-                recomendacionesTimeout = setTimeout(() => {
-                    if (cart.length > 0) {
-                        cargarRecomendaciones();
-                    } else {
-                        ocultarRecomendaciones();
-                    }
-                }, 1000);
-            });
-            
-            const cartCount = document.getElementById('cartCount');
-            if (cartCount) {
-                observer.observe(cartCount, { childList: true, subtree: true });
-            }
-        }
-
-        function cargarRecomendaciones() {
-            const widget = document.getElementById('recommendationsWidget');
-            const content = document.getElementById('recommendationsContent');
-            
-            if (!widget) return;
-            
-            widget.style.display = 'block';
-            content.classList.add('loading');
-            
-            simularRecomendaciones();
-        }
-
-        function simularRecomendaciones() {
-            const productosEnCarrito = cart.map(item => item.nombre.toLowerCase());
-            const recomendaciones = [];
-            
-            if (productosEnCarrito.some(p => p.includes('pizza'))) {
-                recomendaciones.push({
-                    id: 'coca-cola',
-                    nombre: 'Coca Cola 1.5L',
-                    precio: 3000,
-                    imagen: 'https://images.unsplash.com/photo-1554866585-cd94860890b7?w=100',
-                    razon: 'El 78% de los clientes agregan una bebida con pizza',
-                    frecuencia: 78
-                });
-            }
-            
-            if (productosEnCarrito.some(p => p.includes('empanada'))) {
-                recomendaciones.push({
-                    id: 'salsa-criolla',
-                    nombre: 'Salsa Criolla',
-                    precio: 500,
-                    imagen: 'https://images.unsplash.com/photo-1472476443507-c7a5948772fc?w=100',
-                    razon: 'Perfecta para acompañar tus empanadas',
-                    frecuencia: 65
-                });
-            }
-            
-            if (productosEnCarrito.some(p => p.includes('lomito'))) {
-                recomendaciones.push({
-                    id: 'papas-fritas',
-                    nombre: 'Papas Fritas Grandes',
-                    precio: 2500,
-                    imagen: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=100',
-                    razon: 'El combo perfecto: lomito + papas',
-                    frecuencia: 82
-                });
-            }
-            
-            if (recomendaciones.length === 0) {
-                recomendaciones.push({
-                    id: 'empanada-carne',
-                    nombre: 'Empanada de Carne',
-                    precio: 1500,
-                    imagen: 'https://images.unsplash.com/photo-1625943553852-b2aa1393c3b5?w=100',
-                    razon: 'Uno de los más pedidos esta semana',
-                    frecuencia: 95
-                });
-            }
-            
-            recomendacionesCache = recomendaciones.slice(0, 3);
-            mostrarRecomendaciones(recomendacionesCache);
-        }
-
-        function mostrarRecomendaciones(recomendaciones) {
-            const widget = document.getElementById('recommendationsWidget');
-            const content = document.getElementById('recommendationsContent');
-            const list = document.getElementById('recommendationsList');
-            const subtitle = document.getElementById('recommendationsSubtitle');
-            
-            if (!widget || !list) return;
-            
-            if (recomendaciones.length === 0) {
-                ocultarRecomendaciones();
-                return;
-            }
-            
-            widget.style.display = 'block';
-            content.classList.remove('loading');
-            
-            const tieneHistorial = recomendaciones.some(r => r.razon.includes('clientes'));
-            subtitle.textContent = tieneHistorial ? 
-                'Basado en pedidos similares al tuyo' : 
-                'Productos más populares';
-            
-            list.innerHTML = recomendaciones.map(rec => {
-                const yaEnCarrito = cart.some(item => item.id === rec.id);
-                
-                return `
-                    <div class="recommendation-item">
-                        <img src="${rec.imagen}" alt="${rec.nombre}" 
-                             onerror="this.src='https://via.placeholder.com/60'">
-                        <div class="info">
-                            <div class="name">
-                                ${rec.nombre}
-                                <span class="recommendation-badge">
-                                    <i class="fas fa-fire"></i> Popular
-                                </span>
-                            </div>
-                            <div class="reason">${rec.razon}</div>
-                            <div class="price">$${rec.precio.toLocaleString()}</div>
-                        </div>
-                        <button class="add-btn ${yaEnCarrito ? 'added' : ''}" 
-                                onclick="agregarRecomendacion('${rec.id}', '${rec.nombre}', ${rec.precio}, '${rec.imagen}')"
-                                ${yaEnCarrito ? 'disabled' : ''}>
-                            ${yaEnCarrito ? '<i class="fas fa-check"></i> Agregado' : '<i class="fas fa-plus"></i> Agregar'}
-                        </button>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function agregarRecomendacion(id, nombre, precio, imagen) {
-            const existente = cart.find(item => item.id === id);
-            
-            if (existente) {
-                existente.cantidad++;
-            } else {
-                cart.push({
-                    id: id,
-                    nombre: nombre,
-                    precio: precio,
-                    imagen: imagen,
-                    cantidad: 1
-                });
-            }
-            
-            updateCartUI();
-            showNotification(`✅ ${nombre} agregado`, 'success');
-            
-            setTimeout(() => cargarRecomendaciones(), 500);
-        }
-
-        function ocultarRecomendaciones() {
-            const widget = document.getElementById('recommendationsWidget');
-            if (widget) widget.style.display = 'none';
-        }
-
-        // ============================================
-        // NOTIFICACIONES
-        // ============================================
-        function showNotification(message, type = 'info') {
-            const notification = document.createElement('div');
-            notification.className = `notification ${type}`;
-            notification.textContent = message;
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.style.opacity = '0';
-                notification.style.transform = 'translateX(100%)';
-                notification.style.transition = 'all 0.3s ease';
-                setTimeout(() => notification.remove(), 300);
-            }, 3000);
-        }
-
-        // ============================================
-        // INICIALIZACIÓN
-        // ============================================
-        document.addEventListener('DOMContentLoaded', () => {
-            initRecomendaciones();
-            console.log('🎤🕐 Sistema de IAs cargado correctamente');
         });
+
+        console.log('🚀 Página cargada correctamente');
     </script>
 </body>
 </html>
