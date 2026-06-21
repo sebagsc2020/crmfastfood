@@ -1,0 +1,2469 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM FastFood - Sistema Inteligente de Gestión para tu Negocio Gastronómico</title>
+    <meta name="description" content="Potencia tu rotisería, pizzería o restaurante con nuestro CRM inteligente. Gestión de pedidos, delivery y atención al cliente en una sola plataforma.">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --primary-light: #3b82f6;
+            --secondary: #0f172a;
+            --accent: #f59e0b;
+            --accent-dark: #d97706;
+            --success: #10b981;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --text-lighter: #94a3b8;
+            --bg: #ffffff;
+            --bg-soft: #f8fafc;
+            --bg-muted: #f1f5f9;
+            --border: #e2e8f0;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow: 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-lg: 0 20px 40px rgba(0,0,0,0.1);
+            --shadow-xl: 0 25px 50px rgba(0,0,0,0.15);
+            --radius: 16px;
+            --radius-sm: 10px;
+            --radius-lg: 24px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        html { scroll-behavior: smooth; }
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--text);
+            background: var(--bg);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        /* ===== TIPOGRAFÍA ===== */
+        h1, h2, h3, h4 {
+            font-weight: 800;
+            line-height: 1.2;
+            letter-spacing: -0.02em;
+        }
+        
+        .display-font {
+            font-family: 'Playfair Display', serif;
+        }
+        
+        /* ===== UTILIDADES ===== */
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        
+        .section {
+            padding: 100px 0;
+            position: relative;
+        }
+        
+        .section-header {
+            text-align: center;
+            max-width: 720px;
+            margin: 0 auto 80px;
+        }
+        
+        .section-label {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            padding: 6px 16px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1.5rem;
+        }
+        
+        .section-title {
+            font-size: clamp(2rem, 4vw, 3rem);
+            margin-bottom: 1rem;
+            color: var(--secondary);
+        }
+        
+        .section-subtitle {
+            font-size: 1.15rem;
+            color: var(--text-light);
+            line-height: 1.7;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* ===== BOTONES ===== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 28px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1rem;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(37, 99, 235, 0.4);
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: var(--secondary);
+            border: 2px solid var(--border);
+        }
+        
+        .btn-secondary:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-3px);
+        }
+        
+        .btn-accent {
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            color: white;
+            box-shadow: 0 10px 25px rgba(245, 158, 11, 0.3);
+        }
+        
+        .btn-accent:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(245, 158, 11, 0.4);
+        }
+        
+        .btn-lg {
+            padding: 18px 36px;
+            font-size: 1.05rem;
+        }
+        
+        /* ===== HEADER ===== */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            z-index: 1000;
+            padding: 1rem 0;
+            transition: var(--transition);
+            border-bottom: 1px solid transparent;
+        }
+        
+        header.scrolled {
+            background: rgba(255, 255, 255, 0.95);
+            border-bottom-color: var(--border);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .nav-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+            font-size: 1.4rem;
+            color: var(--secondary);
+            text-decoration: none;
+        }
+        
+        .logo-icon {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+        
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2.5rem;
+            align-items: center;
+        }
+        
+        .nav-menu a {
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: var(--transition);
+        }
+        
+        .nav-menu a:hover {
+            color: var(--primary);
+        }
+        
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--secondary);
+            cursor: pointer;
+        }
+        
+        /* ===== HERO ===== */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 120px 0 80px;
+            background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 50%, #f8fafc 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 70%;
+            height: 150%;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.08) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+        
+        .hero-content {
+            display: grid;
+            grid-template-columns: 1.1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: white;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--primary);
+            box-shadow: var(--shadow);
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
+        }
+        
+        .hero-badge .dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .hero h1 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            margin-bottom: 1.5rem;
+            color: var(--secondary);
+            line-height: 1.1;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-light);
+            margin-bottom: 2.5rem;
+            line-height: 1.7;
+            max-width: 540px;
+        }
+        
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 3rem;
+        }
+        
+        .hero-stats {
+            display: flex;
+            gap: 2.5rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+        }
+        
+        .hero-stat {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .hero-stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--secondary);
+            line-height: 1;
+        }
+        
+        .hero-stat-label {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-top: 0.5rem;
+        }
+        
+        .hero-visual {
+            position: relative;
+        }
+        
+        .hero-mockup {
+            width: 100%;
+            max-width: 600px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-xl);
+            animation: float 6s ease-in-out infinite;
+            background: white;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .mockup-header {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .mockup-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .mockup-dot.red { background: #ef4444; }
+        .mockup-dot.yellow { background: #f59e0b; }
+        .mockup-dot.green { background: #10b981; }
+        
+        .mockup-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 1rem;
+        }
+        
+        .mockup-sidebar {
+            background: var(--bg-muted);
+            border-radius: var(--radius-sm);
+            padding: 1rem;
+        }
+        
+        .mockup-sidebar-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            color: var(--text-light);
+            margin-bottom: 4px;
+        }
+        
+        .mockup-sidebar-item.active {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .mockup-main {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+        
+        .mockup-card {
+            background: var(--bg-muted);
+            border-radius: var(--radius-sm);
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .mockup-card-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .mockup-card-title {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--secondary);
+        }
+        
+        .mockup-card-sub {
+            font-size: 0.75rem;
+            color: var(--text-light);
+        }
+        
+        .mockup-card-badge {
+            padding: 4px 10px;
+            border-radius: 50px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        
+        .badge-success { background: #d1fae5; color: #065f46; }
+        .badge-warning { background: #fef3c7; color: #92400e; }
+        .badge-info { background: #dbeafe; color: #1e40af; }
+        
+        .floating-card {
+            position: absolute;
+            background: white;
+            padding: 1rem 1.2rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: float-card 4s ease-in-out infinite;
+        }
+        
+        @keyframes float-card {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .floating-card-1 {
+            top: 10%;
+            right: -5%;
+            animation-delay: 0.5s;
+        }
+        
+        .floating-card-2 {
+            bottom: 15%;
+            left: -5%;
+            animation-delay: 1s;
+        }
+        
+        .floating-card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.1rem;
+        }
+        
+        .floating-card-text {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .floating-card-title {
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--secondary);
+        }
+        
+        .floating-card-sub {
+            font-size: 0.75rem;
+            color: var(--text-light);
+        }
+        
+        /* ===== LOGOS / TRUST BAR ===== */
+        .trust-bar {
+            background: white;
+            padding: 3rem 0;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .trust-bar-content {
+            text-align: center;
+        }
+        
+        .trust-bar-label {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .trust-logos {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 3rem;
+            flex-wrap: wrap;
+            opacity: 0.7;
+        }
+        
+        .trust-logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--text-light);
+        }
+        
+        .trust-logo i {
+            font-size: 1.5rem;
+        }
+        
+        /* ===== CARACTERÍSTICAS ===== */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+        }
+        
+        .feature-card {
+            background: white;
+            padding: 2.5rem;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+            border-color: transparent;
+        }
+        
+        .feature-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: white;
+        }
+        
+        .feature-icon-1 { background: linear-gradient(135deg, #3b82f6, #1e40af); }
+        .feature-icon-2 { background: linear-gradient(135deg, #10b981, #059669); }
+        .feature-icon-3 { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .feature-icon-4 { background: linear-gradient(135deg, #8b5cf6, #6d28d9); }
+        .feature-icon-5 { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .feature-icon-6 { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+        
+        .feature-title {
+            font-size: 1.3rem;
+            margin-bottom: 0.8rem;
+            color: var(--secondary);
+        }
+        
+        .feature-description {
+            color: var(--text-light);
+            line-height: 1.7;
+            font-size: 0.95rem;
+        }
+        
+        /* ===== ESTADÍSTICAS ===== */
+        .stats-section {
+            background: linear-gradient(135deg, var(--secondary) 0%, #1e293b 100%);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stats-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 50%, rgba(37, 99, 235, 0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(245, 158, 11, 0.1) 0%, transparent 50%);
+        }
+        
+        .stats-section .section-title {
+            color: white;
+        }
+        
+        .stats-section .section-subtitle {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+            margin-bottom: 5rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: var(--radius);
+            text-align: center;
+            transition: var(--transition);
+        }
+        
+        .stat-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-5px);
+        }
+        
+        .stat-value {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #60a5fa, #fbbf24);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.95rem;
+        }
+        
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .chart-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: var(--radius);
+        }
+        
+        .chart-title {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: white;
+        }
+        
+        .chart-subtitle {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 1.5rem;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        
+        /* ===== CÓMO FUNCIONA ===== */
+        .steps-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+            position: relative;
+        }
+        
+        .steps-container::before {
+            content: '';
+            position: absolute;
+            top: 40px;
+            left: 10%;
+            right: 10%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            opacity: 0.3;
+            z-index: 0;
+        }
+        
+        .step-card {
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .step-number {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border: 3px solid var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin: 0 auto 1.5rem;
+            position: relative;
+            transition: var(--transition);
+        }
+        
+        .step-card:hover .step-number {
+            background: var(--primary);
+            color: white;
+            transform: scale(1.1);
+        }
+        
+        .step-title {
+            font-size: 1.2rem;
+            margin-bottom: 0.8rem;
+            color: var(--secondary);
+        }
+        
+        .step-description {
+            color: var(--text-light);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        
+        /* ===== PRECIOS ===== */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2.5rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .pricing-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 3rem;
+            border: 2px solid var(--border);
+            position: relative;
+            transition: var(--transition);
+        }
+        
+        .pricing-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-xl);
+        }
+        
+        .pricing-card.featured {
+            border-color: var(--primary);
+            background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .pricing-badge {
+            position: absolute;
+            top: -15px;
+            right: 30px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            color: white;
+            padding: 6px 16px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
+        
+        .pricing-name {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--secondary);
+        }
+        
+        .pricing-description {
+            color: var(--text-light);
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+        }
+        
+        .pricing-price {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            margin-bottom: 0.5rem;
+        }
+        
+        .pricing-currency {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-light);
+        }
+        
+        .pricing-amount {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: var(--secondary);
+            line-height: 1;
+        }
+        
+        .pricing-period {
+            color: var(--text-light);
+            font-size: 0.95rem;
+            margin-bottom: 2rem;
+        }
+        
+        .pricing-features {
+            list-style: none;
+            margin-bottom: 2rem;
+        }
+        
+        .pricing-features li {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 0.7rem 0;
+            color: var(--text);
+            font-size: 0.95rem;
+        }
+        
+        .pricing-features li i {
+            color: var(--success);
+            margin-top: 3px;
+            flex-shrink: 0;
+        }
+        
+        .pricing-features li.disabled {
+            color: var(--text-lighter);
+        }
+        
+        .pricing-features li.disabled i {
+            color: var(--text-lighter);
+        }
+        
+        .pricing-card .btn {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        /* ===== PLAN PERSONALIZADO ===== */
+        .custom-plan {
+            background: linear-gradient(135deg, var(--secondary) 0%, #1e293b 100%);
+            color: white;
+            border-radius: var(--radius-lg);
+            padding: 4rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            margin-top: 4rem;
+        }
+        
+        .custom-plan::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 30% 50%, rgba(37, 99, 235, 0.2) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 80%, rgba(245, 158, 11, 0.15) 0%, transparent 50%);
+        }
+        
+        .custom-plan-content {
+            position: relative;
+            z-index: 1;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .custom-plan-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+            margin: 0 auto 1.5rem;
+        }
+        
+        .custom-plan h3 {
+            font-size: 2.2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .custom-plan p {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 2rem;
+            line-height: 1.7;
+        }
+        
+        .custom-plan-features {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+            text-align: left;
+        }
+        
+        .custom-feature {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.95rem;
+        }
+        
+        .custom-feature i {
+            color: var(--accent);
+        }
+        
+        /* ===== FORMAS DE PAGO ===== */
+        .payment-section {
+            background: var(--bg-soft);
+        }
+        
+        .payment-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+        
+        .payment-card {
+            background: white;
+            padding: 2rem;
+            border-radius: var(--radius);
+            text-align: center;
+            border: 1px solid var(--border);
+            transition: var(--transition);
+        }
+        
+        .payment-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow);
+            border-color: var(--primary);
+        }
+        
+        .payment-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .payment-title {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--secondary);
+        }
+        
+        .payment-description {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            line-height: 1.5;
+        }
+        
+        .payment-info {
+            background: white;
+            padding: 2rem;
+            border-radius: var(--radius);
+            border: 2px dashed var(--border);
+            text-align: center;
+        }
+        
+        .payment-info h4 {
+            margin-bottom: 1rem;
+            color: var(--secondary);
+        }
+        
+        .payment-methods {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .payment-method {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            color: var(--text);
+        }
+        
+        .payment-method i {
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+        
+        /* ===== TESTIMONIOS ===== */
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+        }
+        
+        .testimonial-card {
+            background: white;
+            padding: 2.5rem;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            transition: var(--transition);
+            position: relative;
+        }
+        
+        .testimonial-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .testimonial-quote {
+            font-size: 3rem;
+            color: var(--primary);
+            opacity: 0.2;
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            font-family: serif;
+            line-height: 1;
+        }
+        
+        .testimonial-stars {
+            color: var(--accent);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+        
+        .testimonial-text {
+            color: var(--text);
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+        
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .testimonial-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        
+        .testimonial-info h5 {
+            font-size: 1rem;
+            color: var(--secondary);
+            margin-bottom: 2px;
+        }
+        
+        .testimonial-info span {
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+        
+        /* ===== FAQ ===== */
+        .faq-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .faq-item {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            margin-bottom: 1rem;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+        
+        .faq-item:hover {
+            border-color: var(--primary);
+        }
+        
+        .faq-question {
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--secondary);
+            font-size: 1.05rem;
+        }
+        
+        .faq-question i {
+            color: var(--primary);
+            transition: transform 0.3s ease;
+        }
+        
+        .faq-item.active .faq-question i {
+            transform: rotate(180deg);
+        }
+        
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .faq-item.active .faq-answer {
+            max-height: 500px;
+        }
+        
+        .faq-answer-content {
+            padding: 0 2rem 1.5rem;
+            color: var(--text-light);
+            line-height: 1.7;
+        }
+        
+        /* ===== CTA FINAL ===== */
+        .cta-section {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            text-align: center;
+            padding: 80px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(245, 158, 11, 0.15) 0%, transparent 50%);
+        }
+        
+        .cta-content {
+            position: relative;
+            z-index: 1;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .cta-section h2 {
+            font-size: clamp(2rem, 4vw, 2.8rem);
+            margin-bottom: 1rem;
+        }
+        
+        .cta-section p {
+            font-size: 1.15rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 2.5rem;
+        }
+        
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .cta-section .btn-secondary {
+            background: white;
+            color: var(--primary);
+            border-color: white;
+        }
+        
+        .cta-section .btn-secondary:hover {
+            background: transparent;
+            color: white;
+        }
+        
+        /* ===== CONTACTO ===== */
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 4rem;
+            align-items: start;
+        }
+        
+        .contact-info {
+            padding: 2rem 0;
+        }
+        
+        .contact-info h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: var(--secondary);
+        }
+        
+        .contact-info > p {
+            color: var(--text-light);
+            margin-bottom: 2rem;
+            line-height: 1.7;
+        }
+        
+        .contact-methods {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .contact-method {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.2rem;
+            background: white;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            transition: var(--transition);
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .contact-method:hover {
+            transform: translateX(5px);
+            border-color: var(--primary);
+            box-shadow: var(--shadow);
+        }
+        
+        .contact-method-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+        
+        .contact-method-info h5 {
+            font-size: 1rem;
+            color: var(--secondary);
+            margin-bottom: 2px;
+        }
+        
+        .contact-method-info p {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+        
+        .contact-form {
+            background: white;
+            padding: 2.5rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--secondary);
+            font-size: 0.95rem;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 1rem;
+            font-family: inherit;
+            transition: var(--transition);
+            background: var(--bg-soft);
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: white;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+        
+        .contact-form .btn {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        /* ===== FOOTER ===== */
+        footer {
+            background: var(--secondary);
+            color: white;
+            padding: 4rem 0 2rem;
+        }
+        
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+        
+        .footer-brand {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .footer-brand .logo {
+            color: white;
+        }
+        
+        .footer-brand p {
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.7;
+            font-size: 0.95rem;
+        }
+        
+        .footer-social {
+            display: flex;
+            gap: 10px;
+            margin-top: 1rem;
+        }
+        
+        .footer-social a {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        
+        .footer-social a:hover {
+            background: var(--primary);
+            transform: translateY(-3px);
+        }
+        
+        .footer-column h5 {
+            font-size: 1rem;
+            margin-bottom: 1.2rem;
+            color: white;
+        }
+        
+        .footer-column ul {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.7rem;
+        }
+        
+        .footer-column a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+        
+        .footer-column a:hover {
+            color: white;
+            padding-left: 5px;
+        }
+        
+        .footer-bottom {
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .footer-bottom p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+        }
+        
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1024px) {
+            .hero-content { grid-template-columns: 1fr; text-align: center; }
+            .hero-subtitle { margin: 0 auto 2.5rem; }
+            .hero-buttons { justify-content: center; }
+            .hero-stats { justify-content: center; }
+            .hero-visual { display: none; }
+            .features-grid { grid-template-columns: repeat(2, 1fr); }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .charts-grid { grid-template-columns: 1fr; }
+            .steps-container { grid-template-columns: repeat(2, 1fr); }
+            .steps-container::before { display: none; }
+            .testimonials-grid { grid-template-columns: 1fr; }
+            .contact-grid { grid-template-columns: 1fr; }
+            .footer-grid { grid-template-columns: 1fr 1fr; }
+            .custom-plan-features { grid-template-columns: 1fr; }
+        }
+        
+        @media (max-width: 768px) {
+            .section { padding: 60px 0; }
+            .section-header { margin-bottom: 3rem; }
+            .nav-menu { 
+                display: none; 
+                position: fixed;
+                top: 75px;
+                left: 0;
+                right: 0;
+                background: white;
+                flex-direction: column;
+                padding: 2rem;
+                box-shadow: var(--shadow-lg);
+            }
+            .nav-menu.active { display: flex; }
+            .menu-toggle { display: block; }
+            .features-grid { grid-template-columns: 1fr; }
+            .pricing-grid { grid-template-columns: 1fr; }
+            .payment-grid { grid-template-columns: repeat(2, 1fr); }
+            .steps-container { grid-template-columns: 1fr; }
+            .footer-grid { grid-template-columns: 1fr; }
+            .hero-stats { flex-direction: column; gap: 1.5rem; }
+            .custom-plan { padding: 2.5rem 1.5rem; }
+        }
+        
+        @media (max-width: 480px) {
+            .container { padding: 0 1.2rem; }
+            .pricing-card { padding: 2rem 1.5rem; }
+            .payment-grid { grid-template-columns: 1fr; }
+            .hero-buttons { flex-direction: column; width: 100%; }
+            .hero-buttons .btn { width: 100%; justify-content: center; }
+        }
+        
+        /* ===== ANIMACIONES DE SCROLL ===== */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== HEADER ===== -->
+    <header id="header">
+        <div class="nav-container">
+            <a href="#" class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-utensils"></i>
+                </div>
+                <span>CRM FastFood</span>
+            </a>
+            <nav>
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="#caracteristicas">Características</a></li>
+                    <li><a href="#resultados">Resultados</a></li>
+                    <li><a href="#precios">Precios</a></li>
+                    <li><a href="#testimonios">Testimonios</a></li>
+                    <li><a href="#contacto" class="btn btn-primary" style="padding: 10px 20px; font-size: 0.9rem;">
+                        <i class="fas fa-rocket"></i> Comenzar
+                    </a></li>
+                </ul>
+            </nav>
+            <button class="menu-toggle" onclick="toggleMenu()">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- ===== HERO ===== -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <div class="hero-badge">
+                        <span class="dot"></span>
+                        <span>Plataforma #1 para gastronomía</span>
+                    </div>
+                    <h1>
+                        Transformá tu negocio gastronómico con <span class="gradient-text">inteligencia real</span>
+                    </h1>
+                    <p class="hero-subtitle">
+                        El sistema integral que une pedidos, delivery, atención al cliente y análisis de datos en una sola plataforma. Diseñado especialmente para rotiserías, pizzerías y restaurantes que quieren crecer.
+                    </p>
+                    <div class="hero-buttons">
+                        <a href="#precios" class="btn btn-primary btn-lg">
+                            <i class="fas fa-rocket"></i> Ver Planes
+                        </a>
+                        <a href="#demo" class="btn btn-secondary btn-lg">
+                            <i class="fas fa-play-circle"></i> Ver Demo
+                        </a>
+                    </div>
+                    <div class="hero-stats">
+                        <div class="hero-stat">
+                            <span class="hero-stat-value">+35%</span>
+                            <span class="hero-stat-label">Aumento promedio en ventas</span>
+                        </div>
+                        <div class="hero-stat">
+                            <span class="hero-stat-value">-40%</span>
+                            <span class="hero-stat-label">Reducción en tiempos</span>
+                        </div>
+                        <div class="hero-stat">
+                            <span class="hero-stat-value">24/7</span>
+                            <span class="hero-stat-label">Soporte disponible</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="hero-visual">
+                    <div class="hero-mockup">
+                        <div class="mockup-header">
+                            <div class="mockup-dot red"></div>
+                            <div class="mockup-dot yellow"></div>
+                            <div class="mockup-dot green"></div>
+                        </div>
+                        <div class="mockup-content">
+                            <div class="mockup-sidebar">
+                                <div class="mockup-sidebar-item active">
+                                    <i class="fas fa-clipboard-list"></i> Pedidos
+                                </div>
+                                <div class="mockup-sidebar-item">
+                                    <i class="fas fa-motorcycle"></i> Delivery
+                                </div>
+                                <div class="mockup-sidebar-item">
+                                    <i class="fas fa-chart-line"></i> Estadísticas
+                                </div>
+                                <div class="mockup-sidebar-item">
+                                    <i class="fas fa-users"></i> Clientes
+                                </div>
+                            </div>
+                            <div class="mockup-main">
+                                <div class="mockup-card">
+                                    <div class="mockup-card-info">
+                                        <div class="mockup-card-title">Pedido #2847</div>
+                                        <div class="mockup-card-sub">María González · 3 items</div>
+                                    </div>
+                                    <div class="mockup-card-badge badge-success">Entregado</div>
+                                </div>
+                                <div class="mockup-card">
+                                    <div class="mockup-card-info">
+                                        <div class="mockup-card-title">Pedido #2848</div>
+                                        <div class="mockup-card-sub">Carlos Ruiz · 2 items</div>
+                                    </div>
+                                    <div class="mockup-card-badge badge-warning">En camino</div>
+                                </div>
+                                <div class="mockup-card">
+                                    <div class="mockup-card-info">
+                                        <div class="mockup-card-title">Pedido #2849</div>
+                                        <div class="mockup-card-sub">Ana López · 5 items</div>
+                                    </div>
+                                    <div class="mockup-card-badge badge-info">Preparando</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="floating-card floating-card-1">
+                        <div class="floating-card-icon" style="background: linear-gradient(135deg, #10b981, #059669);">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="floating-card-text">
+                            <span class="floating-card-title">Ventas hoy</span>
+                            <span class="floating-card-sub">+23% vs ayer</span>
+                        </div>
+                    </div>
+                    <div class="floating-card floating-card-2">
+                        <div class="floating-card-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="floating-card-text">
+                            <span class="floating-card-title">4.9 ★</span>
+                            <span class="floating-card-sub">247 reseñas</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== TRUST BAR ===== -->
+    <section class="trust-bar">
+        <div class="container">
+            <div class="trust-bar-content">
+                <p class="trust-bar-label">Tecnología confiable que impulsa negocios</p>
+                <div class="trust-logos">
+                    <div class="trust-logo"><i class="fab fa-google"></i> Google</div>
+                    <div class="trust-logo"><i class="fas fa-cloud"></i> Cloud</div>
+                    <div class="trust-logo"><i class="fas fa-shield-alt"></i> Seguro</div>
+                    <div class="trust-logo"><i class="fas fa-mobile-alt"></i> Responsive</div>
+                    <div class="trust-logo"><i class="fas fa-bolt"></i> Rápido</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== CARACTERÍSTICAS ===== -->
+    <section class="section" id="caracteristicas">
+        <div class="container">
+            <div class="section-header fade-in">
+                <span class="section-label">Características</span>
+                <h2 class="section-title">Todo lo que necesitás, <span class="gradient-text">en un solo lugar</span></h2>
+                <p class="section-subtitle">
+                    Herramientas diseñadas específicamente para el rubro gastronómico, pensadas para simplificar tu día a día y potenciar tus resultados.
+                </p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card fade-in">
+                    <div class="feature-icon feature-icon-1">
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
+                    <h3 class="feature-title">Gestión de Pedidos Inteligente</h3>
+                    <p class="feature-description">
+                        Recibí, organizá y gestioná todos tus pedidos en tiempo real. Seguimiento completo desde que el cliente ordena hasta la entrega final.
+                    </p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon feature-icon-2">
+                        <i class="fas fa-microphone"></i>
+                    </div>
+                    <h3 class="feature-title">Pedidos por Voz con IA</h3>
+                    <p class="feature-description">
+                        Tus clientes pueden hacer pedidos hablando naturalmente. La inteligencia artificial entiende y procesa cada orden automáticamente.
+                    </p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon feature-icon-3">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <h3 class="feature-title">Predicción de Tiempos</h3>
+                    <p class="feature-description">
+                        Estimá con precisión los tiempos de entrega según distancia, congestión y volumen de pedidos. Mejorá la experiencia de tus clientes.
+                    </p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon feature-icon-4">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <h3 class="feature-title">Recomendaciones Inteligentes</h3>
+                    <p class="feature-description">
+                        El sistema sugiere productos complementarios basándose en el historial de compras, aumentando el ticket promedio de cada pedido.
+                    </p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon feature-icon-5">
+                        <i class="fas fa-sync-alt"></i>
+                    </div>
+                    <h3 class="feature-title">Sincronización en Tiempo Real</h3>
+                    <p class="feature-description">
+                        Todos los datos se actualizan al instante. Menú, stock, precios y pedidos siempre sincronizados entre todas las pantallas.
+                    </p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon feature-icon-6">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <h3 class="feature-title">Estadísticas y Reportes</h3>
+                    <p class="feature-description">
+                        Analizá ventas, productos más pedidos, horarios pico y mucho más. Tomá decisiones basadas en datos reales de tu negocio.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== ESTADÍSTICAS ===== -->
+    <section class="section stats-section" id="resultados">
+        <div class="container">
+            <div class="section-header fade-in">
+                <span class="section-label" style="background: rgba(255,255,255,0.15);">Resultados Comprobados</span>
+                <h2 class="section-title">Números que hablan por sí solos</h2>
+                <p class="section-subtitle">
+                    Nuestros clientes experimentan mejoras reales y medibles desde el primer mes de implementación.
+                </p>
+            </div>
+            <div class="stats-grid fade-in">
+                <div class="stat-card">
+                    <div class="stat-value">+35%</div>
+                    <div class="stat-label">Aumento en ventas</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">-40%</div>
+                    <div class="stat-label">Tiempo de gestión</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">+28%</div>
+                    <div class="stat-label">Ticket promedio</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">98%</div>
+                    <div class="stat-label">Satisfacción cliente</div>
+                </div>
+            </div>
+            <div class="charts-grid fade-in">
+                <div class="chart-card">
+                    <h3 class="chart-title">Crecimiento de Ventas Mensual</h3>
+                    <p class="chart-subtitle">Evolución promedio de nuestros clientes en los últimos 6 meses</p>
+                    <div class="chart-container">
+                        <canvas id="salesChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h3 class="chart-title">Distribución de Beneficios</h3>
+                    <p class="chart-subtitle">Áreas de mayor impacto</p>
+                    <div class="chart-container">
+                        <canvas id="benefitsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== CÓMO FUNCIONA ===== -->
+    <section class="section" style="background: var(--bg-soft);">
+        <div class="container">
+            <div class="section-header fade-in">
+                <span class="section-label">Proceso Simple</span>
+                <h2 class="section-title">Empezá a usarlo en <span class="gradient-text">4 simples pasos</span></h2>
+                <p class="section-subtitle">
+                    Implementación rápida y sin complicaciones. Te acompañamos en todo el proceso.
+                </p>
+            </div>
+            <div class="steps-container fade-in">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <h3 class="step-title">Contactanos</h3>
+                    <p class="step-description">
+                        Conversamos sobre tu negocio y entendemos tus necesidades específicas.
+                    </p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <h3 class="step-title">Personalización</h3>
+                    <p class="step-description">
+                        Configuramos el sistema con tu menú, branding y flujos de trabajo.
+                    </p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <h3 class="step-title">Capacitación</h3>
+                    <p class="step-description">
+                        Entrenamos a vos y a tu equipo para que dominen todas las herramientas.
+                    </p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">4</div>
+                    <h3 class="step-title">¡A Crecer!</h3>
+                    <p class="step-description">
+                        Empezá a recibir los beneficios y a ver resultados desde el primer día.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== PRECIOS ===== -->
+    <section class="section" id="precios">
+        <div class="container">
+            <div class="section-header fade-in">
+                <span class="section-label">Planes y Precios</span>
+                <h2 class="section-title">Elegí el plan <span class="gradient-text">ideal para tu negocio</span></h2>
+                <p class="section-subtitle">
+                    Planes flexibles que se adaptan al tamaño y necesidades de tu negocio. Sin costos ocultos, sin sorpresas.
+                </p>
+            </div>
+            <div class="pricing-grid fade-in">
+                <!-- PLAN BÁSICO -->
+                <div class="pricing-card">
+                    <h3 class="pricing-name">Plan Esencial</h3>
+                    <p class="pricing-description">Ideal para negocios que están comenzando su transformación digital</p>
+                    <div class="pricing-price">
+                        <span class="pricing-currency">$</span>
+                        <span class="pricing-amount">45.000</span>
+                    </div>
+                    <p class="pricing-period">por mes · IVA incluido</p>
+                    <ul class="pricing-features">
+                        <li><i class="fas fa-check-circle"></i> Gestión completa de pedidos</li>
+                        <li><i class="fas fa-check-circle"></i> Panel de administración web</li>
+                        <li><i class="fas fa-check-circle"></i> Página pública para clientes</li>
+                        <li><i class="fas fa-check-circle"></i> Carrito de compras inteligente</li>
+                        <li><i class="fas fa-check-circle"></i> Sincronización en tiempo real</li>
+                        <li><i class="fas fa-check-circle"></i> Hasta 500 pedidos/mes</li>
+                        <li><i class="fas fa-check-circle"></i> Soporte por email</li>
+                        <li class="disabled"><i class="fas fa-times-circle"></i> Pedidos por voz con IA</li>
+                        <li class="disabled"><i class="fas fa-times-circle"></i> Recomendaciones inteligentes</li>
+                        <li class="disabled"><i class="fas fa-times-circle"></i> Reportes avanzados</li>
+                    </ul>
+                    <a href="#contacto" class="btn btn-secondary">Comenzar Ahora</a>
+                </div>
+                
+                <!-- PLAN PREMIUM -->
+                <div class="pricing-card featured">
+                    <div class="pricing-badge">Más Popular</div>
+                    <h3 class="pricing-name">Plan Profesional</h3>
+                    <p class="pricing-description">Para negocios que quieren llevar su operación al siguiente nivel</p>
+                    <div class="pricing-price">
+                        <span class="pricing-currency">$</span>
+                        <span class="pricing-amount">89.000</span>
+                    </div>
+                    <p class="pricing-period">por mes · IVA incluido</p>
+                    <ul class="pricing-features">
+                        <li><i class="fas fa-check-circle"></i> <strong>Todo lo del Plan Esencial</strong></li>
+                        <li><i class="fas fa-check-circle"></i> Pedidos por voz con IA</li>
+                        <li><i class="fas fa-check-circle"></i> Recomendaciones inteligentes</li>
+                        <li><i class="fas fa-check-circle"></i> Predicción de tiempos de entrega</li>
+                        <li><i class="fas fa-check-circle"></i> Reportes y estadísticas avanzadas</li>
+                        <li><i class="fas fa-check-circle"></i> Pedidos ilimitados</li>
+                        <li><i class="fas fa-check-circle"></i> Integración con WhatsApp</li>
+                        <li><i class="fas fa-check-circle"></i> Widget de reseñas Google</li>
+                        <li><i class="fas fa-check-circle"></i> Soporte prioritario 24/7</li>
+                        <li><i class="fas fa-check-circle"></i> Capacitación personalizada</li>
+                    </ul>
+                    <a href="#contacto" class="btn btn-primary">Elegir Profesional</a>
+                </div>
+            </div>
+            
+            <!-- PLAN PERSONALIZADO -->
+            <div class="custom-plan fade-in">
+                <div class="custom-plan-content">
+                    <div class="custom-plan-icon">
+                        <i class="fas fa-cogs"></i>
+                    </div>
+                    <h3>¿Necesitás algo a medida?</h3>
+                    <p>
+                        Desarrollamos soluciones 100% personalizadas según las necesidades únicas de tu negocio. 
+                        Contanos tu idea y la hacemos realidad.
+                    </p>
+                    <div class="custom-plan-features">
+                        <div class="custom-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Funcionalidades a medida</span>
+                        </div>
+                        <div class="custom-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Integraciones especiales</span>
+                        </div>
+                        <div class="custom-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Branding personalizado</span>
+                        </div>
+                        <div class="custom-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>App móvil nativa</span>
+                        </div>
+                        <div class="custom-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Múltiples sucursales</span>
+                        </div>
+                        <div class="custom-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>API personalizada</span>
+                        </div>
+                    </div>
+                    <a href="#contacto" class="btn btn-accent btn-lg">
+                        <i class="fas fa-comments"></i> Hablemos de tu Proyecto
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FORMAS DE PAGO ===== -->
+    <section class="section payment-section">
+        <div class="container">
+            <div class="section-header fade-in">
+                <span class="section-label">Formas de Pago</span>
+                <h2 class="section-title">Pagá como te resulte <span class="gradient-text">más cómodo</span></h2>
+                <p class="section-subtitle">
+                    Múltiples opciones de pago para que puedas elegir la que mejor se adapte a tu negocio.
+                </p>
+            </div>
+            <div class="payment-grid fade-in">
+                <div class="payment-card">
+                    <div class="payment-icon"><i class="fas fa-credit-card"></i></div>
+                    <h4 class="payment-title">Tarjeta de Crédito</h4>
+                    <p class="payment-description">Hasta 12 cuotas sin interés con todas las tarjetas</p>
+                </div>
+                <div class="payment-card">
+                    <div class="payment-icon"><i class="fas fa-money-bill-wave"></i></div>
+                    <h4 class="payment-title">Transferencia Bancaria</h4>
+                    <p class="payment-description">Transferí directamente desde tu cuenta bancaria</p>
+                </div>
+                <div class="payment-card">
+                    <div class="payment-icon"><i class="fas fa-wallet"></i></div>
+                    <h4 class="payment-title">Mercado Pago</h4>
+                    <p class="payment-description">Pagá con tu cuenta de Mercado Pago o en efectivo</p>
+                </div>
+                <div class="payment-card">
+                    <div class="payment-icon"><i class="fas fa-file-invoice-dollar"></i></div>
+                    <h4 class="payment-title">Factura A o B</h4>
+                    <p class="payment-description">Emitimos factura según lo necesite tu empresa</p>
+                </div>
+            </div>
+            <div class="payment-info fade-in">
+                <h4><i class="fas fa-shield-alt" style="color: var(--success); margin-right: 8px;"></i> Transacciones 100% Seguras</h4>
+                <div class="payment-methods">
+                    <div class="payment-method"><i class="fab fa-cc-visa"></i> Visa</div>
+                    <div class="payment-method"><i class="fab fa-cc-mastercard"></i> Mastercard</div>
+                    <div class="payment-method"><i class="fab fa-cc-amex"></i> Amex</div>
+                    <div class="payment-method"><i class="fas fa-money-check"></i> Débito</div>
+                    <div class="payment-method"><i class="fas fa-qrcode"></i> QR</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== TESTIMONIOS ===== -->
+    <section class="section" id="testimonios">
+        <div class="container">
+            <div class="section-header fade-in">
+                <span class="section-label">Testimonios</span>
+                <h2 class="section-title">Lo que dicen <span class="gradient-text">nuestros clientes</span></h2>
+                <p class="section-subtitle">
+                    Negocios reales que transformaron su operación con CRM FastFood.
+                </p>
+            </div>
+            <div class="testimonials-grid fade-in">
+                <div class="testimonial-card">
+                    <div class="testimonial-quote">"</div>
+                    <div class="testimonial-stars">★★★★★</div>
+                    <p class="testimonial-text">
+                        "Desde que implementamos el sistema, nuestras ventas aumentaron un 40% en solo 3 meses. La gestión de pedidos es increíblemente fácil y nuestros clientes aman poder pedir por voz."
+                    </p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">MG</div>
+                        <div class="testimonial-info">
+                            <h5>María González</h5>
+                            <span>Dueña de Pizzería Don Mario</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-quote">"</div>
+                    <div class="testimonial-stars">★★★★★</div>
+                    <p class="testimonial-text">
+                        "El sistema de recomendaciones inteligentes aumentó nuestro ticket promedio un 28%. Es como tener un vendedor experto trabajando 24/7. La inversión se pagó sola en el primer mes."
+                    </p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">CR</div>
+                        <div class="testimonial-info">
+                            <h5>Carlos Rodríguez</h5>
+                            <span>Gerente de Rotisería Delicias</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-quote">"</div>
+                    <div class="testimonial-stars">★★★★★</div>
+                    <p class="testimonial-text">
+                        "La predicción de tiempos de entrega mejoró muchísimo la satisfacción de nuestros clientes. Ahora saben exactamente cuándo llega su pedido y eso se nota en las reseñas."
+                    </p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">LF</div>
+                        <div class="testimonial-info">
+                            <h5>Luciana Fernández</h5>
+                            <span>Propietaria de Burger House</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FAQ ===== -->
+    <section class="section" style="background: var(--bg-soft);">
+        <div class="container">
+            <div class="section-header fade-in">
+                <span class="section-label">Preguntas Frecuentes</span>
+                <h2 class="section-title">Resolvemos tus <span class="gradient-text">dudas</span></h2>
+                <p class="section-subtitle">
+                    Las respuestas a las preguntas más comunes sobre nuestro servicio.
+                </p>
+            </div>
+            <div class="faq-container fade-in">
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>¿Cuánto tiempo toma la implementación?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            La implementación estándar toma entre 5 y 7 días hábiles. Esto incluye la configuración inicial, personalización del menú, capacitación de tu equipo y pruebas finales. Para desarrollos personalizados, el tiempo varía según la complejidad del proyecto.
+                        </div>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>¿Necesito conocimientos técnicos para usarlo?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Para nada. El sistema está diseñado para ser intuitivo y fácil de usar. Además, incluimos capacitación completa para vos y tu equipo, y nuestro soporte está siempre disponible para ayudarte con cualquier consulta.
+                        </div>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>¿Puedo cambiar de plan en cualquier momento?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Sí, podés cambiar de plan cuando quieras, ya sea para subir o bajar. Los cambios se aplican en el próximo ciclo de facturación y no tiene ningún costo adicional.
+                        </div>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>¿Qué pasa si tengo varios locales?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            El sistema soporta múltiples sucursales sin problema. Cada local tiene su propia configuración pero podés ver todos los datos consolidados desde un panel central. Es ideal para cadenas o negocios con varias ubicaciones.
+                        </div>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>¿Ofrecen período de prueba?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Sí, ofrecemos 14 días de prueba gratuita para que puedas probar todas las funcionalidades sin compromiso. No requiere tarjeta de crédito y podés cancelar cuando quieras.
+                        </div>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>¿Qué tipo de soporte ofrecen?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            El Plan Esencial incluye soporte por email con respuesta en 24 horas. El Plan Profesional incluye soporte prioritario 24/7 por WhatsApp, email y teléfono, con tiempos de respuesta garantizados.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== CTA FINAL ===== -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-content">
+                <h2>¿Listo para transformar tu negocio?</h2>
+                <p>
+                    Unite a los cientos de negocios gastronómicos que ya están creciendo con CRM FastFood. 
+                    Comenzá hoy y empezá a ver resultados desde el primer día.
+                </p>
+                <div class="cta-buttons">
+                    <a href="#contacto" class="btn btn-secondary btn-lg">
+                        <i class="fas fa-rocket"></i> Comenzar Prueba Gratis
+                    </a>
+                    <a href="#contacto" class="btn btn-accent btn-lg">
+                        <i class="fas fa-calendar"></i> Agendar Demo
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== CONTACTO ===== -->
+    <section class="section" id="contacto">
+        <div class="container">
+            <div class="section-header fade-in">
+                <span class="section-label">Contacto</span>
+                <h2 class="section-title">Hablemos sobre <span class="gradient-text">tu proyecto</span></h2>
+                <p class="section-subtitle">
+                    Estamos acá para responder todas tus preguntas y ayudarte a encontrar la solución perfecta para tu negocio.
+                </p>
+            </div>
+            <div class="contact-grid fade-in">
+                <div class="contact-info">
+                    <h3>Estamos para ayudarte</h3>
+                    <p>
+                        Elegí el canal que prefieras para contactarnos. Nuestro equipo te responderá a la brevedad para asesorarte sin compromiso.
+                    </p>
+                    <div class="contact-methods">
+                        <a href="https://wa.me/5491112345678" class="contact-method">
+                            <div class="contact-method-icon" style="background: linear-gradient(135deg, #25d366, #128c7e);">
+                                <i class="fab fa-whatsapp"></i>
+                            </div>
+                            <div class="contact-method-info">
+                                <h5>WhatsApp</h5>
+                                <p>+54 9 11 1234-5678</p>
+                            </div>
+                        </a>
+                        <a href="mailto:contacto@crmfastfood.com" class="contact-method">
+                            <div class="contact-method-icon" style="background: linear-gradient(135deg, #3b82f6, #1e40af);">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="contact-method-info">
+                                <h5>Email</h5>
+                                <p>contacto@crmfastfood.com</p>
+                            </div>
+                        </a>
+                        <a href="tel:+541112345678" class="contact-method">
+                            <div class="contact-method-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <div class="contact-method-info">
+                                <h5>Teléfono</h5>
+                                <p>+54 11 1234-5678</p>
+                            </div>
+                        </a>
+                        <div class="contact-method">
+                            <div class="contact-method-icon" style="background: linear-gradient(135deg, #8b5cf6, #6d28d9);">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="contact-method-info">
+                                <h5>Horario de Atención</h5>
+                                <p>Lunes a Viernes · 9:00 a 19:00 hs</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <form class="contact-form" onsubmit="handleSubmit(event)">
+                    <div class="form-group">
+                        <label for="nombre">Nombre completo</label>
+                        <input type="text" id="nombre" required placeholder="Ej: Juan Pérez">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" required placeholder="tu@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="telefono">Teléfono</label>
+                        <input type="tel" id="telefono" placeholder="+54 9 11 1234-5678">
+                    </div>
+                    <div class="form-group">
+                        <label for="negocio">Tipo de negocio</label>
+                        <select id="negocio" required>
+                            <option value="">Seleccioná una opción</option>
+                            <option value="rotiseria">Rotisería</option>
+                            <option value="pizzeria">Pizzería</option>
+                            <option value="hamburgueseria">Hamburguesería</option>
+                            <option value="restaurante">Restaurante</option>
+                            <option value="otro">Otro</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="mensaje">Contanos sobre tu proyecto</label>
+                        <textarea id="mensaje" required placeholder="¿Qué necesitás? ¿Cuántos locales tenés?"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-paper-plane"></i> Enviar Mensaje
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="#" class="logo">
+                        <div class="logo-icon">
+                            <i class="fas fa-utensils"></i>
+                        </div>
+                        <span>CRM FastFood</span>
+                    </a>
+                    <p>
+                        La plataforma integral para negocios gastronómicos que quieren crecer, optimizar sus procesos y brindar la mejor experiencia a sus clientes.
+                    </p>
+                    <div class="footer-social">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h5>Producto</h5>
+                    <ul>
+                        <li><a href="#caracteristicas">Características</a></li>
+                        <li><a href="#precios">Precios</a></li>
+                        <li><a href="#demo">Demo</a></li>
+                        <li><a href="#">Actualizaciones</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h5>Empresa</h5>
+                    <ul>
+                        <li><a href="#">Sobre Nosotros</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Casos de Éxito</a></li>
+                        <li><a href="#contacto">Contacto</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h5>Soporte</h5>
+                    <ul>
+                        <li><a href="#">Centro de Ayuda</a></li>
+                        <li><a href="#">Documentación</a></li>
+                        <li><a href="#">Estado del Servicio</a></li>
+                        <li><a href="#">Términos y Condiciones</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 CRM FastFood. Todos los derechos reservados.</p>
+                <p>Hecho con <i class="fas fa-heart" style="color: var(--primary);"></i> en Argentina</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // ===== HEADER SCROLL =====
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // ===== MENÚ MÓVIL =====
+        function toggleMenu() {
+            document.getElementById('navMenu').classList.toggle('active');
+        }
+
+        // ===== FAQ =====
+        function toggleFaq(element) {
+            const faqItem = element.parentElement;
+            faqItem.classList.toggle('active');
+        }
+
+        // ===== ANIMACIONES DE SCROLL =====
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+        // ===== GRÁFICOS =====
+        // Gráfico de Ventas
+        const salesCtx = document.getElementById('salesChart').getContext('2d');
+        const salesGradient = salesCtx.createLinearGradient(0, 0, 0, 300);
+        salesGradient.addColorStop(0, 'rgba(96, 165, 250, 0.5)');
+        salesGradient.addColorStop(1, 'rgba(96, 165, 250, 0)');
+
+        new Chart(salesCtx, {
+            type: 'line',
+            data: {
+                labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Ventas (en miles $)',
+                    data: [450, 520, 610, 720, 850, 980],
+                    borderColor: '#60a5fa',
+                    backgroundColor: salesGradient,
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#60a5fa',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        padding: 12,
+                        cornerRadius: 8,
+                        displayColors: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: 'rgba(255, 255, 255, 0.7)',
+                            callback: value => '$' + value + 'k'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            color: 'rgba(255, 255, 255, 0.7)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Gráfico de Beneficios
+        const benefitsCtx = document.getElementById('benefitsChart').getContext('2d');
+        new Chart(benefitsCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Aumento de Ventas', 'Reducción de Tiempos', 'Satisfacción Cliente', 'Eficiencia Operativa'],
+                datasets: [{
+                    data: [35, 25, 25, 15],
+                    backgroundColor: [
+                        '#60a5fa',
+                        '#fbbf24',
+                        '#34d399',
+                        '#a78bfa'
+                    ],
+                    borderWidth: 0,
+                    hoverOffset: 10
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '65%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: 'rgba(255, 255, 255, 0.9)',
+                            padding: 15,
+                            font: {
+                                size: 11
+                            }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                        padding: 12,
+                        cornerRadius: 8,
+                        callbacks: {
+                            label: context => context.label + ': ' + context.parsed + '%'
+                        }
+                    }
+                }
+            }
+        });
+
+        // ===== FORMULARIO =====
+        function handleSubmit(event) {
+            event.preventDefault();
+            alert('¡Gracias por tu mensaje! Te contactaremos a la brevedad.');
+            event.target.reset();
+        }
+
+        // ===== SMOOTH SCROLL =====
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                const href = this.getAttribute('href');
+                if (href !== '#' && document.querySelector(href)) {
+                    e.preventDefault();
+                    document.querySelector(href).scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                    // Cerrar menú móvil si está abierto
+                    document.getElementById('navMenu').classList.remove('active');
+                }
+            });
+        });
+
+        console.log('🚀 Landing Page CRM FastFood cargada correctamente');
+    </script>
+</body>
+</html>
