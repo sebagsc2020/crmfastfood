@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    
+    <!-- 🔒 META TAGS DE SEGURIDAD -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+    <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔒 Política de Privacidad - Delicias</title>
+    
+    <!-- 📱 PWA META TAGS -->
+    <meta name="theme-color" content="#e63946">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Delicias">
+    
+    <!-- Iconos PWA -->
+    <link rel="apple-touch-icon" href="images/icon-192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="images/icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="images/icon-512.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
+    
+    <link rel="manifest" href="manifest.json">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" 
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
+          integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" 
+          crossorigin="anonymous">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #e63946;
+            --primary-dark: #c62828;
+            --primary-light: #ff6b6b;
+            --secondary: #1a1a2e;
+            --accent: #fdcb6e;
+            --accent-light: #ffeaa7;
+            --cream: #fdf6f0;
+            --text: #2d3436;
+            --text-light: #636e72;
+            --white: #ffffff;
+            --shadow: 0 20px 60px rgba(0,0,0,0.15);
+            --radius: 20px;
+            --radius-sm: 10px;
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        html { scroll-behavior: smooth; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: var(--cream); 
+            color: var(--text); 
+            overflow-x: hidden;
+            line-height: 1.7;
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--cream); }
+        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
+
+        /* ===== HEADER ===== */
+        header { 
+            background: rgba(255, 255, 255, 0.92); 
+            backdrop-filter: blur(20px); 
+            -webkit-backdrop-filter: blur(20px); 
+            box-shadow: 0 2px 20px rgba(0,0,0,0.06); 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            right: 0; 
+            z-index: 1000; 
+            padding: 0 2rem; 
+            transition: var(--transition); 
+        }
+        .header-container { 
+            max-width: 1400px; 
+            margin: 0 auto; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            height: 75px; 
+        }
+        .logo { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            font-size: 1.6rem; 
+            font-weight: 800; 
+            color: var(--primary); 
+            text-decoration: none; 
+            font-family: 'Playfair Display', serif; 
+        }
+        .logo i { 
+            font-size: 2rem; 
+            background: var(--primary); 
+            color: white; 
+            padding: 8px; 
+            border-radius: 12px; 
+        }
+        .nav-menu { 
+            display: flex; 
+            list-style: none; 
+            gap: 2.5rem; 
+            align-items: center; 
+        }
+        .nav-menu a { 
+            text-decoration: none; 
+            color: var(--text); 
+            font-weight: 500; 
+            font-size: 0.95rem; 
+            transition: var(--transition); 
+            position: relative; 
+        }
+        .nav-menu a::after { 
+            content: ''; 
+            position: absolute; 
+            bottom: -5px; 
+            left: 0; 
+            width: 0; 
+            height: 2.5px; 
+            background: var(--primary); 
+            border-radius: 10px; 
+            transition: var(--transition); 
+        }
+        .nav-menu a:hover::after, .nav-menu a.active::after { 
+            width: 100%; 
+        }
+        .nav-menu a:hover { 
+            color: var(--primary); 
+        }
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            z-index: 1001;
+        }
+        .menu-toggle span {
+            width: 25px;
+            height: 3px;
+            background: var(--secondary);
+            border-radius: 3px;
+            transition: var(--transition);
+        }
+        .menu-toggle.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+        .menu-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+        .menu-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -6px);
+        }
+
+        /* ===== HERO LEGAL ===== */
+        .legal-hero {
+            padding: 140px 2rem 60px;
+            background: linear-gradient(135deg, #fdf6f0 0%, #f8e8e0 50%, #fdf6f0 100%);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .legal-hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 70%;
+            height: 150%;
+            background: radial-gradient(circle, rgba(230, 57, 70, 0.08) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+        .legal-hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: var(--secondary);
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+        .legal-hero h1 i {
+            color: var(--primary);
+            margin-right: 10px;
+        }
+        .legal-hero .subtitle {
+            color: var(--text-light);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        .legal-hero .update-date {
+            display: inline-block;
+            margin-top: 1.5rem;
+            padding: 8px 20px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ===== CONTENIDO LEGAL ===== */
+        .legal-content {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+        .legal-section {
+            background: white;
+            border-radius: var(--radius);
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+        .legal-section:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 25px 70px rgba(230, 57, 70, 0.15);
+        }
+        .legal-section h2 {
+            font-family: 'Playfair Display', serif;
+            color: var(--secondary);
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 3px solid var(--cream);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .legal-section h2 .section-number {
+            background: var(--primary);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            font-weight: 700;
+            font-family: 'Inter', sans-serif;
+            flex-shrink: 0;
+        }
+        .legal-section h3 {
+            color: var(--primary);
+            font-size: 1.2rem;
+            margin: 1.5rem 0 0.8rem;
+            font-weight: 700;
+        }
+        .legal-section p {
+            margin-bottom: 1rem;
+            color: var(--text);
+            text-align: justify;
+        }
+        .legal-section ul, .legal-section ol {
+            margin: 1rem 0 1rem 1.5rem;
+            color: var(--text);
+        }
+        .legal-section li {
+            margin-bottom: 0.6rem;
+            line-height: 1.6;
+        }
+        .legal-section strong {
+            color: var(--secondary);
+        }
+        .legal-section .highlight-box {
+            background: linear-gradient(135deg, #fff5f5 0%, #ffe8e8 100%);
+            border-left: 4px solid var(--primary);
+            padding: 1.2rem 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+        .legal-section .highlight-box i {
+            color: var(--primary);
+            margin-right: 8px;
+        }
+        .legal-section .info-box {
+            background: linear-gradient(135deg, #e8f4fd 0%, #d0e8f7 100%);
+            border-left: 4px solid #3498db;
+            padding: 1.2rem 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+        .legal-section .info-box i {
+            color: #3498db;
+            margin-right: 8px;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .data-table th {
+            background: var(--primary);
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        .data-table td {
+            padding: 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+        .data-table tr:hover {
+            background: var(--cream);
+        }
+
+        /* ===== ÍNDICE ===== */
+        .legal-index {
+            background: white;
+            border-radius: var(--radius);
+            padding: 2rem;
+            margin-bottom: 3rem;
+            box-shadow: var(--shadow);
+            border-top: 5px solid var(--primary);
+        }
+        .legal-index h3 {
+            color: var(--secondary);
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .legal-index ol {
+            list-style: none;
+            counter-reset: section-counter;
+        }
+        .legal-index li {
+            counter-increment: section-counter;
+            margin-bottom: 0.5rem;
+        }
+        .legal-index a {
+            color: var(--text);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+        .legal-index a::before {
+            content: counter(section-counter) ".";
+            color: var(--primary);
+            font-weight: 700;
+            min-width: 30px;
+        }
+        .legal-index a:hover {
+            background: var(--cream);
+            color: var(--primary);
+            transform: translateX(5px);
+        }
+
+        /* ===== FOOTER ===== */
+        footer { 
+            background: var(--secondary); 
+            color: white; 
+            padding: 3rem 2rem 1rem; 
+            margin-top: 4rem; 
+        }
+        .footer-content { 
+            max-width: 1400px; 
+            margin: 0 auto; 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 2rem; 
+        }
+        .footer-section h4 { 
+            margin-bottom: 1rem;
+            color: var(--primary-light);
+        }
+        .footer-section p { 
+            opacity: 0.8; 
+            line-height: 1.8; 
+        }
+        .footer-section a {
+            color: white;
+            text-decoration: none;
+            opacity: 0.8;
+            transition: var(--transition);
+        }
+        .footer-section a:hover {
+            opacity: 1;
+            color: var(--primary-light);
+        }
+        .footer-bottom { 
+            text-align: center; 
+            padding-top: 2rem; 
+            margin-top: 2rem; 
+            border-top: 1px solid rgba(255,255,255,0.1); 
+        }
+        .footer-legal-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        .footer-legal-links a {
+            color: white;
+            opacity: 0.8;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        .footer-legal-links a:hover {
+            opacity: 1;
+            color: var(--primary-light);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .menu-toggle { display: flex; }
+            .nav-menu {
+                position: fixed;
+                top: 75px;
+                left: -100%;
+                width: 100%;
+                height: calc(100vh - 75px);
+                background: white;
+                flex-direction: column;
+                padding: 2rem;
+                gap: 1.5rem;
+                transition: left 0.3s ease;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            }
+            .nav-menu.active { left: 0; }
+            .nav-menu a { font-size: 1.2rem; padding: 0.5rem 0; }
+            .legal-hero h1 { font-size: 2.2rem; }
+            .legal-section { padding: 1.5rem; }
+            .legal-section h2 { font-size: 1.4rem; }
+            .footer-content { grid-template-columns: 1fr; text-align: center; }
+            .data-table { font-size: 0.9rem; }
+            .data-table th, .data-table td { padding: 8px; }
+        }
+    </style>
+</head>
+<body oncontextmenu="return false;" onselectstart="return false;">
+
+    <header id="header">
+        <div class="header-container">
+            <a href="index.html" class="logo">
+                <i class="fas fa-utensils"></i>
+                Delicias
+            </a>
+            <button class="menu-toggle" id="menuToggle" onclick="toggleMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <nav>
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="index.html">Inicio</a></li>
+                    <li><a href="index.html#menu">Menú</a></li>
+                    <li><a href="index.html#como-pedir">Cómo Pedir</a></li>
+                    <li><a href="index.html#contacto">Contacto</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section class="legal-hero">
+        <h1><i class="fas fa-shield-alt"></i> Política de Privacidad</h1>
+        <p class="subtitle">Tu privacidad es importante para nosotros. Conocé cómo protegemos tus datos</p>
+        <span class="update-date"><i class="fas fa-calendar-alt"></i> Última actualización: Junio 2026</span>
+    </section>
+
+    <div class="legal-content">
+
+        <!-- ÍNDICE -->
+        <div class="legal-index">
+            <h3><i class="fas fa-list"></i> Índice de Contenidos</h3>
+            <ol>
+                <li><a href="#seccion-1">Introducción</a></li>
+                <li><a href="#seccion-2">Responsable del Tratamiento</a></li>
+                <li><a href="#seccion-3">Datos que Recopilamos</a></li>
+                <li><a href="#seccion-4">Finalidad del Tratamiento</a></li>
+                <li><a href="#seccion-5">Base Legal para el Tratamiento</a></li>
+                <li><a href="#seccion-6">Cookies y Tecnologías Similares</a></li>
+                <li><a href="#seccion-7">Compartición de Datos</a></li>
+                <li><a href="#seccion-8">Seguridad de los Datos</a></li>
+                <li><a href="#seccion-9">Tus Derechos (ARCO)</a></li>
+                <li><a href="#seccion-10">Conservación de Datos</a></li>
+                <li><a href="#seccion-11">Menores de Edad</a></li>
+                <li><a href="#seccion-12">Modificaciones</a></li>
+                <li><a href="#seccion-13">Contacto y Autoridad de Control</a></li>
+            </ol>
+        </div>
+
+        <!-- SECCIÓN 1 -->
+        <div class="legal-section" id="seccion-1">
+            <h2><span class="section-number">1</span> Introducción</h2>
+            <p>En <strong>Delicias Rotisería</strong> (en adelante, "la Empresa"), nos comprometemos a proteger tu privacidad y tus datos personales. La presente Política de Privacidad describe cómo recopilamos, utilizamos, almacenamos y protegemos la información que nos proporcionás al utilizar nuestro sitio web, aplicación móvil y servicios.</p>
+            <p>Esta Política se rige por la <strong>Ley 25.326 de Protección de Datos Personales</strong> de la República Argentina y sus normas reglamentarias.</p>
+            <div class="info-box">
+                <p><i class="fas fa-info-circle"></i> Al utilizar nuestros servicios, aceptás las prácticas descritas en esta Política. Si no estás de acuerdo, te solicitamos no utilizar nuestra plataforma.</p>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 2 -->
+        <div class="legal-section" id="seccion-2">
+            <h2><span class="section-number">2</span> Responsable del Tratamiento</h2>
+            <p>El responsable del tratamiento de tus datos personales es:</p>
+            <ul>
+                <li><strong>Titular:</strong> Delicias Rotisería</li>
+                <li><strong>Domicilio:</strong> [Dirección del local]</li>
+                <li><strong>Email:</strong> privacidad@delicias.com.ar</li>
+                <li><strong>Teléfono:</strong> 11 1234-5678</li>
+            </ul>
+            <p>Podés contactarnos en cualquier momento para consultas relacionadas con el tratamiento de tus datos personales.</p>
+        </div>
+
+        <!-- SECCIÓN 3 -->
+        <div class="legal-section" id="seccion-3">
+            <h2><span class="section-number">3</span> Datos que Recopilamos</h2>
+            <p>Recopilamos diferentes tipos de información según la interacción que tengas con nosotros:</p>
+            
+            <h3>3.1 Datos personales que nos proporcionás</h3>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Tipo de dato</th>
+                        <th>Cuándo lo recopilamos</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Nombre completo</td>
+                        <td>Al realizar un pedido o crear una cuenta</td>
+                    </tr>
+                    <tr>
+                        <td>Teléfono</td>
+                        <td>Al realizar un pedido o crear una cuenta</td>
+                    </tr>
+                    <tr>
+                        <td>Email</td>
+                        <td>Al crear una cuenta o suscribirte al newsletter</td>
+                    </tr>
+                    <tr>
+                        <td>Dirección de entrega</td>
+                        <td>Al solicitar envío a domicilio</td>
+                    </tr>
+                    <tr>
+                        <td>Datos de pago</td>
+                        <td>Al realizar un pedido (procesados por terceros)</td>
+                    </tr>
+                    <tr>
+                        <td>Preferencias alimentarias</td>
+                        <td>Al indicar observaciones en el pedido</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>3.2 Datos recopilados automáticamente</h3>
+            <p>Cuando navegás por nuestro sitio, podemos recopilar automáticamente:</p>
+            <ul>
+                <li>Dirección IP</li>
+                <li>Tipo de navegador y sistema operativo</li>
+                <li>Páginas visitadas y tiempo de permanencia</li>
+                <li>Fecha y hora de acceso</li>
+                <li>Ubicación aproximada (con tu consentimiento)</li>
+            </ul>
+        </div>
+
+        <!-- SECCIÓN 4 -->
+        <div class="legal-section" id="seccion-4">
+            <h2><span class="section-number">4</span> Finalidad del Tratamiento</h2>
+            <p>Utilizamos tus datos personales para las siguientes finalidades:</p>
+            
+            <h3>4.1 Finalidades principales</h3>
+            <ul>
+                <li><strong>Procesar tus pedidos:</strong> Preparar, enviar y entregar los productos solicitados.</li>
+                <li><strong>Comunicación:</strong> Contactarte para confirmar pedidos, informar sobre el estado de entrega o resolver consultas.</li>
+                <li><strong>Facturación:</strong> Emitir comprobantes fiscales correspondientes.</li>
+                <li><strong>Mejora del servicio:</strong> Analizar tus preferencias para ofrecer mejores productos y experiencias.</li>
+            </ul>
+
+            <h3>4.2 Finalidades secundarias (con tu consentimiento)</h3>
+            <ul>
+                <li>Envío de promociones, ofertas y novedades.</li>
+                <li>Encuestas de satisfacción.</li>
+                <li>Programas de fidelización.</li>
+            </ul>
+            <div class="highlight-box">
+                <p><i class="fas fa-bell"></i> Podés optar por no recibir comunicaciones promocionales en cualquier momento, haciendo clic en el enlace de "cancelar suscripción" en nuestros emails o contactándonos directamente.</p>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 5 -->
+        <div class="legal-section" id="seccion-5">
+            <h2><span class="section-number">5</span> Base Legal para el Tratamiento</h2>
+            <p>Tratamos tus datos personales basándonos en las siguientes bases legales:</p>
+            <ul>
+                <li><strong>Ejecución de un contrato:</strong> Cuando es necesario para procesar tu pedido.</li>
+                <li><strong>Consentimiento:</strong> Cuando nos autorizás para finalidades específicas (ej: marketing).</li>
+                <li><strong>Obligación legal:</strong> Cuando debemos cumplir con requisitos fiscales o legales.</li>
+                <li><strong>Interés legítimo:</strong> Para mejorar nuestros servicios y garantizar la seguridad.</li>
+            </ul>
+        </div>
+
+        <!-- SECCIÓN 6 -->
+        <div class="legal-section" id="seccion-6">
+            <h2><span class="section-number">6</span> Cookies y Tecnologías Similares</h2>
+            <p>Nuestro sitio utiliza cookies y tecnologías similares para mejorar tu experiencia de navegación.</p>
+            
+            <h3>6.1 ¿Qué son las cookies?</h3>
+            <p>Las cookies son pequeños archivos de texto que se almacenan en tu dispositivo cuando visitás un sitio web.</p>
+            
+            <h3>6.2 Tipos de cookies que utilizamos</h3>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Tipo</th>
+                        <th>Finalidad</th>
+                        <th>Duración</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Esenciales</strong></td>
+                        <td>Permiten el funcionamiento básico del sitio (ej: carrito de compras)</td>
+                        <td>Sesión</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Funcionales</strong></td>
+                        <td>Recuerdan tus preferencias (idioma, región)</td>
+                        <td>1 año</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Analíticas</strong></td>
+                        <td>Nos ayudan a entender cómo usás el sitio</td>
+                        <td>2 años</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Marketing</strong></td>
+                        <td>Personalizan anuncios según tus intereses</td>
+                        <td>1 año</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>6.3 Gestión de cookies</h3>
+            <p>Podés configurar tu navegador para rechazar cookies o eliminar las existentes. Sin embargo, esto podría afectar el funcionamiento de algunas características del sitio.</p>
+        </div>
+
+        <!-- SECCIÓN 7 -->
+        <div class="legal-section" id="seccion-7">
+            <h2><span class="section-number">7</span> Compartición de Datos</h2>
+            <p>No vendemos ni alquilamos tus datos personales a terceros. Sin embargo, podemos compartirlos en las siguientes circunstancias:</p>
+            
+            <h3>7.1 Proveedores de servicios</h3>
+            <p>Compartimos datos con terceros que nos ayudan a operar nuestro negocio:</p>
+            <ul>
+                <li><strong>Pasarelas de pago:</strong> Mercado Pago para procesar transacciones.</li>
+                <li><strong>Servicios de hosting:</strong> Para alojar nuestro sitio web.</li>
+                <li><strong>Servicios de delivery:</strong> Repartidores para realizar entregas.</li>
+            </ul>
+            <p>Todos nuestros proveedores están obligados contractualmente a proteger tus datos y utilizarlos únicamente para los fines especificados.</p>
+
+            <h3>7.2 Obligaciones legales</h3>
+            <p>Podemos divulgar tus datos cuando sea requerido por ley, orden judicial o autoridad competente.</p>
+
+            <h3>7.3 Transferencias internacionales</h3>
+            <p>Algunos de nuestros proveedores pueden encontrarse en países fuera de Argentina. En estos casos, nos aseguramos de que existan garantías adecuadas para la protección de tus datos.</p>
+        </div>
+
+        <!-- SECCIÓN 8 -->
+        <div class="legal-section" id="seccion-8">
+            <h2><span class="section-number">8</span> Seguridad de los Datos</h2>
+            <p>Implementamos medidas técnicas y organizativas apropiadas para proteger tus datos personales contra:</p>
+            <ul>
+                <li>Acceso no autorizado</li>
+                <li>Alteración, divulgación o destrucción</li>
+                <li>Pérdida accidental o ilícita</li>
+            </ul>
+            <p>Entre las medidas de seguridad que utilizamos se encuentran:</p>
+            <ul>
+                <li><strong>Cifrado SSL/TLS:</strong> Para proteger la transmisión de datos.</li>
+                <li><strong>Acceso restringido:</strong> Solo personal autorizado puede acceder a tus datos.</li>
+                <li><strong>Monitoreo continuo:</strong> Detectamos y prevenimos posibles amenazas.</li>
+                <li><strong>Copias de seguridad:</strong> Realizamos respaldos periódicos de la información.</li>
+            </ul>
+            <div class="highlight-box">
+                <p><i class="fas fa-lock"></i> Aunque implementamos medidas de seguridad robustas, ningún sistema es 100% seguro. Te recomendamos mantener la confidencialidad de tus credenciales de acceso.</p>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 9 -->
+        <div class="legal-section" id="seccion-9">
+            <h2><span class="section-number">9</span> Tus Derechos (ARCO)</h2>
+            <p>De acuerdo con la Ley 25.326, tenés los siguientes derechos sobre tus datos personales:</p>
+            
+            <h3>9.1 Derecho de Acceso</h3>
+            <p>Podés solicitar información sobre qué datos personales tuyos estamos tratando.</p>
+
+            <h3>9.2 Derecho de Rectificación</h3>
+            <p>Podés solicitar la corrección de datos inexactos o incompletos.</p>
+
+            <h3>9.3 Derecho de Cancelación (Supresión)</h3>
+            <p>Podés solicitar la eliminación de tus datos cuando:</p>
+            <ul>
+                <li>Ya no sean necesarios para los fines para los que fueron recopilados.</li>
+                <li>Retires tu consentimiento.</li>
+                <li>Te opongas al tratamiento.</li>
+            </ul>
+
+            <h3>9.4 Derecho de Oposición</h3>
+            <p>Podés oponerte al tratamiento de tus datos para finalidades específicas, como el envío de publicidad.</p>
+
+            <h3>9.5 Cómo ejercer tus derechos</h3>
+            <p>Para ejercer cualquiera de estos derechos, podés:</p>
+            <ul>
+                <li>Enviar un email a: <strong>privacidad@delicias.com.ar</strong></li>
+                <li>Llamar al: <strong>11 1234-5678</strong></li>
+                <li>Completar el formulario disponible en nuestro local</li>
+            </ul>
+            <p>Responderemos a tu solicitud en un plazo máximo de <strong>10 días hábiles</strong>.</p>
+            <div class="info-box">
+                <p><i class="fas fa-id-card"></i> Para procesar tu solicitud, podremos solicitarte una copia de tu DNI u otro documento que acredite tu identidad.</p>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 10 -->
+        <div class="legal-section" id="seccion-10">
+            <h2><span class="section-number">10</span> Conservación de Datos</h2>
+            <p>Conservamos tus datos personales únicamente durante el tiempo necesario para cumplir con las finalidades para las que fueron recopilados:</p>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Tipo de dato</th>
+                        <th>Período de conservación</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Datos de cuenta</td>
+                        <td>Mientras la cuenta esté activa + 2 años</td>
+                    </tr>
+                    <tr>
+                        <td>Historial de pedidos</td>
+                        <td>5 años (obligación fiscal)</td>
+                    </tr>
+                    <tr>
+                        <td>Datos de facturación</td>
+                        <td>10 años (AFIP)</td>
+                    </tr>
+                    <tr>
+                        <td>Datos de marketing</td>
+                        <td>Hasta que retires tu consentimiento</td>
+                    </tr>
+                    <tr>
+                        <td>Cookies</td>
+                        <td>Según el tipo (ver sección 6)</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p>Una vez transcurrido el período de conservación, los datos serán eliminados o anonimizados de forma segura.</p>
+        </div>
+
+        <!-- SECCIÓN 11 -->
+        <div class="legal-section" id="seccion-11">
+            <h2><span class="section-number">11</span> Menores de Edad</h2>
+            <p>Nuestros servicios están dirigidos a personas mayores de 18 años. <strong>No recopilamos intencionalmente datos personales de menores de edad</strong>.</p>
+            <p>Si tomás conocimiento de que un menor ha proporcionado datos personales a través de nuestra plataforma, te solicitamos contactarnos inmediatamente para proceder a su eliminación.</p>
+        </div>
+
+        <!-- SECCIÓN 12 -->
+        <div class="legal-section" id="seccion-12">
+            <h2><span class="section-number">12</span> Modificaciones</h2>
+            <p>Nos reservamos el derecho de actualizar o modificar esta Política de Privacidad en cualquier momento. Las modificaciones entrarán en vigencia a partir de su publicación en nuestro sitio web.</p>
+            <p>Te recomendamos revisar periódicamente esta Política para estar informado sobre cómo protegemos tu información.</p>
+            <div class="highlight-box">
+                <p><i class="fas fa-bell"></i> En caso de cambios significativos, te notificaremos a través de un aviso visible en nuestro sitio o por email (si tenés una cuenta registrada).</p>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 13 -->
+        <div class="legal-section" id="seccion-13">
+            <h2><span class="section-number">13</span> Contacto y Autoridad de Control</h2>
+            
+            <h3>13.1 Contacto</h3>
+            <p>Si tenés preguntas, dudas o reclamaciones sobre esta Política de Privacidad o el tratamiento de tus datos, podés contactarnos:</p>
+            <ul>
+                <li><i class="fas fa-envelope" style="color: var(--primary);"></i> <strong>Email:</strong> privacidad@delicias.com.ar</li>
+                <li><i class="fas fa-phone" style="color: var(--primary);"></i> <strong>Teléfono:</strong> 11 1234-5678</li>
+                <li><i class="fab fa-whatsapp" style="color: var(--primary);"></i> <strong>WhatsApp:</strong> 11 9876-5432</li>
+                <li><i class="fas fa-map-marker-alt" style="color: var(--primary);"></i> <strong>Dirección:</strong> [Dirección del local]</li>
+            </ul>
+
+            <h3>13.2 Autoridad de Control</h3>
+            <p>La <strong>Agencia de Acceso a la Información Pública</strong> es la autoridad de aplicación de la Ley 25.326 en la República Argentina. Si considerás que hemos vulnerado tus derechos en materia de protección de datos, podés presentar una reclamación ante:</p>
+            <div class="info-box">
+                <p><strong>Agencia de Acceso a la Información Pública</strong><br>
+                Sitio web: <a href="https://www.argentina.gob.ar/aaip" target="_blank" style="color: #3498db;">www.argentina.gob.ar/aaip</a><br>
+                Dirección: Austria 200, Piso 3°, CABA<br>
+                Tel: 0800-345-1234</p>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4><i class="fas fa-utensils"></i> Delicias</h4>
+                <p>Sabores que enamoran desde 2020</p>
+            </div>
+            <div class="footer-section">
+                <h4>Contacto</h4>
+                <p><i class="fas fa-phone"></i> 11 1234-5678</p>
+                <p><i class="fab fa-whatsapp"></i> 11 9876-5432</p>
+            </div>
+            <div class="footer-section">
+                <h4>Horarios</h4>
+                <p>Lun - Dom: 18:00 - 00:00</p>
+            </div>
+        </div>
+        <div class="footer-legal-links">
+            <a href="terminos.html">Términos y Condiciones</a>
+            <a href="privacidad.html">Política de Privacidad</a>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Delicias Rotisería - Todos los derechos reservados</p>
+        </div>
+    </footer>
+
+    <script>
+        function toggleMenu() {
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.getElementById('navMenu');
+            menuToggle.classList.toggle('active');
+            navMenu.classList.toggle('active');
+        }
+
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            return false;
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.keyCode === 123 || 
+                (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) ||
+                (e.ctrlKey && (e.keyCode === 85 || e.keyCode === 83 || e.keyCode === 80))) {
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        document.addEventListener('selectstart', function(e) {
+            e.preventDefault();
+            return false;
+        });
+
+        document.addEventListener('dragstart', function(e) {
+            e.preventDefault();
+            return false;
+        });
+    </script>
+</body>
+</html>
