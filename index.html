@@ -12,6 +12,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🍕 Rotisería+Delicias - Sabores que enamoran</title>
     
+    <!-- 📱 PWA META TAGS -->
+    <meta name="theme-color" content="#e63946">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Delicias">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Delicias">
+    <meta name="msapplication-TileColor" content="#e63946">
+    <meta name="msapplication-tap-highlight" content="no">
+    
+    <!-- Iconos PWA (en carpeta images/) -->
+    <link rel="apple-touch-icon" href="images/icon-192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="images/icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="images/icon-512.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
+    
+    <!-- Manifest PWA -->
+    <link rel="manifest" href="manifest.json">
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -1006,6 +1026,133 @@
             margin-top: 0.5rem;
         }
 
+        /* ===== BOTÓN INSTALAR APP ===== */
+        .install-app-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 50px;
+            box-shadow: 0 8px 25px rgba(230, 57, 70, 0.4);
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            z-index: 1400;
+            transition: all 0.3s ease;
+            border: none;
+            animation: pulseInstall 2s infinite;
+        }
+
+        .install-app-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(230, 57, 70, 0.5);
+        }
+
+        .install-app-btn.show {
+            display: flex;
+        }
+
+        .install-app-btn i {
+            font-size: 1.2rem;
+        }
+
+        @keyframes pulseInstall {
+            0%, 100% { box-shadow: 0 8px 25px rgba(230, 57, 70, 0.4); }
+            50% { box-shadow: 0 8px 35px rgba(230, 57, 70, 0.6); }
+        }
+
+        /* ===== MODAL INSTRUCCIONES INSTALACIÓN ===== */
+        .install-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 4000;
+            animation: fadeIn 0.3s;
+        }
+
+        .install-modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .install-modal-content {
+            background: white;
+            border-radius: var(--radius);
+            max-width: 500px;
+            width: 90%;
+            padding: 2rem;
+            animation: slideUp 0.3s;
+            text-align: center;
+        }
+
+        .install-modal-content h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .install-modal-content p {
+            color: var(--text);
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .install-instructions {
+            text-align: left;
+            background: var(--cream);
+            padding: 1.5rem;
+            border-radius: var(--radius-sm);
+            margin-bottom: 1.5rem;
+        }
+
+        .install-instructions h4 {
+            color: var(--secondary);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .install-instructions ol {
+            padding-left: 1.5rem;
+            color: var(--text);
+        }
+
+        .install-instructions li {
+            margin-bottom: 0.8rem;
+            line-height: 1.5;
+        }
+
+        .install-instructions i {
+            color: var(--primary);
+            margin-right: 8px;
+        }
+
+        .close-install-modal {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .close-install-modal:hover {
+            background: var(--primary-dark);
+            transform: scale(1.05);
+        }
+
         /* ===== RESPONSIVE DESIGN ===== */
         @media (max-width: 1024px) {
             .hero-text h1 { font-size: 3.5rem; }
@@ -1132,6 +1279,14 @@
                 left: 10px;
                 max-width: none;
             }
+
+            /* Install button */
+            .install-app-btn {
+                bottom: 15px;
+                left: 15px;
+                padding: 10px 16px;
+                font-size: 0.85rem;
+            }
         }
 
         @media (max-width: 480px) {
@@ -1223,7 +1378,7 @@
                 <div class="floating-badge" style="bottom: 15%; left: -10%;">
                     <span class="icon">🏆</span>
                     <div>
-                        <div class="text">+1000</div>
+                        <div class="text">+15.000</div>
                         <div class="sub">Pedidos entregados</div>
                     </div>
                 </div>
@@ -1377,6 +1532,43 @@
         </div>
     </div>
 
+    <!-- 📱 MODAL INSTRUCCIONES INSTALACIÓN -->
+    <div class="install-modal" id="installModal">
+        <div class="install-modal-content">
+            <h3><i class="fas fa-mobile-alt"></i> Instalar como App</h3>
+            <p>¡Llevá Delicias en tu teléfono! Accedé rápidamente sin abrir el navegador.</p>
+            
+            <div class="install-instructions" id="iosInstructions" style="display: none;">
+                <h4><i class="fab fa-apple"></i> En iPhone/iPad:</h4>
+                <ol>
+                    <li>Tocá el botón <strong>Compartir</strong> <i class="fas fa-share-alt"></i></li>
+                    <li>Desplazate hacia abajo y tocá <strong>"Agregar a pantalla de inicio"</strong></li>
+                    <li>Tocá <strong>"Agregar"</strong> en la esquina superior derecha</li>
+                </ol>
+            </div>
+            
+            <div class="install-instructions" id="androidInstructions" style="display: none;">
+                <h4><i class="fab fa-android"></i> En Android:</h4>
+                <ol>
+                    <li>Tocá el menú de tres puntos <i class="fas fa-ellipsis-v"></i> (arriba a la derecha)</li>
+                    <li>Seleccioná <strong>"Instalar aplicación"</strong> o <strong>"Agregar a pantalla principal"</strong></li>
+                    <li>Confirmá tocando <strong>"Instalar"</strong></li>
+                </ol>
+            </div>
+            
+            <div class="install-instructions" id="desktopInstructions" style="display: none;">
+                <h4><i class="fas fa-desktop"></i> En computadora:</h4>
+                <ol>
+                    <li>Hacé clic en el ícono de instalación <i class="fas fa-download"></i> en la barra de direcciones</li>
+                    <li>O andá al menú del navegador <i class="fas fa-ellipsis-v"></i></li>
+                    <li>Seleccioná <strong>"Instalar Delicias"</strong> o <strong>"Crear acceso directo"</strong></li>
+                </ol>
+            </div>
+            
+            <button class="close-install-modal" onclick="closeInstallModal()">Entendido</button>
+        </div>
+    </div>
+
     <section id="como-pedir" class="how-to-order">
         <h2>📱 ¿Cómo pedir?</h2>
         <div class="steps">
@@ -1418,6 +1610,12 @@
             <p>&copy; 2026 Delicias Rotisería - Todos los derechos reservados</p>
         </div>
     </footer>
+
+    <!-- 📱 BOTÓN INSTALAR APP -->
+    <button class="install-app-btn" id="installBtn" onclick="showInstallInstructions()">
+        <i class="fas fa-download"></i>
+        <span>Instalar App</span>
+    </button>
 
     <script src="js/main.js"></script>
 
@@ -1505,6 +1703,88 @@
         document.addEventListener('dragstart', function(e) {
             e.preventDefault();
             return false;
+        });
+
+        // ===== 📱 PWA - INSTALAR COMO APP =====
+        
+        let deferredPrompt;
+        const installBtn = document.getElementById('installBtn');
+
+        // Detectar si ya está instalada
+        window.addEventListener('load', () => {
+            if (window.matchMedia('(display-mode: standalone)').matches) {
+                console.log('📱 App ya está instalada');
+                installBtn.style.display = 'none';
+            } else {
+                // Mostrar botón después de 3 segundos
+                setTimeout(() => {
+                    installBtn.classList.add('show');
+                }, 3000);
+            }
+        });
+
+        // Capturar evento beforeinstallprompt (Chrome/Edge/Android)
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtn.classList.add('show');
+        });
+
+        // Mostrar instrucciones según el dispositivo
+        function showInstallInstructions() {
+            const modal = document.getElementById('installModal');
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            const isAndroid = /Android/.test(navigator.userAgent);
+            const isDesktop = !isIOS && !isAndroid;
+
+            // Ocultar todas las instrucciones
+            document.getElementById('iosInstructions').style.display = 'none';
+            document.getElementById('androidInstructions').style.display = 'none';
+            document.getElementById('desktopInstructions').style.display = 'none';
+
+            // Mostrar instrucciones según dispositivo
+            if (isIOS) {
+                document.getElementById('iosInstructions').style.display = 'block';
+            } else if (isAndroid) {
+                document.getElementById('androidInstructions').style.display = 'block';
+                
+                // Si hay prompt disponible, mostrarlo directamente
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    deferredPrompt.userChoice.then((choiceResult) => {
+                        if (choiceResult.outcome === 'accepted') {
+                            console.log('✅ Usuario aceptó la instalación');
+                            installBtn.style.display = 'none';
+                        }
+                        deferredPrompt = null;
+                    });
+                    return;
+                }
+            } else {
+                document.getElementById('desktopInstructions').style.display = 'block';
+            }
+
+            modal.classList.add('active');
+        }
+
+        // Cerrar modal de instalación
+        function closeInstallModal() {
+            const modal = document.getElementById('installModal');
+            modal.classList.remove('active');
+        }
+
+        // Cerrar modal al hacer clic fuera
+        document.getElementById('installModal').addEventListener('click', (e) => {
+            if (e.target.id === 'installModal') {
+                closeInstallModal();
+            }
+        });
+
+        // Detectar cuando la app se instala exitosamente
+        window.addEventListener('appinstalled', () => {
+            console.log('✅ PWA instalada exitosamente');
+            installBtn.style.display = 'none';
+            deferredPrompt = null;
         });
 
         console.log('🚀 Página cargada correctamente');
