@@ -2,7 +2,7 @@
   "name": "Rotisería Delicias",
   "short_name": "Delicias",
   "description": "Las mejores empanadas, pizzas, lomitos y hamburguesas",
-  "start_url": "/",
+  "start_url": "crmfastfood/",
   "display": "standalone",
   "background_color": "#fdf6f0",
   "theme_color": "#e63946",
