@@ -10,7 +10,7 @@
     <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()">
     
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🍕 Rotisería Delicias - Sabores que enamoran</title>
+    <title>🍕 Rotisería+Delicias - Sabores que enamoran</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1158,7 +1158,7 @@
         }
     </style>
 </head>
-<body>
+<body oncontextmenu="return false;" onselectstart="return false;">
 
     <header id="header">
         <div class="header-container">
@@ -1446,6 +1446,65 @@
             } else {
                 header.classList.remove('scrolled');
             }
+        });
+
+        // ===== 🔒 PROTECCIÓN DE CÓDIGO =====
+        
+        // Deshabilitar clic derecho
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            return false;
+        });
+
+        // Deshabilitar teclas de desarrollador
+        document.addEventListener('keydown', function(e) {
+            // F12
+            if (e.keyCode === 123) {
+                e.preventDefault();
+                return false;
+            }
+            // Ctrl+Shift+I (Inspector)
+            if (e.ctrlKey && e.shiftKey && e.keyCode === 73) {
+                e.preventDefault();
+                return false;
+            }
+            // Ctrl+Shift+J (Consola)
+            if (e.ctrlKey && e.shiftKey && e.keyCode === 74) {
+                e.preventDefault();
+                return false;
+            }
+            // Ctrl+Shift+C (Seleccionar elemento)
+            if (e.ctrlKey && e.shiftKey && e.keyCode === 67) {
+                e.preventDefault();
+                return false;
+            }
+            // Ctrl+U (Ver código fuente)
+            if (e.ctrlKey && e.keyCode === 85) {
+                e.preventDefault();
+                return false;
+            }
+            // Ctrl+S (Guardar)
+            if (e.ctrlKey && e.keyCode === 83) {
+                e.preventDefault();
+                return false;
+            }
+            // Ctrl+P (Imprimir)
+            if (e.ctrlKey && e.keyCode === 80) {
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        // Deshabilitar selección de texto (opcional)
+        document.addEventListener('selectstart', function(e) {
+            e.preventDefault();
+            return false;
+        });
+
+        // Deshabilitar arrastrar imágenes
+        document.addEventListener('dragstart', function(e) {
+            e.preventDefault();
+            return false;
         });
 
         console.log('🚀 Página cargada correctamente');
