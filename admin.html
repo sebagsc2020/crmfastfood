@@ -15,6 +15,35 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
     <style>
+        /* ===== MEDIDAS DE SEGURIDAD ===== */
+        /* Deshabilitar selección de texto en toda la página */
+        * {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        
+        /* Permitir selección solo en inputs y textareas */
+        input, textarea, select, [contenteditable="true"] {
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
+        }
+        
+        /* Deshabilitar arrastre de imágenes y elementos */
+        img, a, [draggable="true"] {
+            -webkit-user-drag: none;
+            user-drag: none;
+            -webkit-touch-callout: none;
+        }
+        
+        /* Prevenir selección de texto al hacer doble clic */
+        body {
+            -webkit-tap-highlight-color: transparent;
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --primary: #e63946;
@@ -82,7 +111,6 @@
         .sidebar .logout-section { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.06); }
         .sidebar .logout-btn { color: rgba(255,255,255,0.5); }
 
-        /* BOTÓN HAMBURGUESA (solo visible en móvil) */
         .menu-toggle {
             display: none;
             position: fixed;
@@ -100,7 +128,6 @@
             box-shadow: 0 4px 12px rgba(230, 57, 70, 0.3);
         }
 
-        /* OVERLAY para cerrar sidebar en móvil */
         .sidebar-overlay {
             display: none;
             position: fixed;
@@ -304,14 +331,12 @@
             width: 100%;
         }
 
-        /* MEDIA QUERIES RESPONSIVE */
         @media (max-width: 1200px) { 
             .board-columns { grid-template-columns: repeat(2, 1fr); } 
             .stats-grid { grid-template-columns: repeat(2, 1fr); } 
             .stats-charts-grid { grid-template-columns: 1fr; } 
         }
         
-        /* MÓVIL - Cambios principales */
         @media (max-width: 768px) { 
             .menu-toggle {
                 display: flex;
@@ -421,7 +446,6 @@
             }
         }
         
-        /* Móviles muy pequeños */
         @media (max-width: 480px) {
             .stats-grid {
                 grid-template-columns: 1fr 1fr;
@@ -464,12 +488,12 @@
 </head>
 <body>
 
-    <!-- BOTÓN HAMBURGUESA (solo visible en móvil) -->
+    <!-- BOTÓN HAMBURGUESA -->
     <button class="menu-toggle" id="menuToggle" onclick="toggleSidebar()">
         <i class="fas fa-bars"></i>
     </button>
 
-    <!-- OVERLAY para cerrar sidebar -->
+    <!-- OVERLAY -->
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
     <!-- ===== LOGIN ===== -->
@@ -748,6 +772,136 @@
     <script src="js/google-sheets.js"></script>
     
     <script>
+        // ===== MEDIDAS DE SEGURIDAD =====
+        // 1. Deshabilitar clic derecho
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            return false;
+        });
+
+        // 2. Deshabilitar teclas de desarrollo
+        document.addEventListener('keydown', function(e) {
+            // F12 - Herramientas de desarrollador
+            if (e.key === 'F12') {
+                e.preventDefault();
+                return false;
+            }
+            
+            // Ctrl+Shift+I (Inspeccionar)
+            // Ctrl+Shift+J (Consola)
+            // Ctrl+U (Ver código fuente)
+            if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j')) {
+                e.preventDefault();
+                return false;
+            }
+            
+            // Ctrl+U - Ver código fuente
+            if (e.ctrlKey && (e.key === 'u' || e.key === 'U')) {
+                e.preventDefault();
+                return false;
+            }
+            
+            // Ctrl+S - Guardar página
+            if (e.ctrlKey && (e.key === 's' || e.key === 'S')) {
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        // 3. Deshabilitar selección de texto con atajos
+        document.addEventListener('selectstart', function(e) {
+            // Permitir selección solo en inputs y textareas
+            if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA' && e.target.tagName !== 'SELECT') {
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        // 4. Deshabilitar arrastre de elementos
+        document.addEventListener('dragstart', function(e) {
+            e.preventDefault();
+            return false;
+        });
+
+        // 5. Deshabilitar copia/pegar en áreas no permitidas
+        document.addEventListener('copy', function(e) {
+            if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+                e.preventDefault();
+                showNotification('No está permitido copiar contenido', 'warning');
+                return false;
+            }
+        });
+
+        document.addEventListener('cut', function(e) {
+            if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+                e.preventDefault();
+                showNotification('No está permitido cortar contenido', 'warning');
+                return false;
+            }
+        });
+
+        document.addEventListener('paste', function(e) {
+            if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+                e.preventDefault();
+                showNotification('No está permitido pegar contenido aquí', 'warning');
+                return false;
+            }
+        });
+
+        // 6. Bloquear acceso a la consola con función falsa
+        console.log = function() { return false; };
+        console.warn = function() { return false; };
+        console.error = function() { return false; };
+        console.info = function() { return false; };
+        console.debug = function() { return false; };
+
+        // 7. Deshabilitar devtools con una función de debugger
+        function blockDevTools() {
+            const element = new Image();
+            Object.defineProperty(element, 'id', {
+                get: function() {
+                    throw new Error('DevTools bloqueado');
+                }
+            });
+            requestAnimationFrame(blockDevTools);
+        }
+        
+        // Iniciar bloqueo de DevTools con retraso
+        setTimeout(blockDevTools, 1000);
+
+        // 8. Prevenir apertura de devtools con combinaciones de teclas adicionales
+        document.addEventListener('keydown', function(e) {
+            // Ctrl+Shift+C (Inspeccionar elemento)
+            if (e.ctrlKey && e.shiftKey && (e.key === 'C' || e.key === 'c')) {
+                e.preventDefault();
+                return false;
+            }
+            
+            // Ctrl+Shift+M (Vista responsiva)
+            if (e.ctrlKey && e.shiftKey && (e.key === 'M' || e.key === 'm')) {
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        // 9. Prevenir doble clic de selección
+        document.addEventListener('dblclick', function(e) {
+            if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA' && e.target.tagName !== 'SELECT') {
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        // 10. Deshabilitar el menú contextual de imágenes específicamente
+        document.addEventListener('contextmenu', function(e) {
+            if (e.target.tagName === 'IMG') {
+                e.preventDefault();
+                return false;
+            }
+        }, true);
+
+        // FIN DE MEDIDAS DE SEGURIDAD
+
         let orders = [];
         let deliverers = [];
         let menuItems = [];
@@ -762,7 +916,6 @@
 
         document.getElementById('currentDate').textContent = new Date().toLocaleDateString('es-AR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-        // FUNCION PARA TOGGLE SIDEBAR EN MÓVIL
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebarOverlay');
@@ -815,7 +968,6 @@
                 if (this.dataset.tab === 'menu') renderMenuAdmin();
                 if (this.dataset.tab === 'stats') updateStats();
                 
-                // Cerrar sidebar en móvil al cambiar de tab
                 if (window.innerWidth <= 768) {
                     toggleSidebar();
                 }
@@ -1075,7 +1227,6 @@
             }
         }
 
-        // WHATSAPP CON MENSAJE EN ASCII (SOLUCION 1)
         function contactCustomer(id) {
             console.log('Intentando contactar cliente con ID:', id);
             
@@ -1087,7 +1238,6 @@
                 return;
             }
 
-            // Limpiar y formatear teléfono
             let rawPhone = String(order.telefono || '').replace(/\D/g, '');
             
             if (!rawPhone || rawPhone.length === 0) {
@@ -1108,7 +1258,6 @@
                 return;
             }
 
-            // FORMATO DE FECHA
             const fecha = new Date(order.fecha);
             const fechaFormateada = fecha.toLocaleDateString('es-AR', { 
                 day: '2-digit', month: '2-digit', year: 'numeric' 
@@ -1116,7 +1265,6 @@
                 hour: '2-digit', minute: '2-digit' 
             });
 
-            // ESTADOS CON TEXTO ASCII
             const estadoLabels = {
                 'pendiente': '[PENDIENTE]',
                 'en-preparacion': '[EN PREPARACION]',
@@ -1126,7 +1274,6 @@
             };
             const estadoTexto = estadoLabels[order.estado] || `[${order.estado.toUpperCase()}]`;
 
-            // METODOS DE PAGO
             const pagoLabels = {
                 'efectivo': 'Efectivo',
                 'debito': 'Debito',
@@ -1136,7 +1283,6 @@
             };
             const pagoTexto = pagoLabels[(order.pago || '').toLowerCase()] || order.pago || 'Efectivo';
 
-            // MENSAJE CON SIMBOLOS ASCII
             let msg = `*DELICIAS ROTISERIA*\n`;
             msg += `========================================\n\n`;
             msg += `*DETALLE DE TU PEDIDO*\n\n`;
